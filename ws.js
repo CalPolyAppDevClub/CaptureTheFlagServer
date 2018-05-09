@@ -3,15 +3,6 @@ const Events = require('events');
 const Message = require('./message');
 const Game = require('./game')
 
-const wss = new WebSocket.Server({ port: 8000 });
-let game = new Game()
-game.addPlayer(0, 'bob');
-game.addPlayer(1, 'Smith');
-game.updateLocation(0, '36.354656', 57.46738);
-game.updateLocation(1, 34.354563, 57.45676)
-game.tagPlayer(1, 0)
-
-
 function Client(ws) {
     this.ws = ws;
     this.game;

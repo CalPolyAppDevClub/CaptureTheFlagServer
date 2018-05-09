@@ -1,0 +1,16 @@
+{
+  "name": "capturetheflagserverr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ws.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ws.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "geolib": "^2.0.24",
+    "ws": "^5.1.1"
+  }
+}
