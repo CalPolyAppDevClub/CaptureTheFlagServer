@@ -4,7 +4,7 @@ const Message = require('./message');
 const Game = require('./game')
 
 const PORT = process.env.PORT || 8000;
-console.log('LISTENING TO ' + port)
+console.log('LISTENING TO ' + PORT)
 
 const wss = new WebSocket.Server({port: PORT});
 
