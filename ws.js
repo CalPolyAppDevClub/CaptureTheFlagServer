@@ -3,6 +3,11 @@ const Events = require('events');
 const Message = require('./message');
 const Game = require('./game')
 
+const PORT = process.env.PORT || 8000;
+console.log('LISTENING TO ' + port)
+
+const wss = new WebSocket.Server({port: PORT});
+
 function Client(ws) {
     this.ws = ws;
     this.game;
@@ -15,7 +20,7 @@ Client.prototype.send = function(message) {
 let numberOfClients = 0;
 let clients = {};
 
-let games = {};
+let games = {}; 
 
 var possibleCommands = {
     'printClients': printClients,
