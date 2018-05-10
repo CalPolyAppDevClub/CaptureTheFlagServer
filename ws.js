@@ -44,7 +44,8 @@ var possibleCommands = {
     'printGames' : printGames,
     'printPlayers' : printPlayers,
     'updateLocation' : updateLocation,
-    'tagPlayer' : tagPlayer
+    'tagPlayer' : tagPlayer,
+    'getPlayerInfo' : getPlayerInfo
 };
 
 wss.on('connection', function connection(ws, req) {
@@ -153,6 +154,13 @@ function createGame(json, id) {
     var game = new Game(gameName);
     games[gameKey] = game;
     clients[id].send(new Message('createGameAttempted', {}))
+}
+
+function getPlayerInfo(json, id) {
+    if (clients[id].game === undefined) {
+        return;
+    }
+    clients[id].send(new Message('playerInfo', clients[id].game.players[id]));
 }
 
 
