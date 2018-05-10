@@ -102,7 +102,7 @@ function updateLocation(json, id) {
 
 function tagPlayer(json, id) {
     let playerToTag = json.playerToTagId
-    if (checkUndifined(gameKey)) {
+    if (checkUndifined(playerToTag)) {
         clients[id].send(new Message('playerTagAttempted', {}, 'invalid data'));
     }
     var playerTagged = clients[id].game.tagPlayer(playerToTag, id)
