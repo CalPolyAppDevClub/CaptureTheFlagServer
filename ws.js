@@ -7,16 +7,18 @@ const http = require('http');
 const express = require('express');
 let app = express();
 
+const PORT = process.env.PORT || 8000;
+console.log('LISTENING TO ' + PORT)
+
 app.use(express.static(__dirname + "/"));
 
 var server = http.createServer(app)
-server.listen(port)
+server.listen(PORT)
 
-console.log("http server listening on %d", port)
+console.log("http server listening on %d", PORT)
 
 
-const PORT = process.env.PORT || 8000;
-console.log('LISTENING TO ' + PORT)
+
 
 var wss = new WebSocketServer({server: server})
 console.log("websocket server created")
