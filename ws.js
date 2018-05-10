@@ -104,6 +104,10 @@ function tagPlayer(json, id) {
     let playerToTag = json.playerToTagId
     if (checkUndifined(playerToTag)) {
         clients[id].send(new Message('playerTagAttempted', {}, 'invalid data'));
+        return
+    }
+    if (clients[id].game === undefined) {
+        return;
     }
     var playerTagged = clients[id].game.tagPlayer(playerToTag, id)
     if (playerTagged) {
