@@ -160,7 +160,12 @@ function getPlayerInfo(json, id) {
     if (clients[id].game === undefined) {
         return;
     }
-    clients[id].send(new Message('playerInfo', clients[id].game.players[id]));
+    let player = clients[id].game.players[id];
+    let playerWithStringValues = {};
+    for (key in Object.keys(player)) {
+        playerWithStringValues.key = '' + player.key;
+    }
+    clients[id].send(new Message('playerInfo', playerWithStringValues));
 }
 
 
