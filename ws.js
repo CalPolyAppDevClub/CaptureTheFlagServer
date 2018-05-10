@@ -102,6 +102,7 @@ function updateLocation(json, id) {
 
 function tagPlayer(json, id) {
     let playerToTag = json.playerToTagId
+    console.log(playerToTag)
     if (checkUndifined(playerToTag)) {
         clients[id].send(new Message('playerTagAttempted', {}, 'invalid data'));
         return
