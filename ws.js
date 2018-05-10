@@ -20,7 +20,7 @@ console.log("http server listening on %d", PORT)
 
 
 
-var wss = new WebSocketServer({server: server})
+var wss = new WebSocket.Server({server: server})
 console.log("websocket server created")
 
 function Client(ws) {
