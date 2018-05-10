@@ -2,11 +2,24 @@ const WebSocket = require('ws');
 const Events = require('events');
 const Message = require('./message');
 const Game = require('./game')
+const geo = require('geolib')
+const http = require('http');
+const express = require('express');
+let app = express();
+
+app.use(express.static(__dirname + "/"));
+
+var server = http.createServer(app)
+server.listen(port)
+
+console.log("http server listening on %d", port)
+
 
 const PORT = process.env.PORT || 8000;
 console.log('LISTENING TO ' + PORT)
 
-const wss = new WebSocket.Server({port: PORT});
+var wss = new WebSocketServer({server: server})
+console.log("websocket server created")
 
 function Client(ws) {
     this.ws = ws;
@@ -112,7 +125,6 @@ function joinGame(json, id) {
     }
     if (!gameExists(gameKey)) {
         clients[id].send(new Message('joinGameAttempted', {}, 'invalid key'));
-        console.log("game does not exist")
         return;
     }
     games[gameKey].addPlayer(id, playerName);
