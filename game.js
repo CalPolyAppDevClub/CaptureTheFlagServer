@@ -31,6 +31,7 @@ class Game {
     }
 
     tagPlayer(playerToTagId, idOfTaggingPlayer) {
+        console.log(playerToTagId + ", " + idOfTaggingPlayer)
         let distanceBetweenPlayers = geoLib.getDistance(this.players[playerToTagId].location, 
             this.players[idOfTaggingPlayer].location);
         if (distanceBetweenPlayers <= 40) {
