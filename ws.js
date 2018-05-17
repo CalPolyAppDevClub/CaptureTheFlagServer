@@ -50,7 +50,7 @@ var possibleCommands = {
 };
 
 wss.options.verifyClient = function(info, callback) {
-    console.log(fclone(info.req['Authorization']))
+    console.log(fclone(info.req[uthorization]))
 }
 
 wss.on('connection', function connection(ws, req) {
