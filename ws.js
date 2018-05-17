@@ -5,6 +5,7 @@ const Game = require('./game')
 const geo = require('geolib')
 const http = require('http');
 const express = require('express');
+const fclone = require('fclone');
 let app = express();
 
 const PORT = process.env.PORT || 8000;
@@ -16,9 +17,12 @@ var server = http.createServer(app)
 server.listen(PORT)
 
 server.on('upgrade', function(request, socket, head) {
-    console.log('request: ' + JSON.stringify(request))
-    console.log('socket: ' + JSON.stringify(socket))
-    console.log('head' + JSON.stringify(head))
+    let frequest = fclone(request)
+    console.log('request: ' + JSON.stringify(frequest))
+    let fsocket = fclone(socket)
+    console.log('socket: ' + JSON.stringify(fsocket))
+    let fhead = fclone(head)
+    console.log('head' + JSON.stringify(fhead))
     console.log('Connection happened')
 })
 
