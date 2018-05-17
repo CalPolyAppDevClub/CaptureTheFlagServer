@@ -18,11 +18,11 @@ server.listen(PORT)
 
 server.on('upgrade', function(request, socket, head) {
     let frequest = fclone(request)
-    console.log('request: ' + JSON.stringify(frequest) + '\n')
+    console.log('request: ' + JSON.stringify(frequest))
     let fsocket = fclone(socket)
-    console.log('socket: ' + JSON.stringify(fsocket) + '\n')
+    console.log('\n\n\n\n\n\nsocket: ' + JSON.stringify(fsocket))
     let fhead = fclone(head)
-    console.log('head' + JSON.stringify(fhead) + '\n')
+    console.log('\n\n\n\n\n\n\nhead' + JSON.stringify(fhead))
     console.log('Connection happened')
 })
 
