@@ -16,16 +16,6 @@ app.use(express.static(__dirname + "/"));
 var server = http.createServer(app)
 server.listen(PORT)
 
-server.on('upgrade', function(request, socket, head) {
-    let frequest = fclone(request)
-    console.log('request: ' + JSON.stringify(frequest))
-    let fsocket = fclone(socket)
-    console.log('\n\n\n\n\n\nsocket: ' + JSON.stringify(fsocket))
-    let fhead = fclone(head)
-    console.log('\n\n\n\n\n\n\nhead' + JSON.stringify(fhead))
-    console.log('Connection happened')
-})
-
 console.log("http server listening on %d", PORT)
 
 
@@ -58,6 +48,10 @@ var possibleCommands = {
     'tagPlayer' : tagPlayer,
     'getPlayerInfo' : getPlayerInfo
 };
+
+wss.options.verifyClient = function(info, callback) {
+    console.log(fclone(info))
+}
 
 wss.on('connection', function connection(ws, req) {
     let name = 'ethan'
