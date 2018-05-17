@@ -15,7 +15,7 @@ app.use(express.static(__dirname + "/"));
 var server = http.createServer(app)
 server.listen(PORT)
 
-server.on('request', function(args) {
+server.on('connection', function(args) {
     console.log(args)
     console.log('Connection happened')
 })
