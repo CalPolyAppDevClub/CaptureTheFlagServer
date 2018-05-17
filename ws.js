@@ -16,9 +16,9 @@ var server = http.createServer(app)
 server.listen(PORT)
 
 server.on('upgrade', function(request, socket, head) {
-    console.log('request: ' + request)
-    console.log('socket: ' + socket)
-    console.log('head' + head)
+    console.log('request: ' + JSON.stringify(request))
+    console.log('socket: ' + JSON.stringify(socket))
+    console.log('head' + JSON.stringify(head))
     console.log('Connection happened')
 })
 
