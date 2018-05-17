@@ -1,6 +1,7 @@
 class Message {
-    constructor(command, data, error) {
+    constructor(command, key, data, error) {
         this.command = command;
+        this.key = key;
         this.data = data;
         this.error = error;
     }

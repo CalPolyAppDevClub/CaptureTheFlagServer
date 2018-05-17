@@ -1,4 +1,4 @@
-var geoLib = require('geolib')
+const geoLib = require('geolib')
 
 class Game {
     constructor(name, locationCallback) {

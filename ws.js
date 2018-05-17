@@ -15,6 +15,10 @@ app.use(express.static(__dirname + "/"));
 var server = http.createServer(app)
 server.listen(PORT)
 
+server.on('request', function(args) {
+    console.log(args)
+})
+
 console.log("http server listening on %d", PORT)
 
 
@@ -161,6 +165,7 @@ function getPlayerInfo(json, id) {
         return;
     }
     let player = clients[id].game.players[id];
+    //converts everything to a string
     let playerWithStringValues = {};
     for (key in player) {
         playerWithStringValues[key] ="" + player[key]
