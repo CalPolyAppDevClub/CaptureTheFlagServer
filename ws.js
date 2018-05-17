@@ -17,6 +17,7 @@ server.listen(PORT)
 
 server.on('request', function(args) {
     console.log(args)
+    console.log('Connection happened')
 })
 
 console.log("http server listening on %d", PORT)
