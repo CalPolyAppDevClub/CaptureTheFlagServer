@@ -15,8 +15,10 @@ app.use(express.static(__dirname + "/"));
 var server = http.createServer(app)
 server.listen(PORT)
 
-server.on('connection', function(args) {
-    console.log(args)
+server.on('upgrade', function(request, socket, head) {
+    console.log('request: ' + request)
+    console.log('socket: ' + socket)
+    console.log('head' + head)
     console.log('Connection happened')
 })
 
