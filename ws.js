@@ -58,6 +58,8 @@ wss.options.verifyClient = function(info, callback) {
     }
 }
 
+
+
 wss.on('connection', function connection(ws, req) {
     let name = 'ethan'
     //adds id to websocket connection for future identification.
@@ -147,7 +149,7 @@ function joinGame(json, id) {
     }
     games[gameKey].addPlayer(id, playerName);
     clients[id].game = games[gameKey]
-    clients[id].send(new Message('joinGameAttempted', {}))
+    clients[id].send(new Message('joinGameAttempted', json.key, {}))
 }
 
 function gameExists(key) {
