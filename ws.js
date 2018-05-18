@@ -165,7 +165,7 @@ function createGame(json, id) {
     }
     var game = new Game(gameName);
     games[gameKey] = game;
-    clients[id].send(new Message('createGameAttempted', {}))
+    clients[id].send(new Message(json.key, {}))
 }
 
 function getPlayerInfo(json, id) {
