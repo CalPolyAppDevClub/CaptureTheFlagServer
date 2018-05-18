@@ -18,11 +18,23 @@ server.listen(PORT)
 
 console.log("http server listening on %d", PORT)
 
-
-
-
 var wss = new WebSocket.Server({server: server})
 console.log("websocket server created")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function Client(ws) {
     this.ws = ws;
@@ -35,7 +47,6 @@ Client.prototype.send = function(message) {
 
 let numberOfClients = 0;
 let clients = {};
-
 let games = {}; 
 
 var possibleCommands = {
@@ -58,10 +69,7 @@ wss.options.verifyClient = function(info, callback) {
     }
 }
 
-
-
 wss.on('connection', function connection(ws, req) {
-    let name = 'ethan'
     //adds id to websocket connection for future identification.
     ws.id = numberOfClients;
     let client = new Client(ws);
@@ -136,20 +144,20 @@ function tagPlayer(json, id) {
     }
 } 
 
-function joinGame(json, id) {
+function joinGame(json, id, messageKey) {
     let gameKey = json.key;
     let playerName = json.playerName;
     if (checkUndifined(gameKey, playerName)) {
-        clients[id].send(new Message('joinGameAttempted', {}, 'invalid data'));
+        clients[id].send(new Message(null, messageKey, null, 'invalid data'));
         return;
     }
     if (!gameExists(gameKey)) {
-        clients[id].send(new Message('joinGameAttempted', {}, 'invalid key'));
+        clients[id].send(new Message(null, messageKey, null, 'invalid key'));
         return;
     }
     games[gameKey].addPlayer(id, playerName);
     clients[id].game = games[gameKey]
-    clients[id].send(new Message('joinGameAttempted', json.key, {}))
+    clients[id].send(new Message(null, messageKey, null, null))
 }
 
 function gameExists(key) {
@@ -160,12 +168,12 @@ function createGame(json, id, messageKey) {
     let gameKey = json.key;
     let gameName = json.gameName;
     if (checkUndifined(gameKey, gameName)) {
-        clients[id].send(new Message('createGameAttempted', {}, 'invalid data'));
+        clients[id].send(new Message(null, messageKey, null, 'invalid data'));
         return;
     }
     var game = new Game(gameName);
     games[gameKey] = game;
-    clients[id].send(new Message(null,messageKey,{}))
+    clients[id].send(new Message(null, messageKey, {}, null))
 }
 
 function getPlayerInfo(json, id) {
