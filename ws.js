@@ -51,7 +51,7 @@ var possibleCommands = {
 
 wss.options.verifyClient = function(info, callback) {
     console.log(fclone(info.req.headers.authorization))
-    if (info.req.headers.authorization === 'AUTH-TOCKEN') {
+    if (info.req.headers.authorization === 'AUTH-TOKEN') {
         callback(true)
     } else {
         callback(false, 1, 'incorrect token')
