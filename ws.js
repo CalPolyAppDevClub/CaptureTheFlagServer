@@ -111,6 +111,7 @@ function updateLocation(json, id) {
     if (game === undefined) {
         return
     }
+
     game.updateLocation(id, latitude, longitude)
     var players = game.players;
     for (key in players) {
@@ -121,12 +122,12 @@ function updateLocation(json, id) {
     }
 }
 
-function tagPlayer(json, id) {
-    let playerToTag = json.playerToTagId
-    console.log(playerToTag)
+function tagPlayer(json, id, messageKey) {
+    let playerToTag = json.playerToTagId;
+    console.log(playerToTag);
     if (checkUndifined(playerToTag)) {
-        clients[id].send(new Message('playerTagAttempted', {}, 'invalid data'));
-        return
+        clients[id].send(new Message(null, messageKey, null, 'invalid data'));
+        return;
     }
     if (clients[id].game === undefined) {
         return;
@@ -136,13 +137,13 @@ function tagPlayer(json, id) {
         let players = clients[id].game.players;
         for (key in players) {
             if (key != id) {
-                clients[key].send(new Message('playerTagAttempted', {playerId : '' + playerToTag}));
+                clients[key].send(new Message('playerTagAttempted', null, {playerId : '' + playerToTag}, null));
             }
         }
     } else {
-        clients[id].send(new Message('playerTagAttempted', {}, 'not close enough to player to tag'));
+        clients[id].send(new Message(null, messageKey, null, 'not close enough to player to tag'));
     }
-} 
+}
 
 function joinGame(json, id, messageKey) {
     let gameKey = json.key;
@@ -176,7 +177,7 @@ function createGame(json, id, messageKey) {
     clients[id].send(new Message(null, messageKey, {}, null))
 }
 
-function getPlayerInfo(json, id) {
+function getPlayerInfo(json, id, messageKey) {
     if (clients[id].game === undefined) {
         return;
     }
