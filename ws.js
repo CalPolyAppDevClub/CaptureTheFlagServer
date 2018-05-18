@@ -156,7 +156,7 @@ function gameExists(key) {
     return games[key] != undefined;
 }
 
-function createGame(json, id) {
+function createGame(json, id, messageKey) {
     let gameKey = json.key;
     let gameName = json.gameName;
     if (checkUndifined(gameKey, gameName)) {
@@ -165,7 +165,7 @@ function createGame(json, id) {
     }
     var game = new Game(gameName);
     games[gameKey] = game;
-    clients[id].send(new Message(json.key, {}))
+    clients[id].send(new Message(messageKey, {}))
 }
 
 function getPlayerInfo(json, id) {
@@ -184,8 +184,9 @@ function getPlayerInfo(json, id) {
 
 function parseJson(json, id) {
     let objectData = json.data;
+    let messageKey = json.key
     let functionToUse = possibleCommands[json.command];
-    functionToUse(objectData, id);
+    functionToUse(objectData, id, messageKey);
 }
 
 function checkUndifined() {
