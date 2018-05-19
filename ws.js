@@ -88,6 +88,7 @@ wss.on('connection', function connection(ws, req) {
       clients.delete(ws.id)
   })
   console.log('Connected');
+  console.log(ws)
 });
 
 function parseJson(json, id) {
@@ -200,7 +201,7 @@ function getPlayerInfo(json, id, messageKey) {
     if (clients.get(id).game === undefined) {
         return;
     }
-    let player = clients[id].game.players[id];
+    let player = clients.get(id).game.players[id];
     //converts everything to a string
     let playerWithStringValues = {};
     for (key in player) {
