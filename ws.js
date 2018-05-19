@@ -133,7 +133,7 @@ function updateLocation(json, id) {
         return
     }
     game.updateLocation(id, latitude, longitude)
-    var players = game.players;
+    var players = game.getPlayers();
     for (key in players) {
         if (key != id && clients.get(key) != undefined) {
              clients.get(key).send(new Message('locationUpdate',null, {playerId : "" 
