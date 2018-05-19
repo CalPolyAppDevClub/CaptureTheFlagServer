@@ -41,6 +41,10 @@ class Game {
         return false;
     }
 
+    removePlayer(id) {
+        this.players[id] = undefined;
+    }
+
     
 }
 

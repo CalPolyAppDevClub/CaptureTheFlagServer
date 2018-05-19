@@ -82,6 +82,9 @@ wss.on('connection', function connection(ws, req) {
         parseJson(jsonObject, ws.id);
   });
   ws.on('close', function() {
+      if (clients[ws.id].game != undefined) {
+          clients[ws.id].game.removePlayer(ws.id)
+      }
       delete clients[ws.id]
   })
   console.log('Connected');
@@ -140,7 +143,7 @@ function tagPlayer(json, id, messageKey) {
     if (playerTagged) {
         let players = clients[id].game.players;
         for (key in players) {
-            if (key != id && clients[key] != undefined) {
+            if (key != id) {
                 console.log('sending ' + playerToTag + ' to ' + key)
                 clients[key].send(new Message('playerTagged', null, {playerId : '' + playerToTag}, null));
             }
