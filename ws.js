@@ -201,7 +201,7 @@ function getPlayerInfo(json, id, messageKey) {
     if (clients.get(id).game === undefined) {
         return;
     }
-    let player = clients.get(id).game.getPlayerinfo(id);
+    let player = clients.get(id).game.getPlayerInfo(id);
     //converts everything to a string
     let playerWithStringValues = {};
     for (key in player) {
