@@ -21,6 +21,7 @@ class Game {
     }
 
     addPlayer(id, playerName) {
+        console.log("ADDING PLAYER: " + id + " " + playerName)
         let player = new Player(playerName, id);
         this._players.set(id, player);
     }
