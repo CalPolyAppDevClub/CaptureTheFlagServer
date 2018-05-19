@@ -7,6 +7,10 @@ class Game {
         this.name = name;
     }
 
+    getPlayerInfo(id) {
+        return this._players.get(id)
+    }
+
     checkIfAlreadyInGame(id) {
         for (let i = 0; i<this._players.length;i++) {
             if (this._players.get(i).refNumber == id) {
