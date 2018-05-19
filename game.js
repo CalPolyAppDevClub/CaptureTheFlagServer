@@ -2,8 +2,8 @@ const geoLib = require('geolib')
 
 class Game {
     constructor(name, locationCallback) {
-        this.players = {};
-        this.flags = [];
+        this._players = new Map;
+        this._flags = [];
         this.name = name;
     }
 
@@ -18,7 +18,7 @@ class Game {
 
     addPlayer(id, playerName) {
         let player = new Player(playerName, id);
-        this.players[id] = player;
+        this._players[id] = player;
         
     }
 
@@ -42,7 +42,7 @@ class Game {
     }
 
     removePlayer(id) {
-        this.players[id] = undefined;
+        this._players.delete(id);
     }
 
     

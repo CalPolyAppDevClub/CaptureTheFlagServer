@@ -46,7 +46,7 @@ Client.prototype.send = function(message) {
 }
 
 let numberOfClients = 0;
-let clients = {};
+let clients = new Map();
 let games = {}; 
 
 var possibleCommands = {
@@ -85,13 +85,27 @@ wss.on('connection', function connection(ws, req) {
       if (clients[ws.id].game != undefined) {
           clients[ws.id].game.removePlayer(ws.id)
       }
-      delete clients[ws.id]
+      clients.delete(ws.id)
   })
   console.log('Connected');
   console.log(clients);
 });
 
+function parseJson(json, id) {
+    let objectData = json.data;
+    let messageKey = json.key
+    let functionToUse = possibleCommands[json.command];
+    functionToUse(objectData, id, messageKey);
+}
 
+function checkUndifined() {
+    for (let i = 0; i<arguments.length; i++) {
+        if (arguments[i] == undefined) {
+            return true;
+        }
+    }
+    return false;
+}
 
 function printClients() {
     console.log(clients)
@@ -118,11 +132,9 @@ function updateLocation(json, id) {
     if (game === undefined) {
         return
     }
-
     game.updateLocation(id, latitude, longitude)
     var players = game.players;
     for (key in players) {
-        console.log('key for location uopdate ' + key)
         if (key != id && clients[key] != undefined) {
              clients[key].send(new Message('locationUpdate',null, {playerId : "" 
              + id, newLocation : latitude + ',' + longitude }, null));
@@ -132,7 +144,6 @@ function updateLocation(json, id) {
 
 function tagPlayer(json, id, messageKey) {
     let playerToTag = json.playerToTagId;
-    console.log(playerToTag);
     if (checkUndifined(playerToTag)) {
         clients[id].send(new Message(null, messageKey, null, 'invalid data'));
         return;
@@ -145,7 +156,6 @@ function tagPlayer(json, id, messageKey) {
         let players = clients[id].game.players;
         for (key in players) {
             if (key != id) {
-                console.log('sending ' + playerToTag + ' to ' + key)
                 clients[key].send(new Message('playerTagged', null, {playerId : '' + playerToTag}, null));
             }
         }
@@ -200,22 +210,19 @@ function getPlayerInfo(json, id, messageKey) {
     clients[id].send(new Message(null, messageKey, playerWithStringValues, null));
 }
 
-
-function parseJson(json, id) {
-    let objectData = json.data;
-    let messageKey = json.key
-    let functionToUse = possibleCommands[json.command];
-    functionToUse(objectData, id, messageKey);
+function getGameInfo(json, id, messageKey) {
+    if (clients[id].game === undefined) {
+        return;
+    } 
+    let player = clients[id].game
 }
 
-function checkUndifined() {
-    for (let i = 0; i<arguments.length; i++) {
-        if (arguments[i] == undefined) {
-            return true;
-        }
-    }
-    return false;
-}
+
+
+
+
+
+
 
 
 
