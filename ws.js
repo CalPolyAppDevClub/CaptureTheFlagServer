@@ -137,6 +137,7 @@ function tagPlayer(json, id, messageKey) {
         let players = clients[id].game.players;
         for (key in players) {
             if (key != id) {
+                console.log('sending ' + playerToTag + ' to ' + key)
                 clients[key].send(new Message('playerTagged', null, {playerId : '' + playerToTag}, null));
             }
         }
