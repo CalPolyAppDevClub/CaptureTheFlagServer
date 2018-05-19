@@ -137,9 +137,10 @@ function tagPlayer(json, id, messageKey) {
         let players = clients[id].game.players;
         for (key in players) {
             if (key != id) {
-                clients[key].send(new Message('playerTagAttempted', null, {playerId : '' + playerToTag}, null));
+                clients[key].send(new Message('playerTagged', null, {playerId : '' + playerToTag}, null));
             }
         }
+        clients[id].send(new Message(null, messageKey, {}, null))
     } else {
         clients[id].send(new Message(null, messageKey, null, 'not close enough to player to tag'));
     }
