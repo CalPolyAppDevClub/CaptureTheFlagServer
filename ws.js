@@ -81,9 +81,13 @@ wss.on('connection', function connection(ws, req) {
         let jsonObject = JSON.parse(message);
         parseJson(jsonObject, ws.id);
   });
+  ws.on('close', function() {
+      delete clients[ws.id]
+  })
   console.log('Connected');
   console.log(clients);
 });
+
 
 
 function printClients() {
