@@ -8,8 +8,8 @@ class Game {
     }
 
     checkIfAlreadyInGame(id) {
-        for (let i = 0; i<this.players.length;i++) {
-            if (this.players[i].refNumber == id) {
+        for (let i = 0; i<this._players.length;i++) {
+            if (this._players.get(i).refNumber == id) {
                 return true;
             }
         }
@@ -18,8 +18,7 @@ class Game {
 
     addPlayer(id, playerName) {
         let player = new Player(playerName, id);
-        this._players[id] = player;
-        
+        this._players.set(id, player);
     }
 
     updateLocation(id, latitude, longitude) {
@@ -27,15 +26,15 @@ class Game {
             latitude : latitude,
             longitude : longitude
         }
-        this.players[id].location = location;
+        this._players.get(id).location = location
     }
 
     tagPlayer(playerToTagId, idOfTaggingPlayer) {
         console.log(playerToTagId + ", " + idOfTaggingPlayer)
-        let distanceBetweenPlayers = geoLib.getDistance(this.players[playerToTagId].location, 
-            this.players[idOfTaggingPlayer].location);
+        let distanceBetweenPlayers = geoLib.getDistance(this._players.get(playerToTagId).location, 
+            this._players.get(idOfTaggingPlayer).location);
         if (distanceBetweenPlayers <= 40) {
-            this.players[playerToTagId].isTagged = true;
+            this._players.get(playerToTagId).isTagged = true;
             return true;
         }
         return false;

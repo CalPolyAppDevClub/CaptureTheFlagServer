@@ -73,7 +73,7 @@ wss.on('connection', function connection(ws, req) {
     //adds id to websocket connection for future identification.
     ws.id = numberOfClients;
     let client = new Client(ws);
-    clients[numberOfClients] = client;
+    clients.set(numberOfClients, client)
     numberOfClients++;
     ws.on('message', function incoming(message) {
         console.log(ws.id);
@@ -82,13 +82,12 @@ wss.on('connection', function connection(ws, req) {
         parseJson(jsonObject, ws.id);
   });
   ws.on('close', function() {
-      if (clients[ws.id].game != undefined) {
-          clients[ws.id].game.removePlayer(ws.id)
+      if (clients.get(ws.id).game != undefined) {
+          clients.get(ws.id).game.removePlayer(ws.id)
       }
       clients.delete(ws.id)
   })
   console.log('Connected');
-  console.log(clients);
 });
 
 function parseJson(json, id) {
@@ -116,7 +115,7 @@ function printGames() {
 }
 
 function printPlayers(id) {
-    let game = clients[id].game;
+    let game = clients.get(id).game;
     console.log(game.players);
 }
 
@@ -128,15 +127,15 @@ function Player(name) {
 function updateLocation(json, id) {
     let latitude = json.latitude;
     let longitude = json.longitude;
-    let game = clients[id].game;
+    let game = clients.get(id).game;
     if (game === undefined) {
         return
     }
     game.updateLocation(id, latitude, longitude)
     var players = game.players;
     for (key in players) {
-        if (key != id && clients[key] != undefined) {
-             clients[key].send(new Message('locationUpdate',null, {playerId : "" 
+        if (key != id && clients.get(key) != undefined) {
+             clients.get(key).send(new Message('locationUpdate',null, {playerId : "" 
              + id, newLocation : latitude + ',' + longitude }, null));
         }
     }
@@ -145,23 +144,23 @@ function updateLocation(json, id) {
 function tagPlayer(json, id, messageKey) {
     let playerToTag = json.playerToTagId;
     if (checkUndifined(playerToTag)) {
-        clients[id].send(new Message(null, messageKey, null, 'invalid data'));
+        clients.get(id).send(new Message(null, messageKey, null, 'invalid data'));
         return;
     }
-    if (clients[id].game === undefined) {
+    if (clients.get(id).game === undefined) {
         return;
     }
-    var playerTagged = clients[id].game.tagPlayer(playerToTag, id)
+    var playerTagged = clients.get(id).game.tagPlayer(playerToTag, id)
     if (playerTagged) {
-        let players = clients[id].game.players;
+        let players = clients.get(id).game.players;
         for (key in players) {
             if (key != id) {
-                clients[key].send(new Message('playerTagged', null, {playerId : '' + playerToTag}, null));
+                clients.get(key).send(new Message('playerTagged', null, {playerId : '' + playerToTag}, null));
             }
         }
-        clients[id].send(new Message(null, messageKey, {}, null))
+        clients.get(id).send(new Message(null, messageKey, {}, null))
     } else {
-        clients[id].send(new Message(null, messageKey, null, 'not close enough to player to tag'));
+        clients.get(id).send(new Message(null, messageKey, null, 'not close enough to player to tag'));
     }
 }
 
@@ -169,16 +168,16 @@ function joinGame(json, id, messageKey) {
     let gameKey = json.key;
     let playerName = json.playerName;
     if (checkUndifined(gameKey, playerName)) {
-        clients[id].send(new Message(null, messageKey, null, 'invalid data'));
+        clients.get(id).send(new Message(null, messageKey, null, 'invalid data'));
         return;
     }
     if (!gameExists(gameKey)) {
-        clients[id].send(new Message(null, messageKey, null, 'invalid key'));
+        clients.get(id).send(new Message(null, messageKey, null, 'invalid key'));
         return;
     }
     games[gameKey].addPlayer(id, playerName);
-    clients[id].game = games[gameKey]
-    clients[id].send(new Message(null, messageKey, null, null))
+    clients.get(id).game = games[gameKey]
+    clients.get(id).send(new Message(null, messageKey, null, null))
 }
 
 function gameExists(key) {
@@ -189,16 +188,16 @@ function createGame(json, id, messageKey) {
     let gameKey = json.key;
     let gameName = json.gameName;
     if (checkUndifined(gameKey, gameName)) {
-        clients[id].send(new Message(null, messageKey, null, 'invalid data'));
+        clients.get(id).send(new Message(null, messageKey, null, 'invalid data'));
         return;
     }
     var game = new Game(gameName);
     games[gameKey] = game;
-    clients[id].send(new Message(null, messageKey, {}, null))
+    clients.get(id).send(new Message(null, messageKey, {}, null))
 }
 
 function getPlayerInfo(json, id, messageKey) {
-    if (clients[id].game === undefined) {
+    if (clients.get(id).game === undefined) {
         return;
     }
     let player = clients[id].game.players[id];
@@ -207,14 +206,14 @@ function getPlayerInfo(json, id, messageKey) {
     for (key in player) {
         playerWithStringValues[key] ="" + player[key]
     }
-    clients[id].send(new Message(null, messageKey, playerWithStringValues, null));
+    clients.get(id).send(new Message(null, messageKey, playerWithStringValues, null));
 }
 
 function getGameInfo(json, id, messageKey) {
-    if (clients[id].game === undefined) {
+    if (clients.get(id).game === undefined) {
         return;
     } 
-    let player = clients[id].game
+    let player = clients.get(id).game
 }
 
 
