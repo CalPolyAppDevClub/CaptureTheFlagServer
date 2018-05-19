@@ -189,7 +189,7 @@ function getPlayerInfo(json, id, messageKey) {
     for (key in player) {
         playerWithStringValues[key] ="" + player[key]
     }
-    clients[id].send(new Message('playerInfo', playerWithStringValues));
+    clients[id].send(new Message(null, messageKey, playerWithStringValues, nil));
 }
 
 
