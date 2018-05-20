@@ -43,7 +43,7 @@ class Game {
     tagPlayer(playerToTagId, idOfTaggingPlayer) {
         console.log('PLAYER TO TAG ID: ' + playerToTagId)
         console.log(playerToTagId + ", " + idOfTaggingPlayer)
-        let distanceBetweenPlayers = geoLib.getDistance(this._players.get(idOfTaggingPlayer).location, 
+        let distanceBetweenPlayers = geoLib.getDistance(this._players.get(parseInt(playerToTagId)).location, 
             this._players.get(idOfTaggingPlayer).location);
         if (distanceBetweenPlayers <= 40) {
             this._players.get(playerToTagId).isTagged = true;
