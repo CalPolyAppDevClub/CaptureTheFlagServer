@@ -203,12 +203,7 @@ function getPlayerInfo(json, id, messageKey) {
         return;
     }
     let player = clients.get(id).game.getPlayerInfo(id);
-    //converts everything to a string
-    let playerWithStringValues = {};
-    for (key in player) {
-        playerWithStringValues[key] ="" + player[key]
-    }
-    clients.get(id).send(new Message(null, messageKey, playerWithStringValues, null));
+    clients.get(id).send(new Message(null, messageKey, JSON.stringify(player), null));
 }
 
 function getGameInfo(json, id, messageKey) {
