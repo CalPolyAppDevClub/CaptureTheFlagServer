@@ -12,7 +12,7 @@ class Game {
     }
 
     getPlayers() {
-        return this._players.entries();
+        return this._players;
     }
 
     checkIfAlreadyInGame(id) {
