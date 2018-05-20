@@ -35,6 +35,7 @@ class Game {
             latitude : latitude,
             longitude : longitude
         }
+        console.log('PRINTING ON LOCATION UODATE IN GAME: ' + this._players.get(id).location)
         this._players.get(id).location = location
     }
 
