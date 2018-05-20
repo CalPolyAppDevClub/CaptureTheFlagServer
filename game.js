@@ -2,7 +2,7 @@ const geoLib = require('geolib')
 
 class Game {
     constructor(name, locationCallback) {
-        this._players = new Map;
+        this._players = new Map();
         this._flags = [];
         this.name = name;
     }
