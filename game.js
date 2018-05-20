@@ -37,7 +37,7 @@ class Game {
         }
         
         this._players.get(id).location = location
-        console.log('PRINTING ON LOCATION UODATE IN GAME: ' + this._players.get(id).location.toString())
+        console.log('PRINTING ON LOCATION UODATE IN GAME: ' + JSON.stringify(this._players.get(id)))
     }
 
     tagPlayer(playerToTagId, idOfTaggingPlayer) {
