@@ -8,11 +8,15 @@ class Game {
     }
 
     getPlayerInfo(id) {
-        return this._players.get(id)
+        return JSON.parse(JSON.stringify(this._players.get(id)))
     }
 
     getPlayers() {
-        return this._players;
+        let playersToReturn = {};
+        for (key of this._players) {
+            playersToReturn[key] = this._players.get
+        }
+        return JSON.parse(JSON.stringify(this._players));
     }
 
     checkIfAlreadyInGame(id) {
@@ -58,6 +62,8 @@ class Game {
 
     
 }
+
+
 
 class Player {
     constructor(name, id) {
