@@ -9,6 +9,7 @@ class Game {
     }
 
     getPlayerInfo(id) {
+        console.log('IM LOGGING IT' + clone(this._players.get(id)))
         return clone(this._players.get(id))
     }
 
