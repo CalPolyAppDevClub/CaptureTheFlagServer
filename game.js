@@ -16,6 +16,9 @@ class Game {
         for (key of this._players) {
             playersToReturn[key] = this._players.get
         }
+
+        var toReturn = JSON.parse(JSON.stringify(this._players))
+        console.log('THIS IT THE STRIGIFIED PLAYERS' + toReturn)
         return JSON.parse(JSON.stringify(this._players));
     }
 
