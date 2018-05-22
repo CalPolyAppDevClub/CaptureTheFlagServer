@@ -15,7 +15,6 @@ app.use(express.static(__dirname + "/"));
 
 var server = http.createServer(app)
 server.listen(PORT)
-server.
 
 console.log("http server listening on %d", PORT)
 
