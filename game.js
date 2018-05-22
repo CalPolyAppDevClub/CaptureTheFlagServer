@@ -13,26 +13,13 @@ class Game {
     }
 
     getPlayers() {
-        let playersToReturn = {};
-        for (key of this._players) {
-            playersToReturn[key] = this._players.get
-        }
-        let mapToReturn = new Map()
-
-        for (const [key, value] of this._players) {
-            mapToReturn.set(key, value)
-        }
         return clone(this._players);
     }
 
     checkIfAlreadyInGame(id) {
-        for (let i = 0; i<this._players.length;i++) {
-            if (this._players.get(i).refNumber == id) {
-                return true;
-            }
-        }
-        return false;
+        return this._players.has(id)
     }
+        
 
     addPlayer(id, playerName) {
         console.log("ADDING PLAYER: " + id + " " + playerName)
