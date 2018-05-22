@@ -9,7 +9,6 @@ class Game {
     }
 
     getPlayerInfo(id) {
-        console.log('IM LOGGING IT' + clone(this._players.get(id)))
         return clone(this._players.get(id))
     }
 
@@ -23,7 +22,7 @@ class Game {
         for (const [key, value] of this._players) {
             mapToReturn.set(key, value)
         }
-        return JSON.parse(JSON.stringify(this._players));
+        return clone(this._players);
     }
 
     checkIfAlreadyInGame(id) {
