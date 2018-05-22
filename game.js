@@ -1,4 +1,5 @@
 const geoLib = require('geolib')
+const clone = require('clone');
 
 class Game {
     constructor(name, locationCallback) {
@@ -8,7 +9,7 @@ class Game {
     }
 
     getPlayerInfo(id) {
-        return JSON.parse(JSON.stringify(this._players.get(id)))
+        return clone(this._players.get(id))
     }
 
     getPlayers() {
@@ -16,9 +17,11 @@ class Game {
         for (key of this._players) {
             playersToReturn[key] = this._players.get
         }
+        let mapToReturn = new Map()
 
-        var toReturn = JSON.parse(JSON.stringify(this._players))
-        console.log('THIS IT THE STRIGIFIED PLAYERS' + toReturn.toString())
+        for (const [key, value] of this._players) {
+            mapToReturn.set(key, value)
+        }
         return JSON.parse(JSON.stringify(this._players));
     }
 

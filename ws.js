@@ -5,7 +5,7 @@ const Game = require('./game')
 const geo = require('geolib')
 const http = require('http');
 const express = require('express');
-const fclone = require('fclone');
+
 let app = express();
 
 const PORT = process.env.PORT || 8000;
@@ -61,7 +61,6 @@ var possibleCommands = {
 };
 
 wss.options.verifyClient = function(info, callback) {
-    console.log(fclone(info.req.headers.authorization))
     if (info.req.headers.authorization === 'AUTH-TOKEN') {
         callback(true)
     } else {
@@ -134,7 +133,7 @@ function updateLocation(json, id) {
     }
     game.updateLocation(id, latitude, longitude)
     var players = game.getPlayers();
-    for (key in players) {
+    for (const [key, value] of players) {
         console.log('SENDING LOCATION UPDATE TO: ' + key)
         if (key != id && clients.get(key) != undefined) {
              clients.get(key).send(new Message('locationUpdate',null, {playerId : "" 
