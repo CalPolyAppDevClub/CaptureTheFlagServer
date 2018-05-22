@@ -18,7 +18,7 @@ class Game {
         }
 
         var toReturn = JSON.parse(JSON.stringify(this._players))
-        console.log('THIS IT THE STRIGIFIED PLAYERS' + toReturn)
+        console.log('THIS IT THE STRIGIFIED PLAYERS' + toReturn.toString())
         return JSON.parse(JSON.stringify(this._players));
     }
 
