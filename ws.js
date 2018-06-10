@@ -57,7 +57,9 @@ var possibleCommands = {
     'getPlayers' : getPlayers,
     'getFlags' : getFlags,
     'getTeams' : getTeams,
-    'getGameState' : getGameState
+    'getGameState' : getGameState,
+    'createTeam' : createTeam,
+    'getTeams' : getTeams
 };
 
 wss.options.verifyClient = function(info, callback) {
