@@ -185,7 +185,7 @@ function createGame(json, id, messageKey) {
     games[gameKey] = game;
     initEvents(game);
     console.log('CREATEGAME');
-    clients.get(id).send(new Message(null, messageKey, {}, null))
+    clients.get(id).send(new Message(null, messageKey, null, null))
 }
 
 function addFlag(json, id, messageKey) {
@@ -247,6 +247,29 @@ function getPlayers(json, id, messageKey) {
     let players = clients.get(id).game.getPlayers()
     console.log('THESE ARE THE PLAYEERS ' + players)
     clients.get(id).send(new Message(null, messageKey, players, null))
+}
+
+function createTeam(json, id, messageKey) {
+    let teamName = json.teamName;
+    if (clients.get(id).game == null) {
+        console.log('not in a game');
+        return;
+    }
+    if (checkUndifined(teamName)) {
+        console.log('invalid arguments');
+        return
+    }
+    clients.get(id).game.addTeam(teamName);
+    clients.get(id).send(new Message(null, messageKey, null, null))
+}
+
+function getTeams(json, id, messageKey) {
+    if (clients.get(id).game == null) {
+        console.log('not in a game');
+        return
+    }
+    let teams = clients.get(id).game.getTeams()
+    clients.get(id).send(new Message(null, messageKey, teams, null))
 }
 
 function initEvents(game) {

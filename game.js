@@ -91,6 +91,10 @@ module.exports = class Game extends Events.EventEmitter {
         this._teams.set(teamName, new Team(teamName));
     }
 
+    addTeam(teamName) {
+        this.team[teamName] = new Team(teamName);
+    }
+
     
 }
 
@@ -127,8 +131,8 @@ class Flag  {
 class Team {
     constructor(name) {
         this.name = name;
-        this.players = Map();
-        this.flags = Map();
+        this.players = {};
+        this.flags = {};
 
     }
 }
