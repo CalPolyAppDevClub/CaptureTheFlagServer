@@ -296,4 +296,11 @@ function initEvents(game) {
             clients.get(players[key].id).send(new Message('playerAdded', null, {playerId: '' + playerAddedId}, null));
         }
     })
+
+    game.on('teamAdded', function(team) {
+        let players = game.getPlayers();
+        for (key in players) {
+            cleints.get(players[key].id).send(new Message('teamAdded', null, team, null))
+        }
+    })
 }
