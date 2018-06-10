@@ -94,7 +94,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addTeam(teamName) {
-        this.team[teamName] = new Team(teamName);
+        this._teams[teamName] = new Team(teamName);
     }
 
     
