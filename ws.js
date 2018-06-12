@@ -167,9 +167,9 @@ function joinGame(json, id, messageKey) {
         return;
     }
     games[gameKey].addPlayer(id, playerName);
-    clients.get(id).game = games[gameKey]
-    console.log('JOINGAME')
-    clients.get(id).send(new Message(null, messageKey, null, null))
+    clients.get(id).game = games[gameKey];
+    console.log('JOINGAME');
+    clients.get(id).send(new Message(null, messageKey, null, null));
 }
 
 function gameExists(key) {
@@ -252,6 +252,7 @@ function getPlayers(json, id, messageKey) {
 }
 
 function createTeam(json, id, messageKey) {
+    console.log('CREATTEAM IS BEING CALLED');
     let teamName = json.teamName;
     if (clients.get(id).game == null) {
         console.log('not in a game');
@@ -262,7 +263,7 @@ function createTeam(json, id, messageKey) {
         return
     }
     clients.get(id).game.addTeam(teamName);
-    clients.get(id).send(new Message(null, messageKey, null, null))
+    clients.get(id).send(new Message(null, messageKey, null, null));
 }
 
 function getTeams(json, id, messageKey) {
@@ -300,7 +301,8 @@ function initEvents(game) {
     game.on('teamAdded', function(team) {
         let players = game.getPlayers();
         for (key in players) {
-            cleints.get(players[key].id).send(new Message('teamAdded', null, team, null))
+            console.log('THIS IS WORKING!!!! ')
+            clients.get(players[key].id).send(new Message('teamAdded', null, team, null));
         }
     })
 }

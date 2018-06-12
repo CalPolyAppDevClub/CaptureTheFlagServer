@@ -5,6 +5,7 @@ const Events = require('events');
 module.exports = class Game extends Events.EventEmitter {
     constructor(name, locationCallback) {
         super();
+        this.name = 'BOBOBOBOBOBOB';
         this._players = new Map();
         this._flags = new Map();
         this._teams = {};
@@ -88,15 +89,11 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addTeam(teamName) {
+        console.log('TEAM IS BEING ADDED')
         let teamToAdd = new Team(teamName)
-        this._teams.set(teamName, teamToAdd);
-        this.emit('teamAdded', teamToAdd)
+        this._teams[teamName] = teamToAdd;
+        this.emit('teamAdded', teamToAdd);
     }
-
-    addTeam(teamName) {
-        this._teams[teamName] = new Team(teamName);
-    }
-
     
 }
 
