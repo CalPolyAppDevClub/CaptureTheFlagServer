@@ -82,6 +82,7 @@ module.exports = class Game extends Events.EventEmitter {
 
     removePlayer(id) {
         this._players.delete(id);
+        emit('playerRemoved', id)
     }
 
     attachTeam(id, teamName) {
