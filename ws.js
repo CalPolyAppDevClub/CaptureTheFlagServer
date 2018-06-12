@@ -308,7 +308,7 @@ function initEvents(game) {
     game.on('playerRemoved', function(playerid) {
         let players = game.getPlayers();
         for (key in players) {
-            clients.get(players[key.id]).send(new Message('playerRemoved', null, playerId, null));
+            clients.get(players[key].id).send(new Message('playerRemoved', null, playerId, null));
         }
     })
 }
