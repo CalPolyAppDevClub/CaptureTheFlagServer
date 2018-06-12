@@ -41,7 +41,7 @@ module.exports = class Game extends Events.EventEmitter {
         console.log("ADDING PLAYER: " + id + " " + playerName)
         let player = new Player(playerName, id);
         this._players.set(id, player);
-        this.emit('playerAdded', id)
+        this.emit('playerAdded', player)
     }
 
     updateLocation(id, latitude, longitude) {
@@ -89,7 +89,6 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addTeam(teamName) {
-        console.log('TEAM IS BEING ADDED')
         let teamToAdd = new Team(teamName)
         this._teams[teamName] = teamToAdd;
         this.emit('teamAdded', teamToAdd);
