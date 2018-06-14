@@ -42,7 +42,11 @@ function Client(ws) {
 }
 Client.prototype.send = function(message) {
     var messageToSend = JSON.stringify(message)
+    console.log('ABOUT TO SEND: ' + messageToSend);
     this.ws.send(messageToSend);
+}
+Client.prototype.sendWithoutStringift = function(message) {
+    this.ws.send(message)
 }
 
 let numberOfClients = 0;
@@ -188,6 +192,8 @@ function createGame(json, id, messageKey) {
     initEvents(game);
     console.log('CREATEGAME');
     clients.get(id).send(new Message(null, messageKey, null, null))
+    let messageTest = new Message('parse', null, 'hi', null);
+    clients.get(id).sendWithoutStringift(new Buffer.from(JSON.stringify(messageTest)));
 }
 
 function addFlag(json, id, messageKey) {
