@@ -1,7 +1,7 @@
 const geoLib = require('geolib')
 const clone = require('clone');
 const Events = require('events');
-const GameFailureReason = require('./GameFailureReason');
+
 
 module.exports = class Game extends Events.EventEmitter {
     constructor(name, locationCallback) {

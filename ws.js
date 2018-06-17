@@ -5,8 +5,6 @@ const Game = require('./game_modules/game');
 const geo = require('geolib');
 const http = require('http');
 const express = require('express');
-const GameFailureReason = require('./game_modules/GameFailureReason');
-const ServerError = require('./ServerError');
 
 let app = express();
 
