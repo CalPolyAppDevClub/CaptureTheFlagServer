@@ -1,10 +1,12 @@
 const WebSocket = require('ws');
 const Events = require('events');
 const Message = require('./message');
-const Game = require('./game')
-const geo = require('geolib')
+const Game = require('./game_modules/game');
+const geo = require('geolib');
 const http = require('http');
 const express = require('express');
+const GameFailureReason = require('./game_modules/GameFailureReason');
+const ServerError = require('./ServerError');
 
 let app = express();
 
@@ -63,7 +65,8 @@ var possibleCommands = {
     'getTeams' : getTeams,
     'getGameState' : getGameState,
     'createTeam' : createTeam,
-    'getTeams' : getTeams
+    'getTeams' : getTeams,
+    'joinTeam' : joinTeam
 };
 
 wss.options.verifyClient = function(info, callback) {
@@ -77,9 +80,9 @@ wss.options.verifyClient = function(info, callback) {
 wss.on('connection', function connection(ws, req) {
     //adds id to websocket connection for future identification.
     console.log('New Connection');
-    ws.id = numberOfClients;
+    ws.id = '' + numberOfClients;
     let client = new Client(ws);
-    clients.set(numberOfClients, client)
+    clients.set(ws.id, client)
     numberOfClients++;
     ws.on('message', function incoming(message) {
         console.log(ws.id);
@@ -101,7 +104,7 @@ function parseJson(json, id) {
     let objectData = json.data;
     let messageKey = json.key
     let functionToUse = possibleCommands[json.command];
-    functionToUse(objectData, id, messageKey);
+    functionToUse(objectData, ''+ id, messageKey);
 }
 
 function checkUndifined() {
@@ -146,14 +149,16 @@ function tagPlayer(json, id, messageKey) {
     let playerToTag = json.playerToTagId;
     if (checkUndifined(playerToTag)) {
         console.log('tagPlayer invalid parameters')
+        clients.get(id).send(new Message(null, messageKey, null, new ServerError(110, 'Player being tagged does not exist')));
         return;
     }
     if (clients.get(id).game === undefined) {
+        clients.get(id).send(new Message(null, messageKey, null, new ServerError(210), 'Player not in game'))
         return;
     }
-    var playerTagged = clients.get(id).game.tagPlayer(playerToTag, id)
-    if (playerTagged) {
-        clients.get(id).send(new Message(null, messageKey, {}, null))
+    var playerTaggedSuccess = clients.get(id).game.tagPlayer(playerToTag, id)
+    if (playerTaggedSuccess == undefined) {
+        clients.get(id).send(new Message(null, messageKey, null, null))
     } else {
         clients.get(id).send(new Message(null, messageKey, null, 'not close enough to player to tag'));
     }
@@ -174,6 +179,21 @@ function joinGame(json, id, messageKey) {
     clients.get(id).game = games[gameKey];
     console.log('JOINGAME');
     clients.get(id).send(new Message(null, messageKey, null, null));
+}
+
+function joinTeam(json, id, messageKey) {
+    let teamToJoinId = json.teamId;
+    console.log(typeof teamToJoinId + 'this is the type of the team to join')
+    if (checkUndifined(teamToJoinId)) {
+        clients.get(id).send(new Message(null, messageKey, null, 'invalid data'));
+        return;
+    }
+    if (clients.get(id).game == undefined) {
+        clients.get(id).send(new Message(null, messageKey, null, 'not in a game'));
+        return
+    }
+    let game = clients.get(id).game;
+    game.joinTeam(id, teamToJoinId)
 }
 
 function gameExists(key) {
@@ -315,6 +335,24 @@ function initEvents(game) {
         let players = game.getPlayers();
         for (key in players) {
             clients.get(players[key].id).send(new Message('playerRemoved', null, playerId, null));
+        }
+    })
+
+    game.on('flagAdded', function(flag) {
+        let players = game.getPlayers();
+        for (key in players) {
+            clients.get(players[key].id).send(new Message('flagAdded', null, flag, null));
+        }
+    })
+
+    game.on('playerJoinedTeam', function(playerId, teamId) {
+        let teamAndPlayer = {
+            id : playerId,
+            team : teamId
+        }
+        let players = game.getPlayers()
+        for (key in players) {
+            clients.get(players[key].id).send(new Message('playerJoinedTeam', null, teamAndPlayer, null));
         }
     })
 }
