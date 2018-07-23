@@ -1,0 +1,15 @@
+100 : user errors
+200 : client errors
+300 : server errors
+
+100 : application specific erros. different for every application 
+   110 - 150 : errors that should be shown directly to the user
+        110 : invalid username or password
+        120 : invalid game key
+        130 : game key already in use
+        140 : player already in game
+    160 - 190 : errors that should not be shown directly to user
+400 : client errors (standard http errors)
+    210 : command does not exist
+    220 : invalid payload
+    230 : 

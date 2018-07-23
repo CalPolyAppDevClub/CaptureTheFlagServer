@@ -1,8 +1,9 @@
 const geoLib = require('geolib')
 const clone = require('clone');
 const Events = require('events');
+const GameFailureReason = require('./GameFailureReason');
 
-
+const MAX_PLAYERS_PER_TEAM = 15;
 module.exports = class Game extends Events.EventEmitter {
     constructor(name, locationCallback) {
         super();
@@ -32,15 +33,55 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     checkIfAlreadyInGame(id) {
+        //console.log(this._players.has(id))
         return this._players.has(id)
+    }
+
+    checkIfPlayerNameTaken(name) {
+        let playerNameTaken = false
+        if (this._players.size === 0) {
+            return false
+        }
+        Object.keys(this._players.keys).forEach(key => {
+            if (this._players.get(key).name === name) {
+                console.log(this._players.get(key).name)
+                playerNameTaken = true
+            } 
+        })
+        //console.log('name already taken')
+        //console.log(playerNameTaken)
+        if (playerNameTaken == false) {
+            return false
+        }
+        return true
+    }
+
+    checkIfTeamExists(teamId) {
+        return this._teams[teamId] != undefined
+        
     }
         
 
     addPlayer(id, playerName) {
-        console.log("ADDING PLAYER: " + id + " " + playerName)
-        let player = new Player(playerName, id);
-        if (this._players.size == 0) {player.leader = true}
+        if (this.checkIfAlreadyInGame(id)) {
+            return GameFailureReason.PlayerAlreadyInGame;
+        }
+        if (this._players.size == MAX_PLAYERS_PER_TEAM) {
+            return GameFailureReason.TooManyPlayers;
+        }
+        if (this.checkIfPlayerNameTaken(playerName)) {
+            return GameFailureReason.NameAlreadyTaken
+        }
+        //console.log("ADDING PLAYER: " + id + " " + playerName)
+        let player = new Player(playerName, '' + id);
+        if (this._players.size == 0) {
+            player.leader = true
+        }
+       // console.log('type of id')
+        //console.log(typeof id)
         this._players.set(id, player);
+        //console.log('players map')
+        //console.log(this._players)
         this.emit('playerAdded', player)
     }
 
@@ -55,19 +96,18 @@ module.exports = class Game extends Events.EventEmitter {
 
     tagPlayerIfCloseEnough(playerToTagId, idOfTaggingPlayer) {
         if (this.gameState == this.gameStates.placeFlags) {
-            console.log('PLAYER TO TAG ID: ' + playerToTagId)
-            console.log(playerToTagId + ", " + idOfTaggingPlayer)
+            //console.log('PLAYER TO TAG ID: ' + playerToTagId)
+            //console.log(playerToTagId + ", " + idOfTaggingPlayer)
             let distanceBetweenPlayers = geoLib.getDistance(this._players.get(parseInt(playerToTagId)).location, 
                 this._players.get(idOfTaggingPlayer).location);
             if (distanceBetweenPlayers <= 40) {
                 this._players.get(parseInt(playerToTagId)).isTagged = true;
                 this.emit('playerTagged', playerToTagId)
-                return true
             } else {
-                return false;
+                return GameFailureReason.PlayersNotCloseEnough;
             }
         } else {
-            throw new Error('InvalidStateError');
+            return GameFailureReason.IncorrectGameState;
         }
     }
 
@@ -93,27 +133,27 @@ module.exports = class Game extends Events.EventEmitter {
 
     removePlayer(id) {
         this._players.delete(id);
-        this.emit('playerRemoved', id)
+        this.emit('playerRemoved', String(id))
     }
 
-    joinTeam(id, teamId) {
-        console.log('ID TYPE: ' + typeof id + ' teamIdType: ' + typeof teamId)
+    addToTeam(id, teamId) {
+
+        //console.log('ID TYPE: ' + typeof id + ' teamIdType: ' + typeof teamId)
         this._teams[teamId].players.push(id)
-        this.emit('playerJoinedTeam', id, teamId);
+        this.emit('playerJoinedTeam', String(id), teamId);
     }
 
     addTeam(teamName) {
+        if (Object.keys(this._teams).lenght == 2) {
+            throw (new Error(''))
+        }
         let teamId = (Object.keys(this._teams).length + 1);
         let teamToAdd = new Team(teamName, teamId);
-       // if (this._teams[teamId] > 2) {
-            //return false;
-        //}
-        console.log('THIS IS THE TYPE WHILE ADDING TEAM: ' + typeof teamId)
         this._teams[teamId] = teamToAdd;
-        console.log('FROM ADDING TEAM!!!! ' + teamId)
+        console.log(teamName)
+        console.log(teamToAdd)
         this.emit('teamAdded', teamToAdd);
     }
-    
 }
 
 function convertMapToObject(map) {
@@ -121,6 +161,8 @@ function convertMapToObject(map) {
     map.forEach(function(value, key) {
         objToReturn[key] = value;
     })
+    //console.log('object converted')
+    //console.log(objToReturn)
     return objToReturn;
 }
 
