@@ -51,6 +51,11 @@ wss.on('connection', function connection(number) {
   console.log('Connected');
   console.log(ws)*/
 });
+
+const generalError = {
+    gameDoesNotExist: 'gameDoesNotExist'
+}
+
 wss.on('close', function(number) {
     if (clients.get(number).game != undefined) {
         clients.get(number).game.removePlayer(number)
@@ -95,7 +100,7 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
     let gameKey = req.data.gameKey;
     let playerName = req.data.playerName;
     if (!gameExists(gameKey)) {
-        resp.data.error = 'Game does not exist';
+        resp.data.error = {type: generalError.gameDoesNotExist, description: 'Game does not exists'};
         resp.send()
         return;
     }
