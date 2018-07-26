@@ -1,10 +1,11 @@
 const GameFailureReson = {
-    PlayersNotCloseEnough : 'PlayersNotCloseEnough',
-    PlayerDoesNotHavePermission: 'PlayerDoesNotHavePermission',
-    IncorrectGameState: 'IncorrectGameState',
-    TooManyPlayers: 'TooManyPlayers',
-    NameAlreadyTaken: 'NameAlreadyTaken',
-    PlayerAlreadyInGame: 'PlayerAlreadyInGame'
+    playersNotCloseEnough : 'playersNotCloseEnough',
+    playerDoesNotHavePermission: 'playerDoesNotHavePermission',
+    incorrectGameState: 'incorrectGameState',
+    tooManyPlayers: 'tooManyPlayers',
+    nameAlreadyTaken: 'nameAlreadyTaken',
+    playerAlreadyInGame: 'playerAlreadyInGame',
+    tooManyTeams: 'tooManyTeams'
 }
 
 module.exports = GameFailureReson;

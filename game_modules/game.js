@@ -72,16 +72,11 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.checkIfPlayerNameTaken(playerName)) {
             return GameFailureReason.NameAlreadyTaken
         }
-        //console.log("ADDING PLAYER: " + id + " " + playerName)
         let player = new Player(playerName, '' + id);
         if (this._players.size == 0) {
             player.leader = true
         }
-       // console.log('type of id')
-        //console.log(typeof id)
         this._players.set(id, player);
-        //console.log('players map')
-        //console.log(this._players)
         this.emit('playerAdded', player)
     }
 
@@ -96,8 +91,6 @@ module.exports = class Game extends Events.EventEmitter {
 
     tagPlayerIfCloseEnough(playerToTagId, idOfTaggingPlayer) {
         if (this.gameState == this.gameStates.placeFlags) {
-            //console.log('PLAYER TO TAG ID: ' + playerToTagId)
-            //console.log(playerToTagId + ", " + idOfTaggingPlayer)
             let distanceBetweenPlayers = geoLib.getDistance(this._players.get(parseInt(playerToTagId)).location, 
                 this._players.get(idOfTaggingPlayer).location);
             if (distanceBetweenPlayers <= 40) {
@@ -137,15 +130,16 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addToTeam(id, teamId) {
-
+        console.log("Team ID: " + teamId)
         //console.log('ID TYPE: ' + typeof id + ' teamIdType: ' + typeof teamId)
         this._teams[teamId].players.push(id)
         this.emit('playerJoinedTeam', String(id), teamId);
     }
 
     addTeam(teamName) {
-        if (Object.keys(this._teams).lenght == 2) {
-            throw (new Error(''))
+        if (Object.keys(this._teams).length == 2) {
+            console.log('should be returng errororororo')
+            return GameFailureReason.tooManyTeams
         }
         let teamId = (Object.keys(this._teams).length + 1);
         let teamToAdd = new Team(teamName, teamId);
@@ -154,7 +148,16 @@ module.exports = class Game extends Events.EventEmitter {
         console.log(teamToAdd)
         this.emit('teamAdded', teamToAdd);
     }
+
+    nextGameState() {
+        if (this.gameState != this.gameStates.gameEnd) {
+            this.gameState++;
+            this.emit('gameStateChanged', this.gameState);
+        }
+    }
 }
+
+
 
 function convertMapToObject(map) {
     let objToReturn = {};

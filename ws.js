@@ -90,17 +90,16 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     if (playerTaggedSuccess === undefined) {
         resp.send();
     } else {
-        resp.data.error = 'not close enough for player to tag';
+        resp.data.error = playerTaggedSuccess;
         resp.send();
     }
-    
 })
 
 wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
-    let gameKey = req.data.gameKey;
+    let gameKey = req.data.key;
     let playerName = req.data.playerName;
     if (!gameExists(gameKey)) {
-        resp.data.error = {type: generalError.gameDoesNotExist, description: 'Game does not exists'};
+        resp.data.error = generalError.gameDoesNotExist
         resp.send()
         return;
     }
@@ -109,8 +108,6 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
     if (error == undefined) {
         resp.send();
     } else {
-        //console.log('error')
-        //console.log(error)
         resp.data = {}
         resp.data.error = error;
         resp.send();
@@ -128,17 +125,31 @@ wss.onCommand('joinTeam', ['teamId'], function(req, resp) {
     game.addToTeam(req.id, teamToJoinId)
 })
 
+wss.onCommand('nextGameState', null, function(req, resp) {
+    let game = clients.get(req.id).game
+    if (game === undefined) {
+        resp.data.error = generalError.gameDoesNotExist
+        resp.send()
+        return
+    }
+    game.nextGameState()
+
+})
+
 function gameExists(key) {
+    console.log(key)
     return games[key] != undefined;
 }
 
 wss.onCommand('createGame', ['key', 'gameName'], function(req, resp) {
-    let gameKey = req.key;
-    let gameName = req.gameName;
+    let gameKey = req.data.key;
+    let gameName = req.data.gameName;
     let game = new Game(gameName);
     games[gameKey] = game;
     initEvents(game);
     resp.send();
+    console.log('GAMES')
+    console.log(games)
 })
 
 function addFlag(json, id, messageKey) {
@@ -225,7 +236,11 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
         resp.send();
         return;
     }
-    clients.get(req.id).game.addTeam(teamName);
+    let error = clients.get(req.id).game.addTeam(teamName);
+    console.log(error)
+    if (error != undefined) {
+        resp.data.error = error
+    }
     resp.send();
 })
 
@@ -248,7 +263,6 @@ function initEvents(game) {
         };
         for (key in players) {
             wss.send('locationUpdate', data, key);
-            //clients.get(players[key].id).send(new Message('locationUpdate', null, {playerId : "" + id, newLocation : location.latitude + ',' + location.longitude }, null));
          }
     })
 
@@ -259,25 +273,20 @@ function initEvents(game) {
         }
         for (key in players) {
             wss.send('playerTagged', data, key)
-            //clients.get(key).send(new Message('playerTagged', null, {playerId: '' + playerTaggedId}));
         }
     })
 
     game.on('playerAdded', function(playerAdded) {
         let players = game.getPlayers();
         for (key in players) {
-            //console.log(typeof key)
             wss.send('playerAdded', playerAdded, key)
-            //clients.get(players[key].id).send(new Message('playerAdded', null, playerAdded, null));
         }
     })
 
     game.on('teamAdded', function(team) {
         let players = game.getPlayers();
         for (key in players) {
-            //console.log('THIS IS WORKING!!!! ')
             wss.send('teamAdded', team, key);
-            //clients.get(players[key].id).send(new Message('teamAdded', null, team, null));
         }
     })
     
@@ -285,7 +294,6 @@ function initEvents(game) {
         let players = game.getPlayers();
         for (key in players) {
             wss.send('playerRemoved', playerId, key);
-            //clients.get(players[key].id).send(new Message('playerRemoved', null, playerId, null));
         }
     })
 
@@ -293,7 +301,6 @@ function initEvents(game) {
         let players = game.getPlayers();
         for (key in players) {
             wss.send('flagAdded', flag, key);
-            clients.get(players[key].id).send(new Message('flagAdded', null, flag, null));
         }
     })
 
@@ -306,7 +313,13 @@ function initEvents(game) {
         for (key in players) {
             console.log(typeof key)
             wss.send('playerJoinedTeam', teamAndPlayer, key);
-            //clients.get(players[key].id).send(new Message('playerJoinedTeam', null, teamAndPlayer, null));
+        }
+    })
+
+    game.on('gameStateChanged', function(gameState) {
+        let players = game.getPlayers()
+        for (key in players) {
+            wss.send('gameStateChanged', gameState, key)
         }
     })
 }

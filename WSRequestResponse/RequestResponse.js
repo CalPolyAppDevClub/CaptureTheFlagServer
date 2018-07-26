@@ -16,13 +16,13 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
             self.emit('connection', self._connectionNumber)
             let number = self._connectionNumber
             self._connectionNumber++
-            console.log('connection number')
-            console.log(self._connectionNumber)
+            //console.log('connection number')
+            //console.log(self._connectionNumber)
             
             ws.on('message', function(message) {
                 let messageObject = JSON.parse(message)
                 //console.log('message that is being revieved')
-                console.log(messageObject)
+                console.log(messageObject.command)
                 if (messageIsValid(messageObject)) {
                     if (checkParams.call(self, messageObject)) {
                         let req = {
