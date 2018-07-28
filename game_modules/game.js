@@ -132,7 +132,7 @@ module.exports = class Game extends Events.EventEmitter {
     addToTeam(id, teamId) {
         console.log("Team ID: " + teamId)
         //console.log('ID TYPE: ' + typeof id + ' teamIdType: ' + typeof teamId)
-        this._teams[teamId].players.push(id)
+        this._teams[teamId].players.push('' + id)
         this.emit('playerJoinedTeam', String(id), teamId);
     }
 

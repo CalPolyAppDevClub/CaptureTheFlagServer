@@ -61,7 +61,6 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
             callback : callback
         }
     }
-
 }
 
 class Response {

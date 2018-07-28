@@ -64,9 +64,9 @@ wss.on('close', function(number) {
 })
 
 wss.onCommand('updateLocation', ['latitude', 'longitude'], function(req, resp) {
-    let latitude = req.latitude;
-    let longitude = req.longitude;
-    let game = clients.get(id).game;
+    let latitude = req.data.latitude;
+    let longitude = req.data.longitude;
+    let game = clients.get(req.id).game;
     if (game === undefined) {
         resp.data.error = 'player not in game';
     }
@@ -133,7 +133,6 @@ wss.onCommand('nextGameState', null, function(req, resp) {
         return
     }
     game.nextGameState()
-
 })
 
 function gameExists(key) {
@@ -148,8 +147,6 @@ wss.onCommand('createGame', ['key', 'gameName'], function(req, resp) {
     games[gameKey] = game;
     initEvents(game);
     resp.send();
-    console.log('GAMES')
-    console.log(games)
 })
 
 function addFlag(json, id, messageKey) {
@@ -259,7 +256,8 @@ function initEvents(game) {
     game.on('locationUpdate', function(id, location) {
         let players = game.getPlayers();
         let data = {
-            playerId : '' + id, newLocation: location.latitude + ',' + location.longitude
+            playerId : '' + id, 
+            newLocation: location.latitude + ',' + location.longitude
         };
         for (key in players) {
             wss.send('locationUpdate', data, key);
