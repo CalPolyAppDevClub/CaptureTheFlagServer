@@ -123,6 +123,16 @@ module.exports = class Game extends Events.EventEmitter {
         this.emit('flagAdded', flag, teamId)
     }
 
+    pickUpFlag(flagId, playerId) {
+        if (this.gameState !== this.gameStates.gameInProgress) {
+            return GameFailureReason.incorrectGameState
+        }
+        if (getTeamOf.call(this, 'flag', flagId) !== getTeamOf.call(this, 'player', playerId)) {
+            return GameFailureReason.cannotPickUpFlag
+        }
+         
+    }
+
     getFlags() {
         return clone(convertMapToObject(this._flags))
     }
@@ -164,6 +174,29 @@ module.exports = class Game extends Events.EventEmitter {
     }
 };
 
+function getTeamOf(type, id) {
+    switch (type) {
+        case 'player':
+            if (this._teams[1].containsPlayer(id)) {
+                return this._teams[1]
+            }
+            if (this._teams[2].containsPlayer(id)) {
+                return this._teams[2]
+            }
+            break
+        case 'flag':
+            if (this._teams[1].containsFlag(id)) {
+                return this._teams[1]
+            }
+            if (this._teams[2].containsFlag(id)) {
+                return this._teams[2]
+            }
+            break
+        default:
+            break
+    }
+}
+
 function convertMapToObject(map) {
     let objToReturn = {};
     map.forEach(function(value, key) {
@@ -181,7 +214,7 @@ class Player {
         this.flagHeld = false;
         this.id = id;
         this.isTagged = false;
-        this.leader = false;
+        this.leader = true;
     }
 }
 

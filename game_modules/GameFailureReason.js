@@ -5,7 +5,8 @@ const GameFailureReson = {
     tooManyPlayers: 'tooManyPlayers',
     nameAlreadyTaken: 'nameAlreadyTaken',
     playerAlreadyInGame: 'playerAlreadyInGame',
-    tooManyTeams: 'tooManyTeams'
+    tooManyTeams: 'tooManyTeams',
+    cannotPickUpFlag: 'cannotPickUpFlag'
     
 }
 
