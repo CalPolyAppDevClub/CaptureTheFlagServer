@@ -13,21 +13,18 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
         self = this;
         this._webSocketServer.on('connection', function(ws, req) {
             self._connections.set(self._connectionNumber, ws)
-            self.emit('connection', self._connectionNumber)
+            self.emit('connection', '' + self._connectionNumber)
             let number = self._connectionNumber
             self._connectionNumber++
-            //console.log('connection number')
-            //console.log(self._connectionNumber)
             
             ws.on('message', function(message) {
                 let messageObject = JSON.parse(message)
-                //console.log('message that is being revieved')
                 console.log(messageObject.command)
                 if (messageIsValid(messageObject)) {
                     if (checkParams.call(self, messageObject)) {
                         let req = {
                             data : messageObject.data,
-                            id : number
+                            id : '' + number
                         }
                         let callbackToUse = self._commands[messageObject.command].callback
                         let resp = new Response(ws, messageObject.key)
@@ -37,8 +34,6 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
                     }
                 } else {
                     let messageToSend = JSON.stringify(new Message(null, messageObject.key, null, new ServerError(200, 'Bad Message')))
-                    //console.log('MESSAGE TO SEND')
-                    //console.log(messageToSend)
                     ws.send(messageToSend)
                 }
             })
@@ -50,13 +45,11 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
     }
 
     send(command, data, id) {
-       // console.log('THis is getting called more and more')
-        //console.log(typeof id)
-        self._connections.get(Number(id)).send(JSON.stringify(new Message(command, null, data, null)))
+        this._connections.get(Number(id)).send(JSON.stringify(new Message(command, null, data, null)))
     }
 
     onCommand(command, paramNames, callback) {
-        self._commands[command] = {
+        this._commands[command] = {
             paramNames : paramNames,
             callback : callback
         }
@@ -84,17 +77,10 @@ function checkParams(message) {
     if (realParamNames === null && paramNamesToCheck === null) {
         return true
     }
-   // console.log('params to check')
-   // console.log(paramNamesToCheck)
-    //console.log('ream params')
-   //console.log(realParamNames)
     let paramsAccurate = false
     realParamNames.forEach(function(paramName) {
-       // console.log('looping')
         Object.keys(paramNamesToCheck).forEach(key => {
-            //console.log('this is also working')
             if (key !== paramName) {
-                //console.log('this is going to be false')
                 return
         }
             paramsAccurate = true

@@ -1,20 +1,9 @@
-const Game = require('./game_modules/game');
-const WSRR = require('./WSRequestResponse/RequestResponse')
-//let server = new WSRR({name: 'Bob', port: 3000})
+var set = new Set()
 
-class Person {
-    constructor() {
-        this.larry = 'larry'
-        var bob = 'bob'
-    }
-    printBob() {
-        console.log(bob)
-    }
-}
+set.add('Bob')
+set.add('Bill')
 
-let BOBOBOBOBOB = new Person
-BOBOBOBOBOB.printBob()
+let string = JSON.stringify(set)
 
-
-
-
+console.log(string)
+console.log(set)

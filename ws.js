@@ -53,7 +53,9 @@ wss.on('connection', function connection(number) {
 });
 
 const generalError = {
-    gameDoesNotExist: 'gameDoesNotExist'
+    gameDoesNotExist: 'gameDoesNotExist',
+    notInAGame: 'notInAGame',
+    playerBeingTaggedNotInAGame: 'playerBeingTaggedNotInAGame'
 }
 
 wss.on('close', function(number) {
@@ -75,21 +77,30 @@ wss.onCommand('updateLocation', ['latitude', 'longitude'], function(req, resp) {
 
 wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     let playerToTag = req.data.playerToTagId;
+    console.log("the player being tagged")
+    console.log(playerToTag)
+    console.log(req.id)
+    console.log(clients)
     let id = req.id;
+    resp.data = {}
     if (clients.get(playerToTag).game === undefined) {
-        resp.data.error = 'player being tagged not in game';
+        resp.data = {}
+        resp.data.error = generalError.playerBeingTaggedNotInAGame;
         resp.send();
         return;
     }
     if (clients.get(id).game === undefined) {
-        resp.data.error = 'not in game';
+        resp.data.error = generalError.notInAGame;
         resp.send()
         return;
     }
     let playerTaggedSuccess = clients.get(id).game.tagPlayer(playerToTag, id);
     if (playerTaggedSuccess === undefined) {
+        resp.data = {}
+        console.log('it is sending without error for some reason')
         resp.send();
     } else {
+        resp.data = {}
         resp.data.error = playerTaggedSuccess;
         resp.send();
     }
@@ -149,17 +160,29 @@ wss.onCommand('createGame', ['key', 'gameName'], function(req, resp) {
     resp.send();
 })
 
-function addFlag(json, id, messageKey) {
-    let flagLocation = json.flagLocation;
-    let flagTeam = json.flagTeam;
-    if (checkUndifined(flagLocation, flagTeam)) {
-        console.log('addFlag invalid arguments')
-        return;
+wss.onCommand('createFlag', ['latitude', 'longitude'], function(req, resp) {
+    console.log('create flag')
+    console.log(req)
+    let location = {latitude: req.data.latitude, longitude: req.data.longitude}
+    if (clients.get(req.id).game === undefined) {
+        resp.data = {}
+        resp.data.error = generalError.notInAGame
+        resp.send()
+        return
     }
-    clients.get(id).game.addFlag(flagLocation);
-}
+    let placeFlagError = clients.get(req.id).game.addFlag(req.id, location)
+    console.log('Place flag error')
+    console.log(placeFlagError)
+    if (placeFlagError === undefined) {
+        resp.data = {}
+        resp.data.error = placeFlagError
+        resp.send()
+    } else {
+        resp.send()
+    }
+})
 
-wss.onCommand('getPlayerInfo', null, function(req, rssp) {
+wss.onCommand('getPlayerInfo', null, function(req, resp) {
     if (clients.get(req.id).game === undefined) {
         resp.data.error = 'not in a game';
         resp.send();
@@ -188,12 +211,16 @@ wss.onCommand('getFlags', null, function(req, resp) {
 })
 
 wss.onCommand('getTeams', null, function(req, resp){
+    console.log('getTeams is actually getting called')
     if (clients.get(req.id).game === undefined) {
+        console.log('getting team plater not in game')
         resp.data.error = 'getTeams: not in game';
         resp.send();
         return;
     }
-    let teams = clients.get(id).game.getTeams();
+    let teams = clients.get(req.id).game.getTeams();
+    console.log('Getting teams')
+    console.log(teams)
     resp.data = {};
     resp.data.teams = teams;
     resp.send();
@@ -226,7 +253,7 @@ wss.onCommand('getPlayers', null, function(req, resp) {
 })
 
 wss.onCommand('createTeam', ['teamName'], function(req, resp) {
-    //console.log('create team is being called')
+    console.log('create team is being called')
     let teamName = req.data.teamName;
     if (clients.get(req.id).game === undefined) {
         resp.data.error = 'createTeam: not in game';
@@ -241,23 +268,12 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
     resp.send();
 })
 
-wss.onCommand('getTeams', null, function(req, resp) {
-    if (clients.get(req.id).game === undefined) {
-        resp.data.error = 'getTeams: not in game';
-        resp.send();
-        return;
-    }
-    let teams = clients.get(req.id).game.getTeams();
-    resp.data.teams = teams;
-    resp.send();
-})
-
 function initEvents(game) {
     game.on('locationUpdate', function(id, location) {
         let players = game.getPlayers();
         let data = {
             playerId : '' + id, 
-            newLocation: location.latitude + ',' + location.longitude
+            newLocation: location
         };
         for (key in players) {
             wss.send('locationUpdate', data, key);
@@ -282,6 +298,8 @@ function initEvents(game) {
     })
 
     game.on('teamAdded', function(team) {
+        console.log('TEEEEEEEEAAAAAAAAMMMMMMMMM ADDDDDEEEESSSS')
+        console.log(team)
         let players = game.getPlayers();
         for (key in players) {
             wss.send('teamAdded', team, key);
@@ -295,14 +313,19 @@ function initEvents(game) {
         }
     })
 
-    game.on('flagAdded', function(flag) {
+    game.on('flagAdded', function(flag, teamId) {
         let players = game.getPlayers();
+        let flagAndTeam = {
+            flag: flag,
+            teamId: teamId
+        }
         for (key in players) {
-            wss.send('flagAdded', flag, key);
+            wss.send('flagAdded', flagAndTeam, key);
         }
     })
 
     game.on('playerJoinedTeam', function(playerId, teamId) {
+        console.log('player joined team')
         let teamAndPlayer = {
             id : playerId,
             team : teamId

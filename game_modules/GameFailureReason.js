@@ -6,6 +6,7 @@ const GameFailureReson = {
     nameAlreadyTaken: 'nameAlreadyTaken',
     playerAlreadyInGame: 'playerAlreadyInGame',
     tooManyTeams: 'tooManyTeams'
+    
 }
 
 module.exports = GameFailureReson;

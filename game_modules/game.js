@@ -1,11 +1,11 @@
-const geoLib = require('geolib')
+const geoLib = require('geolib');
 const clone = require('clone');
 const Events = require('events');
 const GameFailureReason = require('./GameFailureReason');
 
 const MAX_PLAYERS_PER_TEAM = 15;
 module.exports = class Game extends Events.EventEmitter {
-    constructor(name, locationCallback) {
+    constructor(name) {
         super();
         this._players = new Map();
         this._flags = new Map();
@@ -16,7 +16,7 @@ module.exports = class Game extends Events.EventEmitter {
             placeFlags : 1,
             gameInProgress : 2,
             gameEnd : 3
-        }
+        };
         this.gameState = this.gameStates.lobby;
     }
 
@@ -38,26 +38,24 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     checkIfPlayerNameTaken(name) {
-        let playerNameTaken = false
+        let playerNameTaken = false;
         if (this._players.size === 0) {
             return false
         }
         Object.keys(this._players.keys).forEach(key => {
             if (this._players.get(key).name === name) {
-                console.log(this._players.get(key).name)
+                console.log(this._players.get(key).name);
                 playerNameTaken = true
             } 
-        })
+        });
         //console.log('name already taken')
         //console.log(playerNameTaken)
-        if (playerNameTaken == false) {
-            return false
-        }
-        return true
+        return playerNameTaken !== false;
+
     }
 
     checkIfTeamExists(teamId) {
-        return this._teams[teamId] != undefined
+        return this._teams[teamId] !== undefined
         
     }
         
@@ -66,14 +64,14 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.checkIfAlreadyInGame(id)) {
             return GameFailureReason.PlayerAlreadyInGame;
         }
-        if (this._players.size == MAX_PLAYERS_PER_TEAM) {
+        if (this._players.size === MAX_PLAYERS_PER_TEAM) {
             return GameFailureReason.TooManyPlayers;
         }
         if (this.checkIfPlayerNameTaken(playerName)) {
             return GameFailureReason.NameAlreadyTaken
         }
         let player = new Player(playerName, '' + id);
-        if (this._players.size == 0) {
+        if (this._players.size === 0) {
             player.leader = true
         }
         this._players.set(id, player);
@@ -84,36 +82,45 @@ module.exports = class Game extends Events.EventEmitter {
         let location = {
             latitude : latitude,
             longitude : longitude
-        }
-        this._players.get(id).location = location
+        };
+        this._players.get(id).location = location;
         this.emit('locationUpdate', id, location)
     }
 
-    tagPlayerIfCloseEnough(playerToTagId, idOfTaggingPlayer) {
-        if (this.gameState == this.gameStates.placeFlags) {
-            let distanceBetweenPlayers = geoLib.getDistance(this._players.get(parseInt(playerToTagId)).location, 
-                this._players.get(idOfTaggingPlayer).location);
-            if (distanceBetweenPlayers <= 40) {
-                this._players.get(parseInt(playerToTagId)).isTagged = true;
-                this.emit('playerTagged', playerToTagId)
-            } else {
-                return GameFailureReason.PlayersNotCloseEnough;
-            }
+    tagPlayer(playerToTagId, idOfTaggingPlayer) {
+        if (this.gameState != this.gameStates.gameInProgress) {
+            return GameFailureReason.incorrectGameState
+        }
+        let distanceBetweenPlayers = geoLib.getDistance(this._players.get(playerToTagId).location, 
+            this._players.get(idOfTaggingPlayer).location)
+        if (distanceBetweenPlayers <= 40) {
+            this._players.get(playerToTagId).isTagged = true
+            this.emit('playerTagged', playerToTagId)
         } else {
-            return GameFailureReason.IncorrectGameState;
+            return GameFailureReason.playersNotCloseEnough
         }
     }
 
-    addFlag(location) {
-        if (this.gameState == this.gameStates.placeFlags) {
-            let flagId = this._flags.size + 1;
-            let flag = new Flag(flagId, location);
-            this._flags.set(flagId, flag);
-            this.emit('flagAdded', flag)
-        } else {
-            throw new Error('InvalidStateError')
+    addFlag(idOfAdder, location) {
+        if (this.gameState !== this.gameStates.placeFlags) {
+            return GameFailureReason.incorrectGameState
         }
-        
+        if (!this._players.get(idOfAdder).leader) {
+            return GameFailureReason.playerDoesNotHavePermission
+        }
+        console.log('flag added passed the tests');
+        let flagId = this._flags.size + 1;
+        let flag = new Flag('' + flagId, location);
+        this._flags.set(flagId, flag);
+        let teamId;
+        if (this._teams[1].containsPlayer(idOfAdder.toString())) {
+            teamId = this._teams[1].id
+            this._teams[teamId].flags.push(flagId.toString())
+        } else {
+            teamId = this._teams[2].id
+            this._teams[teamId].flags.push(flagId.toString())
+        }
+        this.emit('flagAdded', flag, teamId)
     }
 
     getFlags() {
@@ -130,40 +137,38 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addToTeam(id, teamId) {
-        console.log("Team ID: " + teamId)
+        console.log("Team ID: " + teamId);
         //console.log('ID TYPE: ' + typeof id + ' teamIdType: ' + typeof teamId)
-        this._teams[teamId].players.push('' + id)
+        this._teams[teamId].players.push('' + id);
         this.emit('playerJoinedTeam', String(id), teamId);
     }
 
     addTeam(teamName) {
-        if (Object.keys(this._teams).length == 2) {
-            console.log('should be returng errororororo')
+        if (Object.keys(this._teams).length === 2) {
+            console.log('should be returng errororororo');
             return GameFailureReason.tooManyTeams
         }
         let teamId = (Object.keys(this._teams).length + 1);
         let teamToAdd = new Team(teamName, teamId);
         this._teams[teamId] = teamToAdd;
-        console.log(teamName)
-        console.log(teamToAdd)
+        console.log(teamName);
+        console.log(teamToAdd);
         this.emit('teamAdded', teamToAdd);
     }
 
     nextGameState() {
-        if (this.gameState != this.gameStates.gameEnd) {
+        if (this.gameState !== this.gameStates.gameEnd) {
             this.gameState++;
             this.emit('gameStateChanged', this.gameState);
         }
     }
-}
-
-
+};
 
 function convertMapToObject(map) {
     let objToReturn = {};
     map.forEach(function(value, key) {
         objToReturn[key] = value;
-    })
+    });
     //console.log('object converted')
     //console.log(objToReturn)
     return objToReturn;
@@ -174,7 +179,6 @@ class Player {
         this.name = name;
         this.location = null;
         this.flagHeld = false;
-        this.teamName = null
         this.id = id;
         this.isTagged = false;
         this.leader = false;
@@ -183,9 +187,8 @@ class Player {
 
 class Flag  {
     constructor(id, location) {
-        this.id = id
+        this.id = id;
         this.location = location;
-        this.held = false;
     }
 }
 
@@ -194,8 +197,26 @@ class Team {
         this.id = id;
         this.name = name;
         this.players = new Array();
-        this.flags = {};
-
+        this.flags = new Array();
+    }
+    containsPlayer(playerId) {
+        let contains = false
+        this.players.forEach(function(item) {
+            if (item === playerId) {
+                contains = true
+                return
+            }
+        })
+        return contains
+    }
+    containsFlag(flagId) {
+        let contains = false
+        this.flags.forEach(function(item) {
+            if (item === flagId) {
+                contains = true
+                return
+            }
+        })
+        return contains
     }
 }
-
