@@ -93,9 +93,13 @@ module.exports = class Game extends Events.EventEmitter {
         }
         let distanceBetweenPlayers = geoLib.getDistance(this._players.get(playerToTagId).location, 
             this._players.get(idOfTaggingPlayer).location)
-        if (distanceBetweenPlayers <= 40) {
+        if (distanceBetweenPlayers <= 4000000000000000000) {
             this._players.get(playerToTagId).isTagged = true
-            this.emit('playerTagged', playerToTagId)
+            let flagHeldLocation = null
+            if (this._players.get(playerToTagId).flagHeld !== null) {
+                flagHeldLocation = this._players.get(playerToTagId).location
+            }
+            this.emit('playerTagged', playerToTagId, flagHeldLocation)
         } else {
             return GameFailureReason.playersNotCloseEnough
         }
@@ -111,7 +115,7 @@ module.exports = class Game extends Events.EventEmitter {
         console.log('flag added passed the tests');
         let flagId = this._flags.size + 1;
         let flag = new Flag('' + flagId, location);
-        this._flags.set(flagId, flag);
+        this._flags.set('' + flagId, flag);
         let teamId;
         if (this._teams[1].containsPlayer(idOfAdder.toString())) {
             teamId = this._teams[1].id
@@ -124,13 +128,22 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     pickUpFlag(flagId, playerId) {
+        console.log('playerId typeof')
+        console.log(typeof playerId)
+        console.log('flagid typeof')
+        console.log(typeof flagId)
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
         if (getTeamOf.call(this, 'flag', flagId) !== getTeamOf.call(this, 'player', playerId)) {
             return GameFailureReason.cannotPickUpFlag
         }
-         
+        if (geoLib.getDistance(this._players.get(playerId).location, this._flags.get(flagId).location) >= 4000000000000000000) {
+            return GameFailureReason.cannotPickUpFlag
+        }
+        this._players.get(playerId).flagHeld = flagId
+        this._flags.get(flagId).held = true;
+        this.emit('flagPickedUp', flagId, playerId)
     }
 
     getFlags() {
@@ -145,6 +158,8 @@ module.exports = class Game extends Events.EventEmitter {
         this._players.delete(id);
         this.emit('playerRemoved', String(id))
     }
+
+
 
     addToTeam(id, teamId) {
         console.log("Team ID: " + teamId);
@@ -165,6 +180,7 @@ module.exports = class Game extends Events.EventEmitter {
         console.log(teamToAdd);
         this.emit('teamAdded', teamToAdd);
     }
+
 
     nextGameState() {
         if (this.gameState !== this.gameStates.gameEnd) {
@@ -211,7 +227,7 @@ class Player {
     constructor(name, id) {
         this.name = name;
         this.location = null;
-        this.flagHeld = false;
+        this.flagHeld = null;
         this.id = id;
         this.isTagged = false;
         this.leader = true;
@@ -222,6 +238,7 @@ class Flag  {
     constructor(id, location) {
         this.id = id;
         this.location = location;
+        this.held = false;
     }
 }
 

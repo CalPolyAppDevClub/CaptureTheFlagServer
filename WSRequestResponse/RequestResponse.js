@@ -74,6 +74,9 @@ class Response {
 function checkParams(message) {
     let realParamNames = this._commands[message.command].paramNames
     let paramNamesToCheck = message.data
+    if (realParamNames !== null && paramNamesToCheck === null) {
+        return false
+    }
     if (realParamNames === null && paramNamesToCheck === null) {
         return true
     }

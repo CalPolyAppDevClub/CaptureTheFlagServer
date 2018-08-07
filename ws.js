@@ -210,6 +210,23 @@ wss.onCommand('getFlags', null, function(req, resp) {
     resp.send();
 })
 
+wss.onCommand('pickUpFlag', ['flagId'], function(req, resp) {
+    if (clients.get(req.id).game === undefined) {
+        resp.data = {};
+        resp.data.error = generalError.notInAGame;
+        resp.send();
+        return;
+    }
+    let gameError = clients.get(req.id).game.pickUpFlag(req.data.flagId, req.id);
+    if (gameError !== undefined) {
+        resp.data = {};
+        resp.data.error = gameError;
+        resp.send();
+    } else {
+        resp.send();
+    }
+})
+
 wss.onCommand('getTeams', null, function(req, resp){
     console.log('getTeams is actually getting called')
     if (clients.get(req.id).game === undefined) {
@@ -280,10 +297,13 @@ function initEvents(game) {
          }
     })
 
-    game.on('playerTagged', function(playerTaggedId) {
+    game.on('playerTagged', function(playerTaggedId, flagHeldLocation) {
         let players = game.getPlayers();
         let data = {
-            playerId: ' + playerTaggedId'
+            playerId: '' + playerTaggedId,
+        }
+        if (flagHeldLocation !== null) {
+            data.flagHeldLocation = flagHeldLocation
         }
         for (key in players) {
             wss.send('playerTagged', data, key)
@@ -298,8 +318,6 @@ function initEvents(game) {
     })
 
     game.on('teamAdded', function(team) {
-        console.log('TEEEEEEEEAAAAAAAAMMMMMMMMM ADDDDDEEEESSSS')
-        console.log(team)
         let players = game.getPlayers();
         for (key in players) {
             wss.send('teamAdded', team, key);
@@ -341,6 +359,17 @@ function initEvents(game) {
         let players = game.getPlayers()
         for (key in players) {
             wss.send('gameStateChanged', gameState, key)
+        }
+    })
+
+    game.on('flagPickedUp', function(flagId, playerId) {
+        let players = game.getPlayers()
+        let flagIdAndPlayerId = {
+            flagId: flagId,
+            playerId: playerId
+        }
+        for (key in players) {
+            wss.send('flagPickedUp', flagIdAndPlayerId, key)
         }
     })
 }
