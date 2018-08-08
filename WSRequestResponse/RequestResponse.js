@@ -38,7 +38,7 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
                 }
             })
             ws.on('close', function() {
-                self._connections.delete()
+                self._connections.delete(number)
                 self.emit('close', number)
             })
         })
