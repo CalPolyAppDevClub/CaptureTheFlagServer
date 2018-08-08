@@ -59,8 +59,8 @@ const generalError = {
 }
 
 wss.on('close', function(number) {
-    if (clients.get(number).game != undefined) {
-        clients.get(number).game.removePlayer(number)
+    if (clients.get('' + number).game != undefined) {
+        clients.get('' + number).game.removePlayer(number)
     }
     clients.delete(number)
 })
