@@ -135,7 +135,7 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
-        if (getTeamOf.call(this, 'flag', flagId) !== getTeamOf.call(this, 'player', playerId)) {
+        if (getTeamOf.call(this, 'flag', flagId) === getTeamOf.call(this, 'player', playerId)) {
             return GameFailureReason.cannotPickUpFlag
         }
         if (geoLib.getDistance(this._players.get(playerId).location, this._flags.get(flagId).location) >= 4000000000000000000) {
