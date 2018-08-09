@@ -10,6 +10,7 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
         this._connectionNumber = 0;
         this._connections = new Map()
         this._webSocketServer = new WebSocket.Server(options);
+        this._webSocketServer.on
         self = this;
         this._webSocketServer.on('connection', function(ws, req) {
             self._connections.set(self._connectionNumber, ws)
@@ -37,6 +38,10 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
                     ws.send(messageToSend)
                 }
             })
+            ws.on('ping', function(something) {
+                console.log('has been pinged')
+                ws.pong()
+            })
             ws.on('close', function() {
                 self._connections.delete(number)
                 self.emit('close', number)
@@ -45,7 +50,9 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
     }
 
     send(command, data, id) {
-        this._connections.get(Number(id)).send(JSON.stringify(new Message(command, null, data, null)))
+        if (this._connections.get(Number(id)) !== undefined) {
+            this._connections.get(Number(id)).send(JSON.stringify(new Message(command, null, data, null)))
+        }
     }
 
     onCommand(command, paramNames, callback) {

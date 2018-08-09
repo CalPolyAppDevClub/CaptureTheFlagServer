@@ -59,6 +59,7 @@ const generalError = {
 }
 
 wss.on('close', function(number) {
+    console.log('CLOOOSED')
     if (clients.get('' + number).game != undefined) {
         clients.get('' + number).game.removePlayer(number)
     }
