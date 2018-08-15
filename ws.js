@@ -28,7 +28,9 @@ function verifyClient(info, callback) {
     }
 }
 
-let wss = new RRWS({server: server, verifyClient: verifyClient})
+//let wss = new RRWS({server: server, verifyClient: verifyClient})
+
+let wss = new RRWS({server: server})
 
 //var wss = new WebSocket.Server({server: server})
 console.log("websocket server created")
@@ -60,11 +62,12 @@ const generalError = {
 
 wss.on('close', function(number) {
     console.log('CLOOOSED')
-    if (clients.get('' + number).game != undefined) {
-        clients.get('' + number).game.removePlayer(number)
-    }
-    clients.delete(number)
+    //if (clients.get('' + number).game != undefined) {
+        //clients.get('' + number).game.removePlayer(number)
+    //}
+    //clients.delete(number)
 })
+
 
 wss.onCommand('updateLocation', ['latitude', 'longitude'], function(req, resp) {
     let latitude = req.data.latitude;
@@ -78,10 +81,6 @@ wss.onCommand('updateLocation', ['latitude', 'longitude'], function(req, resp) {
 
 wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     let playerToTag = req.data.playerToTagId;
-    console.log("the player being tagged")
-    console.log(playerToTag)
-    console.log(req.id)
-    console.log(clients)
     let id = req.id;
     resp.data = {}
     if (clients.get(playerToTag).game === undefined) {
@@ -98,7 +97,6 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     let playerTaggedSuccess = clients.get(id).game.tagPlayer(playerToTag, id);
     if (playerTaggedSuccess === undefined) {
         resp.data = {}
-        console.log('it is sending without error for some reason')
         resp.send();
     } else {
         resp.data = {}
@@ -148,7 +146,6 @@ wss.onCommand('nextGameState', null, function(req, resp) {
 })
 
 function gameExists(key) {
-    console.log(key)
     return games[key] != undefined;
 }
 
@@ -162,8 +159,6 @@ wss.onCommand('createGame', ['key', 'gameName'], function(req, resp) {
 })
 
 wss.onCommand('createFlag', ['latitude', 'longitude'], function(req, resp) {
-    console.log('create flag')
-    console.log(req)
     let location = {latitude: req.data.latitude, longitude: req.data.longitude}
     if (clients.get(req.id).game === undefined) {
         resp.data = {}
@@ -172,8 +167,6 @@ wss.onCommand('createFlag', ['latitude', 'longitude'], function(req, resp) {
         return
     }
     let placeFlagError = clients.get(req.id).game.addFlag(req.id, location)
-    console.log('Place flag error')
-    console.log(placeFlagError)
     if (placeFlagError === undefined) {
         resp.data = {}
         resp.data.error = placeFlagError
@@ -192,9 +185,6 @@ wss.onCommand('getPlayerInfo', null, function(req, resp) {
     let player = clients.get(req.id).game.getPlayerInfo(req.id);
     //converts everything to a string
     //let playerrEWithStringValues = {}
-    for (key in player) {
-        console.log('ITEM IN PLAYER ' + key + ', ' + player[key]);
-    }
     resp.data.player = player;
     resp.send();
 })
@@ -229,16 +219,12 @@ wss.onCommand('pickUpFlag', ['flagId'], function(req, resp) {
 })
 
 wss.onCommand('getTeams', null, function(req, resp){
-    console.log('getTeams is actually getting called')
     if (clients.get(req.id).game === undefined) {
-        console.log('getting team plater not in game')
         resp.data.error = 'getTeams: not in game';
         resp.send();
         return;
     }
     let teams = clients.get(req.id).game.getTeams();
-    console.log('Getting teams')
-    console.log(teams)
     resp.data = {};
     resp.data.teams = teams;
     resp.send();
@@ -265,13 +251,10 @@ wss.onCommand('getPlayers', null, function(req, resp) {
     let players = clients.get(req.id).game.getPlayers();
     resp.data = {};
     resp.data.players = players;
-    //console.log('This is get players')
-    //console.log(resp.data.players)
     resp.send();
 })
 
 wss.onCommand('createTeam', ['teamName'], function(req, resp) {
-    console.log('create team is being called')
     let teamName = req.data.teamName;
     if (clients.get(req.id).game === undefined) {
         resp.data.error = 'createTeam: not in game';
@@ -279,7 +262,6 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
         return;
     }
     let error = clients.get(req.id).game.addTeam(teamName);
-    console.log(error)
     if (error != undefined) {
         resp.data.error = error
     }
@@ -344,14 +326,12 @@ function initEvents(game) {
     })
 
     game.on('playerJoinedTeam', function(playerId, teamId) {
-        console.log('player joined team')
         let teamAndPlayer = {
             id : playerId,
             team : teamId
         }
         let players = game.getPlayers()
         for (key in players) {
-            console.log(typeof key)
             wss.send('playerJoinedTeam', teamAndPlayer, key);
         }
     })
