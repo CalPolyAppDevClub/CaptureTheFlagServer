@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const Events = require('events')
 const Message = require('./message')
 const ServerError = require('./ServerError')
+const uuid = require('uuid/v4')
 let self;
 module.exports = class WSRequestResponse extends Events.EventEmitter {
     constructor(options) {
@@ -12,46 +13,27 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
         this._webSocketServer = new WebSocket.Server(options);
         this._webSocketServer.on
         self = this;
-        this._webSocketServer.on('connection', function(ws, req) {
-            self._connections.set(self._connectionNumber, ws)
-            self.emit('connection', '' + self._connectionNumber)
-            let number = self._connectionNumber
-            self._connectionNumber++
-            
-            ws.on('message', function(message) {
-                let messageObject = JSON.parse(message)
-                console.log(messageObject.command)
-                if (messageIsValid(messageObject)) {
-                    if (checkParams.call(self, messageObject)) {
-                        let req = {
-                            data : messageObject.data,
-                            id : '' + number
-                        }
-                        let callbackToUse = self._commands[messageObject.command].callback
-                        let resp = new Response(ws, messageObject.key)
-                        callbackToUse(req, resp)
-                    } else {
-                        ws.send(JSON.stringify(new Message(null, messageObject.key, null, new ServerError(250, 'Invalid Arguments'))))
-                    }
-                } else {
-                    let messageToSend = JSON.stringify(new Message(null, messageObject.key, null, new ServerError(200, 'Bad Message')))
-                    ws.send(messageToSend)
-                }
-            })
-            ws.on('ping', function(something) {
-                console.log('has been pinged')
-                ws.pong()
-            })
-            ws.on('close', function() {
-                self._connections.delete(number)
-                self.emit('close', number)
-            })
+        this._webSocketServer.on('connection', (ws, req) => {
+            if (req.headers['RECONNECT'] !== undefined) {
+                console.log('getting a reconnect reqeust')
+                handleReconnection.call(this, req.headers['RECONNECT'], ws)
+                let number = req.headers['RECONNECT']
+                setupWebsocket.call(this, ws, number)
+            } else {
+                let number = uuid()
+                ws.send(JSON.stringify({RECONNECTID: number}))
+                self._connections.set(number, ws)
+                self.emit('connection', '' + number)
+                setupWebsocket.call(this, ws, number)
+            }
         })
     }
 
     send(command, data, id) {
-        if (this._connections.get(Number(id)) !== undefined) {
-            this._connections.get(Number(id)).send(JSON.stringify(new Message(command, null, data, null)))
+        console.log('sending')
+        console.log(command)
+        if (this._connections.get(id) !== undefined) {
+            this._connections.get(id).send(JSON.stringify(new Message(command, null, data, null)))
         }
     }
 
@@ -75,6 +57,42 @@ class Response {
             this.data = null
         }
         this._ws.send(JSON.stringify(new Message(null, this._messageKey, this.data, null)))
+    }
+}
+
+function setupWebsocket(ws, number) {
+    ws.on('message', (message) => {
+        let messageObject = JSON.parse(message)
+        if (!messageIsValid(messageObject)) {
+            let messageToSend = JSON.stringify(new Message(null, messageObject.key, null, new ServerError(200, 'Bad Mesaage')))
+            ws.send(messageToSend)
+            return
+        }
+        if (!checkParams.call(this, messageObject)) {
+            ws.send(JSON.stringify(new Message(null, messageObject.key, null, new ServerError(250, 'Invalid Arguments'))))
+            return
+        }
+        let req = {
+            data : messageObject.data,
+            id : number
+        }
+        let callbackToUse = this._commands[messageObject.command].callback
+        let resp = new Response(ws, messageObject.key)
+        callbackToUse(req, resp)
+    })
+
+    ws.on('close', function() {
+        self._connections.delete(number)
+        self.emit('close', number)
+    })
+}
+
+
+function handleReconnection(reconnectId, ws) {
+    console.log('handleing reconnection')
+    if (this._connections.get(reconnectId) !== undefined) {
+        this._connections.get(reconnectId).close()
+        this._connections.set(reconnectId, ws)
     }
 }
 
