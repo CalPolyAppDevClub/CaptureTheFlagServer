@@ -15,16 +15,18 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
         self = this;
         this._webSocketServer.on('connection', (ws, req) => {
             if (req.headers['reconnect'] !== undefined) {
+                console.log('reconnect request')
                 handleReconnection.call(this, req.headers['RECONNECT'], ws)
                 let number = req.headers['reconnect']
                 this._connections.set(number, ws)
                 setupWebsocket.call(this, ws, number)
+                ws.send('connected')
             } else {
                 let number = uuid()
                 ws.send(JSON.stringify({RECONNECTID: number}))
                 self._connections.set(number, ws)
-                self.emit('connection', '' + number)
                 setupWebsocket.call(this, ws, number)
+                self.emit('connection', '' + number)
             }
         })
     }
@@ -87,6 +89,7 @@ function setupWebsocket(ws, number) {
 
 
 function handleReconnection(reconnectId, ws) {
+    console.log('about to call close')
     if (this._connections.get(reconnectId) !== undefined) {
         this._connections.get(reconnectId).close()
         this._connections.delete(reconnectId)

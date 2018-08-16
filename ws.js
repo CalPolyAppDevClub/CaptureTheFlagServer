@@ -230,6 +230,18 @@ wss.onCommand('getTeams', null, function(req, resp){
     resp.send();
 })
 
+wss.onCommand('getCurrentGameState', null, function(req, resp) {
+    if (clients.get(req.id).game === undefined) {
+        resp.data.error = generalError.notInAGame
+        resp.send()
+        return
+    }
+    let game = clients.get(req.id).game
+    let stateData = game.getCurrentState()
+    resp.data.currentState = stateData
+    resp.send()
+})
+
 wss.onCommand('getGameState', null, function(req, resp) {
     if (clients.get(req.id).game === undefined) {
         resp.data.error = 'getGameState: not in a game'
