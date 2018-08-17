@@ -231,14 +231,22 @@ wss.onCommand('getTeams', null, function(req, resp){
 })
 
 wss.onCommand('getCurrentGameState', null, function(req, resp) {
+    console.log('get current game state')
     if (clients.get(req.id).game === undefined) {
         resp.data.error = generalError.notInAGame
         resp.send()
         return
     }
     let game = clients.get(req.id).game
-    let stateData = game.getCurrentState()
-    resp.data.currentState = stateData
+    let players = game.getPlayers()
+    let flags = game.getFlags()
+    let teams = game.getTeams()
+    let stateData = {
+        players: players,
+        flags: flags,
+        teams: teams
+    }
+    resp.data.stateData = stateData
     resp.send()
 })
 

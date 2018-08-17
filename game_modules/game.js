@@ -105,18 +105,6 @@ module.exports = class Game extends Events.EventEmitter {
         }
     }
 
-    getCurrentState() {
-        let players = convertMapToObject(this._players)
-        let flags = convertMapToObject(this._flags)
-        let teams = clone(this._teams)
-        let data = {
-            players : players,
-            flags : flags,
-            teams : teams
-        }
-        return data
-    }
-
     addFlag(idOfAdder, location) {
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
