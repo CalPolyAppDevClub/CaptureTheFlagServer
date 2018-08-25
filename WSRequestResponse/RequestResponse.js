@@ -90,6 +90,8 @@ function setupWebsocket(ws, number) {
 
     ws.on('close', (event) => {
         //self._connections.delete(number)
+        console.log("close")
+        console.log(event)
         self.emit('close', number)
     })
 }
