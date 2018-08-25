@@ -128,7 +128,6 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     pickUpFlag(flagId, playerId) {
-        
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }

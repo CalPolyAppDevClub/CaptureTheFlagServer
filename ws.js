@@ -43,7 +43,7 @@ class User {
 
 //for auth only(will be in database)
 let userKeyMap = new Map()
-let userAccounts = {'Ethan' : 'Ethanmoe56', 'Bob' : 'Bobby123'}
+let userAccounts = {'Ethan' : 'Ethan123', 'Bob' : 'Bobby123'}
 
 
 let users = new Map()
