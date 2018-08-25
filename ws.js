@@ -7,52 +7,68 @@ const http = require('http');
 const express = require('express');
 const GameFailureReason = require('./game_modules/GameFailureReason');
 const RRWS = require('./WSRequestResponse/').Server
+const uuid = require('uuid/v4')
+const bodyParser = require('body-parser')
 
 let app = express();
-
 const PORT = process.env.PORT || 8000;
 console.log('LISTENING TO ' + PORT)
-
 app.use(express.static(__dirname + "/"));
-
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json())
 var server = http.createServer(app)
 server.listen(PORT)
-
 console.log("http server listening on %d", PORT)
-
 function verifyClient(info, callback) {
-    if (info.req.headers.authorization === 'AUTH-TOKEN') {
-        callback(true)
-    } else {
-        callback(false, 1, 'incorrect token')
-    }
+    console.log(info)
 }
 
-//let wss = new RRWS({server: server, verifyClient: verifyClient})
+
 
 let wss = new RRWS({server: server})
 
-//var wss = new WebSocket.Server({server: server})
 console.log("websocket server created")
 
 
-let clients = new Map();
+
 let games = {};
 
-wss.on('connection', function connection(number) {
-    //adds id to websocket connection for future identification.
+class User {
+    constructor(name, game, id) {
+        this.name = name
+        this.game = game
+        this.id = id
+    }
+}
+
+//for auth only(will be in database)
+let userKeyMap = new Map()
+let userAccounts = {'Ethan' : 'Ethanmoe56', 'Bob' : 'Bobby123'}
+
+
+let users = new Map()
+let clients = new Map();
+userIdToConnectionKey = new Map()
+
+wss.on('connection', function connection(number, headers) {
     console.log('New Connection');
-    let clientAdded = {id: number}
-    clients.set(number, clientAdded)
-  /*ws.on('close', function() {
-      if (clients.get(ws.id).game != undefined) {
-          clients.get(ws.id).game.removePlayer(ws.id)
-      }
-      clients.delete(ws.id)
-  })
-  console.log('Connected');
-  console.log(ws)*/
+    //let clientAdded = {id: number}
+    let username = userKeyMap.get(headers['authkey'])
+    let user = users.get(username)
+    if (user == undefined) {
+        let newUserId = uuid()
+        let newUser = new User(username, undefined, newUserId)
+        users.set(username, newUser)
+        users.set(newUserId, newUser)
+        user = users.get(username)
+    }
+    clients.set(number, user)
+    userIdToConnectionKey.set(user.id, number)
 });
+
+wss.on('close', function(number) {
+   clients.delete(number)
+})
 
 const generalError = {
     gameDoesNotExist: 'gameDoesNotExist',
@@ -60,30 +76,25 @@ const generalError = {
     playerBeingTaggedNotInAGame: 'playerBeingTaggedNotInAGame'
 }
 
-wss.on('close', function(number) {
-    console.log('CLOOOSED')
-    //if (clients.get('' + number).game != undefined) {
-        //clients.get('' + number).game.removePlayer(number)
-    //}
-    //clients.delete(number)
-})
+
 
 
 wss.onCommand('updateLocation', ['latitude', 'longitude'], function(req, resp) {
+    console.log('location update sent')
     let latitude = req.data.latitude;
     let longitude = req.data.longitude;
     let game = clients.get(req.id).game;
     if (game === undefined) {
         resp.data.error = 'player not in game';
     }
-    game.updateLocation(req.id, latitude, longitude);
+    game.updateLocation(clients.get(req.id).id, latitude, longitude);
 })
 
 wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     let playerToTag = req.data.playerToTagId;
     let id = req.id;
     resp.data = {}
-    if (clients.get(playerToTag).game === undefined) {
+    if (users.get(playerToTag).game === undefined) {
         resp.data = {}
         resp.data.error = generalError.playerBeingTaggedNotInAGame;
         resp.send();
@@ -94,7 +105,7 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
         resp.send()
         return;
     }
-    let playerTaggedSuccess = clients.get(id).game.tagPlayer(playerToTag, id);
+    let playerTaggedSuccess = clients.get(id).game.tagPlayer(playerToTag, clients.get(id).id);
     if (playerTaggedSuccess === undefined) {
         resp.data = {}
         resp.send();
@@ -113,9 +124,10 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
         resp.send()
         return;
     }
-    let error = games[gameKey].addPlayer(req.id, playerName);
+    let error = games[gameKey].addPlayer(clients.get(req.id).id, playerName);
     clients.get(req.id).game = games[gameKey]
     if (error == undefined) {
+        //clients.set(req.id, clients.get())
         resp.send();
     } else {
         resp.data = {}
@@ -132,7 +144,11 @@ wss.onCommand('joinTeam', ['teamId'], function(req, resp) {
         return;
     }
     let game = clients.get(req.id).game;
-    game.addToTeam(req.id, teamToJoinId)
+    game.addToTeam(clients.get(req.id).id, teamToJoinId)
+})
+
+wss.onCommand('enterGame', ['gameId', 'userId'], function(req, resp) {
+
 })
 
 wss.onCommand('nextGameState', null, function(req, resp) {
@@ -166,7 +182,7 @@ wss.onCommand('createFlag', ['latitude', 'longitude'], function(req, resp) {
         resp.send()
         return
     }
-    let placeFlagError = clients.get(req.id).game.addFlag(req.id, location)
+    let placeFlagError = clients.get(req.id).game.addFlag(clients.get(req.id).id, location)
     if (placeFlagError === undefined) {
         resp.data = {}
         resp.data.error = placeFlagError
@@ -182,7 +198,7 @@ wss.onCommand('getPlayerInfo', null, function(req, resp) {
         resp.send();
         return;
     }
-    let player = clients.get(req.id).game.getPlayerInfo(req.id);
+    let player = clients.get(req.id).game.getPlayerInfo(clients.get(req.id).id);
     //converts everything to a string
     //let playerrEWithStringValues = {}
     resp.data.player = player;
@@ -208,7 +224,7 @@ wss.onCommand('pickUpFlag', ['flagId'], function(req, resp) {
         resp.send();
         return;
     }
-    let gameError = clients.get(req.id).game.pickUpFlag(req.data.flagId, req.id);
+    let gameError = clients.get(req.id).game.pickUpFlag(req.data.flagId, clients.get(req.id).id);
     if (gameError !== undefined) {
         resp.data = {};
         resp.data.error = gameError;
@@ -274,6 +290,8 @@ wss.onCommand('getPlayers', null, function(req, resp) {
     resp.send();
 })
 
+
+
 wss.onCommand('createTeam', ['teamName'], function(req, resp) {
     let teamName = req.data.teamName;
     if (clients.get(req.id).game === undefined) {
@@ -288,7 +306,40 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
     resp.send();
 })
 
+//these will be on an authentication server eventually
+app.post('/authenticate', (req, res) => {
+    //console.log(req)
+    let data = req.body
+    //console.log(data)
+    let username = data.username
+    let password = data.password
+
+    if (userAccounts[username] == password) {
+        if (userKeyMap[username] == undefined) {
+            let authKey = uuid()
+            userKeyMap.set(authKey, username)
+            res.send({key: authKey})
+        } else {
+            res.send({key: userKeyMap[username]})
+        }
+    } else {
+        res.send()
+    }
+})
+
+app.post('/createAcount', (req, res) => {
+    let data = req.body.data
+    let userName = data.userName
+    let password = data.password
+
+    userAccounts[userName] = password
+    res.send()
+})
+
 function initEvents(game) {
+
+
+
     game.on('locationUpdate', function(id, location) {
         let players = game.getPlayers();
         let data = {
@@ -296,7 +347,8 @@ function initEvents(game) {
             newLocation: location
         };
         for (key in players) {
-            wss.send('locationUpdate', data, key);
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('locationUpdate', data, sendKey);
          }
     })
 
@@ -309,28 +361,34 @@ function initEvents(game) {
             data.flagHeldLocation = flagHeldLocation
         }
         for (key in players) {
-            wss.send('playerTagged', data, key)
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('playerTagged', data, sendKey)
         }
     })
 
     game.on('playerAdded', function(playerAdded) {
         let players = game.getPlayers();
         for (key in players) {
-            wss.send('playerAdded', playerAdded, key)
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('playerAdded', playerAdded, sendKey)
         }
     })
 
     game.on('teamAdded', function(team) {
         let players = game.getPlayers();
         for (key in players) {
-            wss.send('teamAdded', team, key);
+            let sendKey = userIdToConnectionKey.get(key)
+            console.log('team added')
+            console.log(sendKey)
+            wss.send('teamAdded', team, sendKey);
         }
     })
     
     game.on('playerRemoved', function(playerId) {
         let players = game.getPlayers();
         for (key in players) {
-            wss.send('playerRemoved', playerId, key);
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('playerRemoved', playerId, sendKey);
         }
     })
 
@@ -341,7 +399,8 @@ function initEvents(game) {
             teamId: teamId
         }
         for (key in players) {
-            wss.send('flagAdded', flagAndTeam, key);
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('flagAdded', flagAndTeam, sendKey);
         }
     })
 
@@ -352,14 +411,16 @@ function initEvents(game) {
         }
         let players = game.getPlayers()
         for (key in players) {
-            wss.send('playerJoinedTeam', teamAndPlayer, key);
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('playerJoinedTeam', teamAndPlayer, sendKey);
         }
     })
 
     game.on('gameStateChanged', function(gameState) {
         let players = game.getPlayers()
         for (key in players) {
-            wss.send('gameStateChanged', gameState, key)
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('gameStateChanged', gameState, sendKey)
         }
     })
 
@@ -370,7 +431,8 @@ function initEvents(game) {
             playerId: playerId
         }
         for (key in players) {
-            wss.send('flagPickedUp', flagIdAndPlayerId, key)
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('flagPickedUp', flagIdAndPlayerId, sendKey)
         }
     })
 }

@@ -13,25 +13,32 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
         this._webSocketServer.on
         self = this;
         this._webSocketServer.on('connection', (ws, req) => {
+            //console.log(req)
+            console.log('websocket connection')
             if (req.headers['reconnect'] !== undefined) {
                 console.log('reconnect request')
-                handleReconnection.call(this, req.headers['reconnect'], ws)
-                let number = req.headers['reconnect']
-                this._connections.set(number, ws)
-                setupWebsocket.call(this, ws, number)
-                ws.send('connected')
+                let number = uuid()
+                let reconnectWasSuccessful = handleReconnection.call(this, req.headers['reconnect'], number, ws)
+                if (reconnectWasSuccessful) {
+                    setupWebsocket.call(this, ws, number)
+                    ws.send(JSON.stringify({'newConnectionId': number}))
+                    self.emit('connection', '' + number, req.headers)
+                } else {
+                    ws.close()
+                }
             } else {
                 let number = uuid()
                 ws.send(JSON.stringify({RECONNECTID: number}))
                 self._connections.set(number, ws)
                 setupWebsocket.call(this, ws, number)
-                self.emit('connection', '' + number)
+                self.emit('connection', '' + number, req.headers)
             }
+            
         })
     }
 
     send(command, data, id) {
-        if (this._connections.get(id) !== undefined) {
+        if (this._connections.get(id) !== undefined && this._connections.get(id).readyState === 1) {
             this._connections.get(id).send(JSON.stringify(new Message(command, null, data, null)))
         }
     }
@@ -61,6 +68,7 @@ class Response {
 
 function setupWebsocket(ws, number) {
     ws.on('message', (message) => {
+        console.log('message reciveved')
         let messageObject = JSON.parse(message)
         if (!messageIsValid(messageObject)) {
             let messageToSend = JSON.stringify(new Message(null, messageObject.key, null, new ServerError(200, 'Bad Mesaage')))
@@ -80,24 +88,23 @@ function setupWebsocket(ws, number) {
         callbackToUse(req, resp)
     })
 
-    ws.on('close', () => {
-        self._connections.delete(number)
+    ws.on('close', (event) => {
+        //self._connections.delete(number)
         self.emit('close', number)
-        console.log('right after onclose')
-        console.log(this._connections)
-
     })
 }
 
 
-function handleReconnection(reconnectId, ws) {
-    console.log('about to call close')
+function handleReconnection(reconnectId, newId, ws) {
     if (this._connections.get(reconnectId) !== undefined) {
-        this._connections.get(reconnectId).close()
-        console.log('just called close')
+        console.log('termination websocket')
+        this._connections.get(reconnectId).terminate()
         this._connections.delete(reconnectId)
-        this._connections.set(reconnectId, ws)
-    }
+        this._connections.set(newId, ws)
+        console.log('after handleReconnection')
+        return true
+    } 
+    return false
 }
 
 function checkParams(message) {
