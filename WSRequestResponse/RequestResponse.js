@@ -17,6 +17,7 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
             console.log('websocket connection')
             if (req.headers['reconnect'] !== undefined) {
                 console.log('reconnect request')
+                console.log(req.headers)
                 let number = uuid()
                 let reconnectWasSuccessful = handleReconnection.call(this, req.headers['reconnect'], number, ws)
                 if (reconnectWasSuccessful) {
@@ -24,6 +25,7 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
                     ws.send(JSON.stringify({'newConnectionId': number}))
                     self.emit('connection', '' + number, req.headers)
                 } else {
+                    console.log("FORCING CLIENT TO CLOSE")
                     ws.close()
                 }
             } else {
