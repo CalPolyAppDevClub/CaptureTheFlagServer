@@ -2,6 +2,7 @@ const geoLib = require('geolib');
 const clone = require('clone');
 const Events = require('events');
 const GameFailureReason = require('./GameFailureReason');
+const Boundry = require('./boundry')
 
 const MAX_PLAYERS_PER_TEAM = 15;
 module.exports = class Game extends Events.EventEmitter {
@@ -44,7 +45,6 @@ module.exports = class Game extends Events.EventEmitter {
         }
         Object.keys(this._players.keys).forEach(key => {
             if (this._players.get(key).name === name) {
-                console.log(this._players.get(key).name);
                 playerNameTaken = true
             } 
         });
@@ -57,6 +57,14 @@ module.exports = class Game extends Events.EventEmitter {
     checkIfTeamExists(teamId) {
         return this._teams[teamId] !== undefined
         
+    }
+
+    createBoundry(boundryLineCoords, direction){
+        this.boundry = new Boundry(boundryLineCoords, direction)
+    }
+
+    getBoundy() {
+        return this.boundry
     }
         
 
@@ -112,7 +120,6 @@ module.exports = class Game extends Events.EventEmitter {
         if (!this._players.get(idOfAdder).leader) {
             return GameFailureReason.playerDoesNotHavePermission
         }
-        console.log('flag added passed the tests');
         let flagId = this._flags.size + 1;
         let flag = new Flag('' + flagId, location);
         this._flags.set('' + flagId, flag);
@@ -132,7 +139,6 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.incorrectGameState
         }
         if (getTeamOf.call(this, 'flag', flagId) === getTeamOf.call(this, 'player', playerId)) {
-            console.log('can;t pick up flag because of team')
             return GameFailureReason.cannotPickUpFlag
         }
         if (geoLib.getDistance(this._players.get(playerId).location, this._flags.get(flagId).location) >= 4000000000000000000) {
@@ -159,22 +165,17 @@ module.exports = class Game extends Events.EventEmitter {
 
 
     addToTeam(id, teamId) {
-        console.log("Team ID: " + teamId);
-        //console.log('ID TYPE: ' + typeof id + ' teamIdType: ' + typeof teamId)
         this._teams[teamId].players.push('' + id);
         this.emit('playerJoinedTeam', String(id), teamId);
     }
 
     addTeam(teamName) {
         if (Object.keys(this._teams).length === 2) {
-            console.log('should be returng errororororo');
             return GameFailureReason.tooManyTeams
         }
         let teamId = (Object.keys(this._teams).length + 1);
         let teamToAdd = new Team(teamName, teamId);
         this._teams[teamId] = teamToAdd;
-        console.log(teamName);
-        console.log(teamToAdd);
         this.emit('teamAdded', teamToAdd);
     }
 
@@ -230,6 +231,45 @@ class Player {
         this.leader = true;
     }
 }
+
+const gameBoundary = () => {
+
+}
+
+
+class GameBoundary {
+    //teamSides = [left: team, right: team]
+    constructor(boundary, separaterDirection, teamSides) {
+        this._boundary = boundary
+        this._center = boundary.getCenter()
+        this._separatorDirection = separaterDirection
+        this._teamSides  = teamSides
+    }
+
+    isInBounds(entity) {
+        return this._boundary.isInBounds(entity)
+    }
+
+    isOnCorrectSide(entity) {
+        //figure out what side entity is on
+        if (separaterDirection === 'veritcal') {
+            if (entity.location.longitude < this._center.longitude) {
+                return this.teamsSides.lesser.containsEntity(entity)
+            }
+            if (entity.location.longitude > this._center.longitude) {
+                return this.teamsSides.
+            }
+        } else if (separaterDirection === 'horizontal') {
+            if (entity.location.latitude < this._center.latitude) {
+                return this.teamSides.lesser.containsEntity(entity)
+            }
+        }
+    }
+
+
+}
+
+
 
 class Flag  {
     constructor(id, location) {

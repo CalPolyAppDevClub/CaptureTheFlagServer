@@ -1,9 +1,19 @@
-var set = new Set()
+class Bob {
+    constructor() {
+        this.something = 'something'
+    }
 
-set.add('Bob')
-set.add('Bill')
+    testFunction() {
+        console.log('test function was called')
+    }
+}
 
-let string = JSON.stringify(set)
+Bob.prototype.tester = function() {
+    console.log('tester')
+}
 
-console.log(string)
-console.log(set)
+let testBob  = new Bob()
+
+
+
+console.log(testBob.prototype)

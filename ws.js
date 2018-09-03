@@ -257,10 +257,12 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
     let players = game.getPlayers()
     let flags = game.getFlags()
     let teams = game.getTeams()
+    let boundry = game.getBoundry()
     let stateData = {
         players: players,
         flags: flags,
-        teams: teams
+        teams: teams,
+        boundry: boundry
     }
     resp.data.stateData = stateData
     resp.send()

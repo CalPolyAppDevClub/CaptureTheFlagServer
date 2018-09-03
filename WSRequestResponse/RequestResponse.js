@@ -3,39 +3,30 @@ const Events = require('events')
 const Message = require('./message')
 const ServerError = require('./ServerError')
 const uuid = require('uuid/v4')
-let self;
 module.exports = class WSRequestResponse extends Events.EventEmitter {
     constructor(options) {
         super()
         this._commands = {}
         this._connections = new Map()
         this._webSocketServer = new WebSocket.Server(options);
-        this._webSocketServer.on
-        self = this;
         this._webSocketServer.on('connection', (ws, req) => {
-            //console.log(req)
-            console.log('websocket connection')
             if (req.headers['reconnect'] !== undefined) {
-                console.log('reconnect request')
-                console.log(req.headers)
                 let number = uuid()
                 let reconnectWasSuccessful = handleReconnection.call(this, req.headers['reconnect'], number, ws)
                 if (reconnectWasSuccessful) {
                     setupWebsocket.call(this, ws, number)
                     ws.send(JSON.stringify({'newConnectionId': number}))
-                    self.emit('connection', '' + number, req.headers)
+                    this.emit('connection', '' + number, req.headers)
                 } else {
-                    console.log("FORCING CLIENT TO CLOSE")
                     ws.close()
                 }
             } else {
                 let number = uuid()
                 ws.send(JSON.stringify({RECONNECTID: number}))
-                self._connections.set(number, ws)
+                this._connections.set(number, ws)
                 setupWebsocket.call(this, ws, number)
-                self.emit('connection', '' + number, req.headers)
+                this.emit('connection', '' + number, req.headers)
             }
-            
         })
     }
 
@@ -91,21 +82,17 @@ function setupWebsocket(ws, number) {
     })
 
     ws.on('close', (event) => {
-        //self._connections.delete(number)
-        console.log("close")
-        console.log(event)
-        self.emit('close', number)
+        this._connections.delete(number)
+        this.emit('close', number)
     })
 }
 
 
 function handleReconnection(reconnectId, newId, ws) {
     if (this._connections.get(reconnectId) !== undefined) {
-        console.log('termination websocket')
         this._connections.get(reconnectId).terminate()
         this._connections.delete(reconnectId)
         this._connections.set(newId, ws)
-        console.log('after handleReconnection')
         return true
     } 
     return false
