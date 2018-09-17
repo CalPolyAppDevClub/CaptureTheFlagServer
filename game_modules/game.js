@@ -31,16 +31,12 @@ module.exports = class Game extends Events.EventEmitter {
 
     getPlayers() {
         let playerEntries = this._players.entries()
-        console.log('player entries')
-        console.log(playerEntries)
         let repPlayers = {}
         for (let player of playerEntries) {
             let playerProperties = player[1]
             let repPlayer = createRepPlayer(playerProperties)
             repPlayers[repPlayer.id] = repPlayer
         }
-        console.log('getting players')
-        console.log(repPlayers)
         return repPlayers
     }
 
@@ -138,6 +134,8 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addFlag(idOfAdder, location) {
+        console.log('add flag location')
+        console.log(location)
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
         }
