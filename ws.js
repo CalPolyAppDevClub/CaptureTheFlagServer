@@ -23,26 +23,6 @@ function verifyClient(info, callback) {
     console.log(info)
 }
 
-class RepresentPlayer {
-    constructor(gamePlayer) {
-        this.name = gamePlayer.name
-        this.id = gamePlayer.id
-        this.flagHeld = gamePlayer.flagHeld
-        this.location = gamePlayer.getLocation()
-        this.leader = gamePlayer.leader
-        this.isTagged = gamePlayer.isTagged
-    }
-}
-
-class RepresentFlag {
-    constructor(gameFlag) {
-        this.id = gameFlag.id
-        this.location = gameFlag.getLocation()
-        this.name = gameFlag.name
-        this.held = gameFlag.held
-    }
-}
-
 let wss = new RRWS({server: server})
 
 console.log("websocket server created")

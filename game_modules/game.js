@@ -319,7 +319,7 @@ class CircleBoundary {
     }
 
     isInBounds(entity) {
-        let distanceFromCenter = geolib.getDistance(this._centerPoint, entity.location)
+        let distanceFromCenter = geoLib.getDistance(this._centerPoint, entity.location)
         return distanceFromCenter <= this._radius
     }
 
