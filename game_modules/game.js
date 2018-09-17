@@ -320,7 +320,7 @@ class CircleBoundary {
         console.log('getting inBounds of center Point')
         console.log(entity)
         console.log(this._centerPoint)
-        let distanceFromCenter = geoLib.getDistance(this._centerPoint, entity.location)
+        let distanceFromCenter = geoLib.getDistance(this._centerPoint, entity.getLocation())
         return distanceFromCenter <= this._radius
     }
 
