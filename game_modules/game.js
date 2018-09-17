@@ -30,7 +30,29 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     getPlayers() {
-        return clone(convertMapToObject(this._players));
+        let playerEntries = this._players.entries()
+        console.log('player entries')
+        console.log(playerEntries)
+        let repPlayers = {}
+        for (let player of playerEntries) {
+            let playerProperties = player[1]
+            let repPlayer = createRepPlayer(playerProperties)
+            repPlayers[repPlayer.id] = repPlayer
+        }
+        console.log('getting players')
+        console.log(repPlayers)
+        return repPlayers
+    }
+
+    getFlags() {
+        let flagEntries = this._flags.entries()
+        let repFlags = {}
+        for (flag in flagEntries) {
+            let flagProperties = flag[1]
+            let repFlag = createRepFlag(flagProperties)
+            repFlags[repFlag.id] = repPlayer
+        }
+        return repFlags
     }
 
     checkIfAlreadyInGame(id) {
@@ -63,7 +85,7 @@ module.exports = class Game extends Events.EventEmitter {
         this.boundry = new Boundry(boundryLineCoords, direction)
     }
 
-    getBoundy() {
+    getBoundary() {
         return this.boundry
     }
         
@@ -78,11 +100,13 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.checkIfPlayerNameTaken(playerName)) {
             return GameFailureReason.NameAlreadyTaken
         }
-        let player = new Player(playerName, '' + id);
+
+        let player = new Player(playerName, '' + id, new CircleBoundary(null, 40))
         if (this._players.size === 0) {
             player.leader = true
         }
         this._players.set(id, player);
+        let repPlayer
         this.emit('playerAdded', player)
     }
 
@@ -91,7 +115,7 @@ module.exports = class Game extends Events.EventEmitter {
             latitude : latitude,
             longitude : longitude
         };
-        this._players.get(id).location = location;
+        this._players.get(id).setLocation(location)
         this.emit('locationUpdate', id, location)
     }
 
@@ -99,9 +123,9 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.gameState != this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
-        let distanceBetweenPlayers = geoLib.getDistance(this._players.get(playerToTagId).location, 
-            this._players.get(idOfTaggingPlayer).location)
-        if (distanceBetweenPlayers <= 4000000000000000000) {
+        let playerToTag = this._players.get(playerToTagId)
+        let taggingPlayer = this._players.get(idOfTaggingPlayer)
+        if (taggingPlayer.isCloseEnough(playerToTag)) {
             this._players.get(playerToTagId).isTagged = true
             let flagHeldLocation = null
             if (this._players.get(playerToTagId).flagHeld !== null) {
@@ -121,7 +145,9 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.playerDoesNotHavePermission
         }
         let flagId = this._flags.size + 1;
-        let flag = new Flag('' + flagId, location);
+
+        let flag = new Flag('' + flagId, new CircleBoundary(location, 40))
+
         this._flags.set('' + flagId, flag);
         let teamId;
         if (this._teams[1].containsPlayer(idOfAdder.toString())) {
@@ -131,7 +157,8 @@ module.exports = class Game extends Events.EventEmitter {
             teamId = this._teams[2].id
             this._teams[teamId].flags.push(flagId.toString())
         }
-        this.emit('flagAdded', flag, teamId)
+        let flagToSend = createRepFlag(flag)
+        this.emit('flagAdded', flagToSend, teamId)
     }
 
     pickUpFlag(flagId, playerId) {
@@ -141,16 +168,14 @@ module.exports = class Game extends Events.EventEmitter {
         if (getTeamOf.call(this, 'flag', flagId) === getTeamOf.call(this, 'player', playerId)) {
             return GameFailureReason.cannotPickUpFlag
         }
-        if (geoLib.getDistance(this._players.get(playerId).location, this._flags.get(flagId).location) >= 4000000000000000000) {
+        let flag = this._flags.get(flagId)
+        let player = this._players.get(playerId)
+        if (!flag.isCloseEnough(player)) {
             return GameFailureReason.cannotPickUpFlag
         }
         this._players.get(playerId).flagHeld = flagId
         this._flags.get(flagId).held = true;
         this.emit('flagPickedUp', flagId, playerId)
-    }
-
-    getFlags() {
-        return clone(convertMapToObject(this._flags))
     }
 
     getTeams() {
@@ -161,8 +186,6 @@ module.exports = class Game extends Events.EventEmitter {
         this._players.delete(id);
         this.emit('playerRemoved', String(id))
     }
-
-
 
     addToTeam(id, teamId) {
         this._teams[teamId].players.push('' + id);
@@ -211,6 +234,26 @@ function getTeamOf(type, id) {
     }
 }
 
+function createRepPlayer(player) {
+    return {
+        name : player.name,
+        id : player.id,
+        flagHeld : player.flagHeld,
+        location : player.getLocation(),
+        leader : player.leader,
+        isTagged : player.isTagged
+    }
+}
+
+function createRepFlag(flag) {
+    return {
+        name : flag.name,
+        id : flag.id,
+        location : flag.getLocation(),
+        held : flag.held
+    }
+}
+
 function convertMapToObject(map) {
     let objToReturn = {};
     map.forEach(function(value, key) {
@@ -222,18 +265,67 @@ function convertMapToObject(map) {
 }
 
 class Player {
-    constructor(name, id) {
+    constructor(name, id, boundary) {
         this.name = name;
-        this.location = null;
         this.flagHeld = null;
         this.id = id;
         this.isTagged = false;
         this.leader = true;
+        this._acceptableDistance = boundary
+    }
+
+    getLocation() {
+        return this._acceptableDistance.getCenter()
+    }
+
+    isCloseEnough(entity) {
+        return this._acceptableDistance.isInBounds(entity)
+    }
+
+    setLocation(location) {
+        this._acceptableDistance.setCenter(location)
     }
 }
 
-const gameBoundary = () => {
+class Flag  {
+    constructor(id, boundary) {
+        this.id = id;
+        this.acceptableDistance = boundary;
+        this.held = false;
+    }
+    
+    getLocation() {
+        return this.acceptableDistance.getCenter()
+    }
 
+    isCloseEnough(entity) {
+        return this.acceptableDistance.isInBounds(entity)
+    }
+
+    setLocation(location) {
+        this.acceptableDistance.setCenter(location)
+    }
+}
+
+class CircleBoundary {
+    constructor(centerPoint, radius) {
+        this._centerPoint = centerPoint
+        this._radius = radius
+        this.boundaryType = 'circle'
+    }
+
+    getCenter() {
+        return this._centerPoint
+    }
+
+    isInBounds(entity) {
+        let distanceFromCenter = geolib.getDistance(this._centerPoint, entity.location)
+        return distanceFromCenter <= this._radius
+    }
+
+    setCenter(location) {
+        this._centerPoint = location
+    }
 }
 
 
@@ -257,25 +349,20 @@ class GameBoundary {
                 return this.teamsSides.lesser.containsEntity(entity)
             }
             if (entity.location.longitude > this._center.longitude) {
-                return this.teamsSides.
+                return this.teamsSides.greater.constainsEntity(entity)
             }
         } else if (separaterDirection === 'horizontal') {
             if (entity.location.latitude < this._center.latitude) {
                 return this.teamSides.lesser.containsEntity(entity)
             }
+            if (entity.location.latitude > this._center.latitude) {
+                return this.teamSides.greater.constainsEntity(entity)
+            }
         }
     }
 
-
-}
-
-
-
-class Flag  {
-    constructor(id, location) {
-        this.id = id;
-        this.location = location;
-        this.held = false;
+    getCenter() {
+        return this._center
     }
 }
 

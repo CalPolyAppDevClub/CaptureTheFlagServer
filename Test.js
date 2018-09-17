@@ -1,19 +1,14 @@
-class Bob {
+class Test {
     constructor() {
-        this.something = 'something'
+
     }
 
-    testFunction() {
-        console.log('test function was called')
+    get something() {
+        return 1
     }
 }
 
-Bob.prototype.tester = function() {
-    console.log('tester')
-}
+let test = new Test()
 
-let testBob  = new Bob()
-
-
-
-console.log(testBob.prototype)
+console.log(test.something)
+console.log(test)

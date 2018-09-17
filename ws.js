@@ -12,7 +12,7 @@ const bodyParser = require('body-parser')
 
 let app = express();
 const PORT = process.env.PORT || 8000;
-console.log('LISTENING TO ' + PORT)
+('LISTENING TO ' + PORT)
 app.use(express.static(__dirname + "/"));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json())
@@ -23,7 +23,25 @@ function verifyClient(info, callback) {
     console.log(info)
 }
 
+class RepresentPlayer {
+    constructor(gamePlayer) {
+        this.name = gamePlayer.name
+        this.id = gamePlayer.id
+        this.flagHeld = gamePlayer.flagHeld
+        this.location = gamePlayer.getLocation()
+        this.leader = gamePlayer.leader
+        this.isTagged = gamePlayer.isTagged
+    }
+}
 
+class RepresentFlag {
+    constructor(gameFlag) {
+        this.id = gameFlag.id
+        this.location = gameFlag.getLocation()
+        this.name = gameFlag.name
+        this.held = gameFlag.held
+    }
+}
 
 let wss = new RRWS({server: server})
 
@@ -212,8 +230,13 @@ wss.onCommand('getFlags', null, function(req, resp) {
         return;
     }
     let flags = clients.get(req.id).game.getFlags();
+    let flagsToSend = []
+    for (flag in flags) {
+        let repFlag = new RepresentFlag(flag)
+        flagsToSend.push(repFlag)
+    }
     resp.data = {}
-    resp.data.flags = flags;
+    resp.data.flags = flagsToSend;
     resp.send();
 })
 
@@ -257,7 +280,7 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
     let players = game.getPlayers()
     let flags = game.getFlags()
     let teams = game.getTeams()
-    let boundry = game.getBoundry()
+    let boundry = game.getBoundary()
     let stateData = {
         players: players,
         flags: flags,
@@ -310,7 +333,6 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
 
 //these will be on an authentication server eventually
 app.post('/authenticate', (req, res) => {
-    //console.log(req)
     let data = req.body
     //console.log(data)
     let username = data.username
@@ -339,9 +361,6 @@ app.post('/createAcount', (req, res) => {
 })
 
 function initEvents(game) {
-
-
-
     game.on('locationUpdate', function(id, location) {
         let players = game.getPlayers();
         let data = {
