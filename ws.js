@@ -319,6 +319,8 @@ app.post('/authenticate', (req, res) => {
     let password = data.password
 
     if (userAccounts[username] === password) {
+        console.log('got passed first if')
+        console.log('got passed second if')
         if (userKeyMap[username] == undefined) {
             let authKey = uuid()
             userKeyMap.set(authKey, username)
