@@ -338,6 +338,10 @@ app.post('/createAccount', (req, res) => {
     let data = req.body
     let userName = data.userName
     let password = data.password
+    console.log('username')
+    console.log(userName)
+    console.log('password')
+    console.log(password)
 
     userAccounts[userName] = password
     res.send({accountCreated: "yeah"})
