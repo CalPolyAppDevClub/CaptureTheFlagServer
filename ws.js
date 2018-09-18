@@ -331,7 +331,7 @@ app.post('/authenticate', (req, res) => {
     }
 })
 
-app.post('/createAcount', (req, res) => {
+app.post('/createAccount', (req, res) => {
     console.log('create account is being called')
     let data = req.body.data
     let userName = data.userName
