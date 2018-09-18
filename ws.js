@@ -336,14 +336,14 @@ app.post('/authenticate', (req, res) => {
 app.post('/createAccount', (req, res) => {
     console.log('create account is being called')
     let data = req.body
-    let userName = data.userName
+    let username = data.username
     let password = data.password
     console.log('username')
-    console.log(userName)
+    console.log(username)
     console.log('password')
     console.log(password)
 
-    userAccounts[userName] = password
+    userAccounts[username] = password
     res.send({accountCreated: "yeah"})
 })
 
