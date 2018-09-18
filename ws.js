@@ -318,7 +318,7 @@ app.post('/authenticate', (req, res) => {
     let username = data.username
     let password = data.password
 
-    if (userAccounts[username] == password) {
+    if (userAccounts[username] === password) {
         if (userKeyMap[username] == undefined) {
             let authKey = uuid()
             userKeyMap.set(authKey, username)
@@ -337,7 +337,7 @@ app.post('/createAcount', (req, res) => {
     let password = data.password
 
     userAccounts[userName] = password
-    res.send()
+    res.send({accountCreated: "yeah"})
 })
 
 function initEvents(game) {
