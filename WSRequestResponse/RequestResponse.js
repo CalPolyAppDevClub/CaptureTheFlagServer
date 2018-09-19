@@ -18,6 +18,7 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
                     ws.send(JSON.stringify({'newConnectionId': number}))
                     this.emit('connection', '' + number, req.headers)
                 } else {
+                    console.log('going to close the connection')
                     ws.close()
                 }
             } else {
