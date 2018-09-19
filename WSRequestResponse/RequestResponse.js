@@ -90,6 +90,8 @@ function setupWebsocket(ws, number) {
 
 
 function handleReconnection(reconnectId, newId, ws) {
+    console.log('handle recconetId')
+    console.log(reconnectId)
     if (this._connections.get(reconnectId) !== undefined) {
         this._connections.get(reconnectId).terminate()
         this._connections.delete(reconnectId)
