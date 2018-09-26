@@ -5,6 +5,7 @@ const GameFailureReason = require('./GameFailureReason');
 const Boundry = require('./boundry')
 
 const MAX_PLAYERS_PER_TEAM = 15;
+const DISTANCE_BETWEEN_PLAYERS = 10000000
 module.exports = class Game extends Events.EventEmitter {
     constructor(name) {
         super();
@@ -97,7 +98,7 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.NameAlreadyTaken
         }
 
-        let player = new Player(playerName, '' + id, new CircleBoundary(null, 40))
+        let player = new Player(playerName, '' + id, new CircleBoundary(null, DISTANCE_BETWEEN_PLAYERS))
         if (this._players.size === 0) {
             player.leader = true
         }

@@ -365,7 +365,7 @@ function initEvents(game) {
         let data = {
             playerId: '' + playerTaggedId,
         }
-        if (flagHeldLocation !== null) {
+        if (flagHeldLocation != null) {
             data.flagHeldLocation = flagHeldLocation
         }
         for (key in players) {
