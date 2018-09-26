@@ -202,7 +202,7 @@ module.exports = class Game extends Events.EventEmitter {
         let teamId = (Object.keys(this._teams).length + 1);
         let teamToAdd = new Team(teamName, teamId);
         this._teams[teamId] = teamToAdd;
-        return teamId
+        //return teamId
         this.emit('teamAdded', teamToAdd);
     }
 
