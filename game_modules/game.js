@@ -5,7 +5,7 @@ const GameFailureReason = require('./GameFailureReason');
 const Boundry = require('./boundry')
 
 const MAX_PLAYERS_PER_TEAM = 15;
-const DISTANCE_BETWEEN_PLAYERS = 10000000
+const DISTANCE_BETWEEN_PLAYERS = 10000000;
 module.exports = class Game extends Events.EventEmitter {
     constructor(name) {
         super();
@@ -123,10 +123,13 @@ module.exports = class Game extends Events.EventEmitter {
         let playerToTag = this._players.get(playerToTagId)
         let taggingPlayer = this._players.get(idOfTaggingPlayer)
         if (taggingPlayer.isCloseEnough(playerToTag)) {
-            this._players.get(playerToTagId).isTagged = true
+            console.log('tagPlayer')
+            console.log(playerToTag)
+            playerToTag.isTagged = true
             let flagHeldLocation = null
-            if (this._players.get(playerToTagId).flagHeld !== null) {
-                flagHeldLocation = this._players.get(playerToTagId).location
+            if (playerToTag.flagHeld != null) {
+                console.log('tagged player got passed here')
+                flagHeldLocation = this._players.get(playerToTagId).getLocation()
             }
             this.emit('playerTagged', playerToTagId, flagHeldLocation)
         } else {
@@ -157,6 +160,7 @@ module.exports = class Game extends Events.EventEmitter {
             this._teams[teamId].flags.push(flagId.toString())
         }
         let flagToSend = createRepFlag(flag)
+        return flagToSend
         this.emit('flagAdded', flagToSend, teamId)
     }
 
@@ -198,6 +202,7 @@ module.exports = class Game extends Events.EventEmitter {
         let teamId = (Object.keys(this._teams).length + 1);
         let teamToAdd = new Team(teamName, teamId);
         this._teams[teamId] = teamToAdd;
+        return teamId
         this.emit('teamAdded', teamToAdd);
     }
 

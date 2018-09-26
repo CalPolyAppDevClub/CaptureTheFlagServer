@@ -367,6 +367,8 @@ function initEvents(game) {
         }
         if (flagHeldLocation != null) {
             data.flagHeldLocation = flagHeldLocation
+            console.log('This is the flag held location')
+            console.log(flagHeldLocation)
         }
         for (key in players) {
             let sendKey = userIdToConnectionKey.get(key)
