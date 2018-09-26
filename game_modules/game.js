@@ -160,7 +160,7 @@ module.exports = class Game extends Events.EventEmitter {
             this._teams[teamId].flags.push(flagId.toString())
         }
         let flagToSend = createRepFlag(flag)
-        return flagToSend
+        //return flagToSend
         this.emit('flagAdded', flagToSend, teamId)
     }
 
