@@ -78,7 +78,7 @@ module.exports = class Game extends Events.EventEmitter {
         
     }
 
-    createBoundry(boundryLineCoords, direction){
+    createBoundary(boundryLineCoords, direction){
         this.boundry = new Boundry(boundryLineCoords, direction)
         this.emit('boundaryCreated', createRepGameBoundary(this.boundry))
     }
