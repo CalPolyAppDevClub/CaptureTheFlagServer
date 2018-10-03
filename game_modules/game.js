@@ -27,7 +27,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     getPlayerInfo(id) {
-        return clone(this._players.get(id))
+        return createRepPlayer(this._players.get(id))
     }
 
     getPlayers() {
