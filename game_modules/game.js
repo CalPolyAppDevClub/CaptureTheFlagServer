@@ -84,7 +84,10 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     getBoundary() {
-        return createRepGameBoundary(this.boundry)
+        if (this.boundry != undefined) {
+            return createRepGameBoundary(this.boundry)
+        }
+        return null
     }
         
 
