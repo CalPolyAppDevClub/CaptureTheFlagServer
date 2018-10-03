@@ -80,12 +80,15 @@ module.exports = class Game extends Events.EventEmitter {
 
     createBoundary(boundaryLineCoords, direction){
         this.boundary = new GameBoundary(new CircleBoundary({boundaryLineCoords}, 4000), direction, {greater: this._teams[1], lesser: this._teams[2]})
-        this.emit('boundaryCreated', createRepGameBoundary(this.boundry))
+        this.emit('boundaryCreated', createRepGameBoundary(this.boundary))
     }
 
     getBoundary() {
         if (this.boundary != undefined) {
-            return createRepGameBoundary(this.boundary)
+            let bounds = this.boundary
+            console.log('these boundarys')
+            console.log(this.boundary)
+            return createRepGameBoundary(bounds)
         }
         return null
     }
@@ -263,10 +266,12 @@ function createRepFlag(flag) {
 }
 
 function createRepGameBoundary(boundary) {
+    console.log('from rep')
+    console.log(boundary)
     return {
         center: boundary.getCenter(),
         direction: boundary.getDirection(),
-        teamSides: boundary.getTeamsSides()
+        teamSides: boundary.getSides()
     }
 }
 
