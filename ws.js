@@ -467,7 +467,7 @@ function initEvents(game) {
         }
         for (key in players) {
             let sendKey = userIdToConnectionKey.get(key)
-            wss.send('boundaryCreated', dataToSend)
+            wss.send('boundaryCreated', dataToSend, sendKey)
         }
     })
 }
