@@ -78,7 +78,7 @@ module.exports = class Game extends Events.EventEmitter {
         
     }
 
-    createBoundary(boundryLineCoords, direction){
+    createBoundary(boundaryLineCoords, direction){
         this.boundary = new GameBoundary(new CircleBoundary({boundaryLineCoords}, 4000), direction, {greater: this._teams[1], lesser: this._teams[2]})
         this.emit('boundaryCreated', createRepGameBoundary(this.boundry))
     }
