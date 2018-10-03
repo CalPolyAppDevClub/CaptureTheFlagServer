@@ -80,10 +80,11 @@ module.exports = class Game extends Events.EventEmitter {
 
     createBoundry(boundryLineCoords, direction){
         this.boundry = new Boundry(boundryLineCoords, direction)
+        this.emit('boundaryCreated', createRepGameBoundary(this.boundry))
     }
 
     getBoundary() {
-        return this.boundry
+        return createRepGameBoundary(this.boundry)
     }
         
 
@@ -258,6 +259,13 @@ function createRepFlag(flag) {
     }
 }
 
+function createRepGameBoundary(boundary) {
+    return {
+        center: boundary.getCenter(),
+        direction: boundary.getDirection()
+    }
+}
+
 function convertMapToObject(map) {
     let objToReturn = {};
     map.forEach(function(value, key) {
@@ -367,6 +375,10 @@ class GameBoundary {
 
     getCenter() {
         return this._center
+    }
+
+    getDirection() {
+        return this._separatorDirection
     }
 }
 

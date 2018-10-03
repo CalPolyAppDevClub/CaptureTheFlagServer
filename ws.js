@@ -260,14 +260,26 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
     let players = game.getPlayers()
     let flags = game.getFlags()
     let teams = game.getTeams()
-    let boundry = game.getBoundary()
+    let boundary = game.getBoundary()
     let stateData = {
         players: players,
         flags: flags,
         teams: teams,
-        boundry: boundry
+        boundary: boundary
     }
     resp.data.stateData = stateData
+    resp.send()
+})
+
+wss.onCommand('setBoundary', ['latitude', 'longitude', 'direction'], function(req, resp) {
+    let game = clients.get(req.id).game
+    let latitude = req.data.latitude
+    let longitude = req.data.longitude
+    let direction = req.data.direction
+    let error = game.createBoundary({latitude: latitude, longitude: longitude}, direction)
+    if (error != undefined) {
+        resp.data.error = error
+    }
     resp.send()
 })
 
@@ -443,6 +455,17 @@ function initEvents(game) {
         for (key in players) {
             let sendKey = userIdToConnectionKey.get(key)
             wss.send('flagPickedUp', flagIdAndPlayerId, sendKey)
+        }
+    })
+
+    game.on('boundaryCreated', function(boundary) {
+        let players = game.getPlayers()
+        let dataToSend = {
+            boundary: boundary
+        }
+        for (key in players) {
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('boundaryCreated', dataToSend)
         }
     })
 }
