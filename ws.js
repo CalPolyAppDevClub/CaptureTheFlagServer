@@ -267,6 +267,8 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
         teams: teams,
         boundary: boundary
     }
+    console.log('from get current game state')
+    console.log(players)
     resp.data.stateData = stateData
     resp.send()
 })
