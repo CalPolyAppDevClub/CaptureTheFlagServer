@@ -13,6 +13,7 @@ module.exports = class Game extends Events.EventEmitter {
         this._flags = new Map();
         this._teams = {};
         this.name = name;
+        this.boundary = null;
         this.gameStates = {
             lobby : 0,
             placeFlags : 1,
@@ -156,7 +157,7 @@ module.exports = class Game extends Events.EventEmitter {
         }
         let flagId = this._flags.size + 1
         let flag = new Flag('' + flagId, new CircleBoundary(location, 40))
-        if (!this.boundary.isInBounds(flag)) {
+        if (this.boundary === null || !this.boundary.isInBounds(flag)) {
             return GameFailureReason.playerNotInBounds
         }
         this._flags.set('' + flagId, flag);
