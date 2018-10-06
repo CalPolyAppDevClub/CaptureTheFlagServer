@@ -147,16 +147,18 @@ module.exports = class Game extends Events.EventEmitter {
     addFlag(idOfAdder, location) {
         console.log('add flag location')
         console.log(location)
+        let player = this._players.get(idOfAdder)
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
         }
-        if (!this._players.get(idOfAdder).leader) {
+        if (!player.leader) {
             return GameFailureReason.playerDoesNotHavePermission
         }
-        let flagId = this._flags.size + 1;
-
-        let flag = new Flag('' + flagId, new CircleBoundary(location, 40))
-
+        let flagId = this._flags.size + 1
+        let flag = new Flag('' + flagid, new CircleBoundary(location, 40))
+        if (!this.boundary.isInBounds(flag)) {
+            return GameFailureReason.playerNotInBounds
+        }
         this._flags.set('' + flagId, flag);
         let teamId;
         if (this._teams[1].containsPlayer(idOfAdder.toString())) {

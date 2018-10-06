@@ -6,8 +6,8 @@ const GameFailureReson = {
     nameAlreadyTaken: 'nameAlreadyTaken',
     playerAlreadyInGame: 'playerAlreadyInGame',
     tooManyTeams: 'tooManyTeams',
-    cannotPickUpFlag: 'cannotPickUpFlag'
-    
+    cannotPickUpFlag: 'cannotPickUpFlag',
+    playerNotInBounds : 'playerNotInBounds'
 }
 
 module.exports = GameFailureReson;
