@@ -155,7 +155,7 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.playerDoesNotHavePermission
         }
         let flagId = this._flags.size + 1
-        let flag = new Flag('' + flagid, new CircleBoundary(location, 40))
+        let flag = new Flag('' + flagId, new CircleBoundary(location, 40))
         if (!this.boundary.isInBounds(flag)) {
             return GameFailureReason.playerNotInBounds
         }
