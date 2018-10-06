@@ -174,14 +174,16 @@ wss.onCommand('createGame', ['key', 'gameName'], function(req, resp) {
 
 wss.onCommand('createFlag', ['latitude', 'longitude'], function(req, resp) {
     let location = {latitude: req.data.latitude, longitude: req.data.longitude}
+    let player = clients.get(req.id)
+    let game = player.game
     if (clients.get(req.id).game === undefined) {
         resp.data = {}
         resp.data.error = generalError.notInAGame
         resp.send()
         return
     }
-    let placeFlagError = clients.get(req.id).game.addFlag(clients.get(req.id).id, location)
-    if (placeFlagError === undefined) {
+    let placeFlagError = game.addFlag(player.id, location)
+    if (placeFlagError !== undefined) {
         resp.data = {}
         resp.data.error = placeFlagError
         resp.send()
