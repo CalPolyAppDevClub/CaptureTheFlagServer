@@ -472,4 +472,17 @@ function initEvents(game) {
             wss.send('boundaryCreated', dataToSend, sendKey)
         }
     })
+
+    game.on('flagDropped', function(playerId, flagId, location) {
+        let players = game.getPlayers()
+        let dataToSend = {
+            playerId: playerId,
+            flagId: flagId,
+            location: location
+        }
+        for (key in players) {
+            let sendKey = userIdToConnectionKey.get(key)
+            wss.send('flagDropped', dataToSend, sendKey)
+        }
+    })
 }

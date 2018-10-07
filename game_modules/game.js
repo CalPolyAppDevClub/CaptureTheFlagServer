@@ -119,11 +119,21 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     updateLocation(id, latitude, longitude) {
+        let player = this._players.get(id)
         let location = {
             latitude : latitude,
             longitude : longitude
         };
-        this._players.get(id).setLocation(location)
+        player.setLocation(location)
+        if (!this.boundary.isInBounds(player) && player.flagHeld != null) {
+            let flag = player.flagHeld
+            let lastLocation = player.getLocation()
+            player.flagHeld = null
+            flag.setLocation(lastLocation)
+            this.emit('flagDropped', id, flag.id, lastLocation)
+            console.log('from update location flag')
+            console.log(flag)
+        }
         this.emit('locationUpdate', id, location)
     }
 
@@ -149,8 +159,6 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addFlag(idOfAdder, location) {
-        console.log('add flag location')
-        console.log(location)
         let player = this._players.get(idOfAdder)
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
@@ -173,8 +181,9 @@ module.exports = class Game extends Events.EventEmitter {
             this._teams[teamId].flags.push(flagId.toString())
         }
         let flagToSend = createRepFlag(flag)
-        //return flagToSend
+        
         this.emit('flagAdded', flagToSend, teamId)
+        return flagId
     }
 
     pickUpFlag(flagId, playerId) {
@@ -182,15 +191,20 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.incorrectGameState
         }
         if (getTeamOf.call(this, 'flag', flagId) === getTeamOf.call(this, 'player', playerId)) {
+            console.log('not on the right team')
+            console.log(getTeamOf.call(this, 'flag', flagId))
+            console.log(getTeamOf.call(this, 'player', playerId))
+            console.log(this._teams)
             return GameFailureReason.cannotPickUpFlag
         }
         let flag = this._flags.get(flagId)
         let player = this._players.get(playerId)
         if (!flag.isCloseEnough(player)) {
+            console.log('not close enough')
             return GameFailureReason.cannotPickUpFlag
         }
-        this._players.get(playerId).flagHeld = flagId
-        this._flags.get(flagId).held = true;
+        player.flagHeld = flag
+        flag.held = true;
         this.emit('flagPickedUp', flagId, playerId)
     }
 
@@ -215,8 +229,8 @@ module.exports = class Game extends Events.EventEmitter {
         let teamId = (Object.keys(this._teams).length + 1);
         let teamToAdd = new Team(teamName, teamId);
         this._teams[teamId] = teamToAdd;
-        //return teamId
         this.emit('teamAdded', teamToAdd);
+        return teamId
     }
 
 
@@ -272,8 +286,6 @@ function createRepFlag(flag) {
 }
 
 function createRepGameBoundary(boundary) {
-    console.log('from rep')
-    console.log(boundary)
     return {
         center: boundary.getCenter(),
         direction: boundary.getDirection(),
