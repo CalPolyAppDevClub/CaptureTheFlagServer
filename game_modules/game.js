@@ -54,7 +54,6 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     checkIfAlreadyInGame(id) {
-        //console.log(this._players.has(id))
         return this._players.has(id)
     }
 
@@ -68,8 +67,6 @@ module.exports = class Game extends Events.EventEmitter {
                 playerNameTaken = true
             } 
         });
-        //console.log('name already taken')
-        //console.log(playerNameTaken)
         return playerNameTaken !== false;
 
     }
@@ -90,8 +87,6 @@ module.exports = class Game extends Events.EventEmitter {
     getBoundary() {
         if (this.boundary != undefined) {
             let bounds = this.boundary
-            console.log('these boundarys')
-            console.log(this.boundary)
             return createRepGameBoundary(bounds)
         }
         return null
@@ -124,15 +119,17 @@ module.exports = class Game extends Events.EventEmitter {
             latitude : latitude,
             longitude : longitude
         };
+        let lastLocation = player.getLocation()
         player.setLocation(location)
         if (this.boundary != null && !this.boundary.isInBounds(player) && player.flagHeld != null) {
             let flag = player.flagHeld
-            let lastLocation = player.getLocation()
             player.flagHeld = null
             flag.setLocation(lastLocation)
             this.emit('flagDropped', id, flag.id, lastLocation)
             console.log('from update location flag')
             console.log(flag)
+            console.log('last location')
+            console.log(lastLocation)
         }
         this.emit('locationUpdate', id, location)
     }
@@ -144,12 +141,9 @@ module.exports = class Game extends Events.EventEmitter {
         let playerToTag = this._players.get(playerToTagId)
         let taggingPlayer = this._players.get(idOfTaggingPlayer)
         if (taggingPlayer.isCloseEnough(playerToTag)) {
-            console.log('tagPlayer')
-            console.log(playerToTag)
             playerToTag.isTagged = true
             let flagHeldLocation = null
             if (playerToTag.flagHeld != null) {
-                console.log('tagged player got passed here')
                 flagHeldLocation = this._players.get(playerToTagId).getLocation()
             }
             this.emit('playerTagged', playerToTagId, flagHeldLocation)
@@ -183,6 +177,7 @@ module.exports = class Game extends Events.EventEmitter {
         let flagToSend = createRepFlag(flag)
         
         this.emit('flagAdded', flagToSend, teamId)
+        return flagId
     }
 
     pickUpFlag(flagId, playerId) {
@@ -190,16 +185,11 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.incorrectGameState
         }
         if (getTeamOf.call(this, 'flag', flagId) === getTeamOf.call(this, 'player', playerId)) {
-            console.log('not on the right team')
-            console.log(getTeamOf.call(this, 'flag', flagId))
-            console.log(getTeamOf.call(this, 'player', playerId))
-            console.log(this._teams)
             return GameFailureReason.cannotPickUpFlag
         }
-        let flag = this._flags.get(flagId)
+        let flag = this._flags.get('' + flagId)
         let player = this._players.get(playerId)
         if (!flag.isCloseEnough(player)) {
-            console.log('not close enough')
             return GameFailureReason.cannotPickUpFlag
         }
         player.flagHeld = flag
@@ -217,7 +207,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addToTeam(id, teamId) {
-        this._teams[teamId].players.push('' + id);
+        this._teams['' + teamId].players.push('' + id);
         this.emit('playerJoinedTeam', String(id), teamId);
     }
 
@@ -229,7 +219,7 @@ module.exports = class Game extends Events.EventEmitter {
         let teamToAdd = new Team(teamName, teamId);
         this._teams[teamId] = teamToAdd;
         this.emit('teamAdded', teamToAdd);
-
+        return teamId
     }
 
 
@@ -297,8 +287,6 @@ function convertMapToObject(map) {
     map.forEach(function(value, key) {
         objToReturn[key] = value;
     });
-    //console.log('object converted')
-    //console.log(objToReturn)
     return objToReturn;
 }
 
@@ -357,8 +345,11 @@ class CircleBoundary {
     }
 
     isInBounds(entity) {
-        let distanceFromCenter = geoLib.getDistance(this._centerPoint, entity.getLocation())
-        return distanceFromCenter <= this._radius
+        if (entity.getLocation() != null) {
+            let distanceFromCenter = geoLib.getDistance(this._centerPoint, entity.getLocation())
+            return distanceFromCenter <= this._radius
+        }
+        return false
     }
 
     setCenter(location) {
@@ -422,7 +413,7 @@ class Team {
     containsPlayer(playerId) {
         let contains = false
         this.players.forEach(function(item) {
-            if (item === playerId) {
+            if (item == playerId) {
                 contains = true
                 return
             }
@@ -432,7 +423,7 @@ class Team {
     containsFlag(flagId) {
         let contains = false
         this.flags.forEach(function(item) {
-            if (item === flagId) {
+            if (item == flagId) {
                 contains = true
                 return
             }

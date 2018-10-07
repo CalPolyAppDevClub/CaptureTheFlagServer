@@ -17,13 +17,17 @@ testGame.addToTeam(123, teamId1)
 testGame.addToTeam(345, teamId2)
 
 
+testGame.nextGameState()
+
+let flagId = testGame.addFlag(345, {latitude: 35.30855194031521, longitude: -120.65916015027311})
 
 testGame.nextGameState()
-let flagId = testGame.addFlag(345, {latitude: 35.30855194031521, longitude: -120.65916015027311})
-console.log(testGame.getTeams())
-console.log(flagId)
-testGame.nextGameState()
+
 console.log(testGame.pickUpFlag(flagId, 123))
+
 console.log(testGame.getPlayerInfo(123))
-testGame.updateLocation(123, 567809765, 4537983452)
+
+testGame.updateLocation(123, 40.7128, 74.0060)
+
+//console.log(testGame.getPlayerInfo(123))
 
