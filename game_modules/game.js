@@ -183,7 +183,6 @@ module.exports = class Game extends Events.EventEmitter {
         let flagToSend = createRepFlag(flag)
         
         this.emit('flagAdded', flagToSend, teamId)
-        return flagId
     }
 
     pickUpFlag(flagId, playerId) {
@@ -230,7 +229,7 @@ module.exports = class Game extends Events.EventEmitter {
         let teamToAdd = new Team(teamName, teamId);
         this._teams[teamId] = teamToAdd;
         this.emit('teamAdded', teamToAdd);
-        return teamId
+
     }
 
 
