@@ -125,7 +125,7 @@ module.exports = class Game extends Events.EventEmitter {
             longitude : longitude
         };
         player.setLocation(location)
-        if (!this.boundary.isInBounds(player) && player.flagHeld != null) {
+        if (this.boundary != nil && !this.boundary.isInBounds(player) && player.flagHeld != null) {
             let flag = player.flagHeld
             let lastLocation = player.getLocation()
             player.flagHeld = null
