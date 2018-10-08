@@ -223,6 +223,7 @@ wss.onCommand('getFlags', null, function(req, resp) {
 })
 
 wss.onCommand('pickUpFlag', ['flagId'], function(req, resp) {
+    console.log('called pickupflag!!!!!!')
     if (clients.get(req.id).game === undefined) {
         resp.data = {};
         resp.data.error = generalError.notInAGame;

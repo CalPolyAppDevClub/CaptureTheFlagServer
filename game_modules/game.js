@@ -180,6 +180,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     pickUpFlag(flagId, playerId) {
+        console.log('called pickupflag in game')
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
