@@ -153,6 +153,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addFlag(idOfAdder, location) {
+        //checks
         let player = this._players.get(idOfAdder)
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
@@ -162,9 +163,15 @@ module.exports = class Game extends Events.EventEmitter {
         }
         let flagId = this._flags.size + 1
         let flag = new Flag('' + flagId, new CircleBoundary(location, 40))
+        if (!this._boundary.isOnCorrectSide(flag)) {
+            console.log("not placing on the correct side")
+            return GameFailureReason.playerNotInBounds
+        }
         if (this.boundary === null || !this.boundary.isInBounds(flag)) {
             return GameFailureReason.playerNotInBounds
         }
+
+        //logic
         this._flags.set('' + flagId, flag);
         let teamId;
         if (this._teams[1].containsPlayer(idOfAdder.toString())) {

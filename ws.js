@@ -475,6 +475,7 @@ function initEvents(game) {
     })
 
     game.on('flagDropped', function(playerId, flagId, location) {
+        console.log('sending flag dropped')
         let players = game.getPlayers()
         let dataToSend = {
             playerId: playerId,
