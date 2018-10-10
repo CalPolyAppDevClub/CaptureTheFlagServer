@@ -369,7 +369,7 @@ class GameBoundary {
     constructor(boundary, separaterDirection, teamSides) {
         this._boundary = boundary
         this._center = boundary.getCenter()
-        this._separatorDirection = separaterDirection
+        this._separaterDirection = separaterDirection
         this._teamSides  = teamSides
     }
 
@@ -379,14 +379,14 @@ class GameBoundary {
 
     isOnCorrectSide(entity) {
         //figure out what side entity is on
-        if (separaterDirection === 'veritcal') {
+        if (this._separaterDirection === 'veritcal') {
             if (entity.location.longitude < this._center.longitude) {
                 return this.teamsSides.lesser.containsEntity(entity)
             }
             if (entity.location.longitude > this._center.longitude) {
                 return this.teamsSides.greater.constainsEntity(entity)
             }
-        } else if (separaterDirection === 'horizontal') {
+        } else if (this._separaterDirection === 'horizontal') {
             if (entity.location.latitude < this._center.latitude) {
                 return this.teamSides.lesser.containsEntity(entity)
             }
