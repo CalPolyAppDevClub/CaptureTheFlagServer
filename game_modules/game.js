@@ -163,7 +163,7 @@ module.exports = class Game extends Events.EventEmitter {
         }
         let flagId = this._flags.size + 1
         let flag = new Flag('' + flagId, new CircleBoundary(location, 40))
-        if (!this._boundary.isOnCorrectSide(flag)) {
+        if (!this.boundary.isOnCorrectSide(flag)) {
             console.log("not placing on the correct side")
             return GameFailureReason.playerNotInBounds
         }
