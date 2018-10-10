@@ -284,7 +284,8 @@ function createRepGameBoundary(boundary) {
     return {
         center: boundary.getCenter(),
         direction: boundary.getDirection(),
-        teamSides: boundary.getSides()
+        teamSides: boundary.getSides(),
+        direction: boundary.getDirection
     }
 }
 
