@@ -42,6 +42,18 @@ module.exports = class Game extends Events.EventEmitter {
         return repPlayers
     }
 
+    dropFlag(playerId) {
+        let player = this._players.get(playerId)
+        if (!player.hasFlag()) {
+            return GameFailureReason.playerDoesNotHaveAFlag
+        }
+        let flag = player.flag
+        let location = player.getLocation()
+        flag.held = false
+        player.flag = null
+        this.emit('flagDropped', playerId, flag.id, location)
+    }
+
     getFlags() {
         let flagEntries = this._flags.entries()
         let repFlags = {}
@@ -163,10 +175,10 @@ module.exports = class Game extends Events.EventEmitter {
         }
         let flagId = this._flags.size + 1
         let flag = new Flag('' + flagId, new CircleBoundary(location, 40))
-        if (!this.boundary.isOnCorrectSide(flag)) {
+        /*if (!this.boundary.isOnCorrectSide(flag)) {
             console.log("not placing on the correct side")
             return GameFailureReason.playerNotInBounds
-        }
+        }*/
         if (this.boundary === null || !this.boundary.isInBounds(flag)) {
             return GameFailureReason.playerNotInBounds
         }
@@ -182,8 +194,9 @@ module.exports = class Game extends Events.EventEmitter {
             this._teams[teamId].flags.push(flagId.toString())
         }
         let flagToSend = createRepFlag(flag)
-        
+        console.log('about to pick of a flag from game') 
         this.emit('flagAdded', flagToSend, teamId)
+        return flagId
     }
 
     pickUpFlag(flagId, playerId) {
@@ -261,10 +274,15 @@ function getTeamOf(type, id) {
 }
 
 function createRepPlayer(player) {
+    let flag = player.flagHeld
+    let flagId = null
+    if (flag != undefined) {
+        flagId = flag.id
+    }
     return {
         name : player.name,
         id : player.id,
-        flagHeld : player.flagHeld,
+        flagHeld : flagId,
         location : player.getLocation(),
         leader : player.leader,
         isTagged : player.isTagged
@@ -317,6 +335,10 @@ class Player {
 
     setLocation(location) {
         this._acceptableDistance.setCenter(location)
+    }
+
+    hasFlag() {
+        return this.flagHeld != null
     }
 }
 

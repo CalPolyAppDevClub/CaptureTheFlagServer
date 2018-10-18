@@ -8,7 +8,8 @@ const GameFailureReson = {
     tooManyTeams: 'tooManyTeams',
     cannotPickUpFlag: 'cannotPickUpFlag',
     playerNotInBounds : 'playerNotInBounds',
-    boundaryAlreadyExists : 'boundaryAlreadyExists'
+    boundaryAlreadyExists : 'boundaryAlreadyExists',
+    playerDoesNotHaveAFlag : 'playerDoesNotHaveAFlag'
 }
 
 module.exports = GameFailureReson;

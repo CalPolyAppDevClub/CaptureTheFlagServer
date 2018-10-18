@@ -312,8 +312,6 @@ wss.onCommand('getPlayers', null, function(req, resp) {
     resp.send();
 })
 
-
-
 wss.onCommand('createTeam', ['teamName'], function(req, resp) {
     let teamName = req.data.teamName;
     if (clients.get(req.id).game === undefined) {
