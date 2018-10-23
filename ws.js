@@ -121,6 +121,9 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
 })
 
 wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
+    console.log('join game')
+    console.log(clients)
+    console.log(playerToUser)
     let gameKey = req.data.key;
     let playerName = req.data.playerName;
     if (!gameExists(gameKey)) {
