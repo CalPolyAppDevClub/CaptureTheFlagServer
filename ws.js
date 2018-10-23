@@ -549,6 +549,6 @@ function createRepTeam(team) {
         flags: team.getFlags(),
         name: team.name,
         id: team.id,
-        ojectId = teams.get(team)
+        ojectId: teams.get(team)
     }
 }
