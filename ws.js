@@ -133,7 +133,9 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
     }
     let game = games[gameKey]
     let player = game.createPlayer(playerName)
-    let error = game.addPlayer(player) 
+    let error = game.addPlayer(player)
+    console.log('error from join game')
+    console.log(error) 
     if (error == undefined) {
         clients.get(req.id).game = games[gameKey]
         clients.get(req.id).player = player
