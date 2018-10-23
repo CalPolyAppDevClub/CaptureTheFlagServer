@@ -3,15 +3,16 @@ const clone = require('clone');
 const Events = require('events');
 const GameFailureReason = require('./GameFailureReason');
 const Boundry = require('./boundry')
+const uuid = require('uuid/v4')
 
 const MAX_PLAYERS_PER_TEAM = 15;
 const DISTANCE_BETWEEN_PLAYERS = 10000000;
 module.exports = class Game extends Events.EventEmitter {
     constructor(name) {
         super();
-        this._players = new Map();
-        this._flags = new Map();
-        this._teams = {};
+        this._players = new Set()
+        this._flags = new Set();
+        this._teams = new Set();
         this.name = name;
         this.boundary = null;
         this.gameStates = {
@@ -27,46 +28,30 @@ module.exports = class Game extends Events.EventEmitter {
         return this.gameState
     }
 
-    getPlayerInfo(id) {
-        return createRepPlayer(this._players.get(id))
-    }
-
     getPlayers() {
         let playerEntries = this._players.entries()
-        let repPlayers = {}
-        for (let player of playerEntries) {
-            let playerProperties = player[1]
-            let repPlayer = createRepPlayer(playerProperties)
-            repPlayers[repPlayer.id] = repPlayer
-        }
-        return repPlayers
+        return playerEntries
     }
 
-    dropFlag(playerId) {
-        let player = this._players.get(playerId)
+    dropFlag(player) {
         if (!player.hasFlag()) {
             return GameFailureReason.playerDoesNotHaveAFlag
         }
         let flag = player.flag
         let location = player.getLocation()
+        flag.setLocation(location)
         flag.held = false
         player.flag = null
-        this.emit('flagDropped', playerId, flag.id, location)
+        this.emit('flagDropped', player, flag)
     }
 
     getFlags() {
         let flagEntries = this._flags.entries()
-        let repFlags = {}
-        for (flag in flagEntries) {
-            let flagProperties = flag[1]
-            let repFlag = createRepFlag(flagProperties)
-            repFlags[repFlag.id] = repPlayer
-        }
-        return repFlags
+        return flagEntries
     }
 
-    checkIfAlreadyInGame(id) {
-        return this._players.has(id)
+    checkIfAlreadyInGame(player) {
+        return this._players.has(player)
     }
 
     checkIfPlayerNameTaken(name) {
@@ -83,8 +68,8 @@ module.exports = class Game extends Events.EventEmitter {
 
     }
 
-    checkIfTeamExists(teamId) {
-        return this._teams[teamId] !== undefined
+    checkIfTeamExists(team) {
+        return this._teams.has(team)
         
     }
 
@@ -98,35 +83,35 @@ module.exports = class Game extends Events.EventEmitter {
 
     getBoundary() {
         if (this.boundary != undefined) {
-            let bounds = this.boundary
-            return createRepGameBoundary(bounds)
+            return this.boundary
         }
         return null
     }
-        
 
-    addPlayer(id, playerName) {
-        if (this.checkIfAlreadyInGame(id)) {
+    createPlayer(name) {
+        let player = new Player(name, new CircleBoundary(null, DISTANCE_BETWEEN_PLAYERS))
+        if (this._players.size === 0) {
+            player.leader = true
+        }
+        this.addPlayer(player)
+        return player
+    }
+        
+    addPlayer(player) {
+        if (this._players.has(player)) {
             return GameFailureReason.PlayerAlreadyInGame;
         }
         if (this._players.size === MAX_PLAYERS_PER_TEAM) {
             return GameFailureReason.TooManyPlayers;
         }
-        if (this.checkIfPlayerNameTaken(playerName)) {
+        if (this.checkIfAlreadyInGame(player)) {
             return GameFailureReason.NameAlreadyTaken
         }
-
-        let player = new Player(playerName, '' + id, new CircleBoundary(null, DISTANCE_BETWEEN_PLAYERS))
-        if (this._players.size === 0) {
-            player.leader = true
-        }
-        this._players.set(id, player);
-        let repPlayer
+        this._players.add(player);
         this.emit('playerAdded', player)
     }
 
-    updateLocation(id, latitude, longitude) {
-        let player = this._players.get(id)
+    updateLocation(player, latitude, longitude) {
         let location = {
             latitude : latitude,
             longitude : longitude
@@ -134,47 +119,46 @@ module.exports = class Game extends Events.EventEmitter {
         let lastLocation = player.getLocation()
         player.setLocation(location)
         if (this.boundary != null && !this.boundary.isInBounds(player) && player.flagHeld != null) {
-            let flag = player.flagHeld
+            let flag = player.flag()
             player.flagHeld = null
             flag.setLocation(lastLocation)
-            this.emit('flagDropped', id, flag.id, lastLocation)
-            console.log('from update location flag')
-            console.log(flag)
-            console.log('last location')
-            console.log(lastLocation)
+            this.emit('flagDropped', player, flag)
         }
-        this.emit('locationUpdate', id, location)
+        this.emit('locationUpdate', player)
     }
 
-    tagPlayer(playerToTagId, idOfTaggingPlayer) {
+    tagPlayer(playerToTag, taggingPlayer) {
         if (this.gameState != this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
-        let playerToTag = this._players.get(playerToTagId)
-        let taggingPlayer = this._players.get(idOfTaggingPlayer)
         if (taggingPlayer.isCloseEnough(playerToTag)) {
-            playerToTag.isTagged = true
+            playerToTag.tag()
             let flagHeldLocation = null
             if (playerToTag.flagHeld != null) {
-                flagHeldLocation = this._players.get(playerToTagId).getLocation()
+                let flag = playerToTag.flag()
+                flagHeldLocation = playerToTag.getLocation()
+                flag.setLocation(flagHeldLocation)
+                this.emit('flagDropped', playerToTag, player)
             }
-            this.emit('playerTagged', playerToTagId, flagHeldLocation)
+            this.emit('playerTagged', playerToTag, taggingPlayer)
         } else {
             return GameFailureReason.playersNotCloseEnough
         }
     }
 
-    addFlag(idOfAdder, location) {
+    createFlag(location) {
+        let flag = new Flag(new CircleBoundary(location, 40))
+        return flag
+    }
+
+    addFlag(flag, playerAdder) {
         //checks
-        let player = this._players.get(idOfAdder)
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
         }
-        if (!player.leader) {
+        if (!playerAdder.leader) {
             return GameFailureReason.playerDoesNotHavePermission
         }
-        let flagId = this._flags.size + 1
-        let flag = new Flag('' + flagId, new CircleBoundary(location, 40))
         /*if (!this.boundary.isOnCorrectSide(flag)) {
             console.log("not placing on the correct side")
             return GameFailureReason.playerNotInBounds
@@ -184,60 +168,59 @@ module.exports = class Game extends Events.EventEmitter {
         }
 
         //logic
-        this._flags.set('' + flagId, flag);
-        let teamId;
-        if (this._teams[1].containsPlayer(idOfAdder.toString())) {
-            teamId = this._teams[1].id
-            this._teams[teamId].flags.push(flagId.toString())
+        this._flags.add(flag);
+        let team;
+        if (this._teams.get(1).containsPlayer(playerAdder)) {
+            team = this._teams.get(1)
+            this._teams.get(1).addFlag(flag)
         } else {
-            teamId = this._teams[2].id
-            this._teams[teamId].flags.push(flagId.toString())
+            team = this._teams.get(2)
+            this._teams.get(2).addFlag(flag)
         }
-        let flagToSend = createRepFlag(flag)
-        console.log('about to pick of a flag from game') 
-        this.emit('flagAdded', flagToSend, teamId)
-        return flagId
+        this.emit('flagAdded', flag, team)
     }
 
-    pickUpFlag(flagId, playerId) {
-        console.log('called pickupflag in game')
+    pickUpFlag(flag, player) {
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
         if (getTeamOf.call(this, 'flag', flagId) === getTeamOf.call(this, 'player', playerId)) {
             return GameFailureReason.cannotPickUpFlag
         }
-        let flag = this._flags.get('' + flagId)
-        let player = this._players.get(playerId)
+        
         if (!flag.isCloseEnough(player)) {
             return GameFailureReason.cannotPickUpFlag
         }
         player.flagHeld = flag
         flag.held = true;
-        this.emit('flagPickedUp', flagId, playerId)
+        this.emit('flagPickedUp', flag, player)
     }
 
     getTeams() {
-        return clone(this._teams)
+        let teamsIterator = this._teams.entries()
+        return teamsIterator
     }
 
-    removePlayer(id) {
+    removePlayer(player) {
         this._players.delete(id);
-        this.emit('playerRemoved', String(id))
+        this.emit('playerRemoved', player)
     }
 
-    addToTeam(id, teamId) {
-        this._teams['' + teamId].players.push('' + id);
-        this.emit('playerJoinedTeam', String(id), teamId);
+    addToTeam(player, team) {
+        this._teams.get(team.id).addPlayer(player);
+        this.emit('playerJoinedTeam', player, team);
     }
 
-    addTeam(teamName) {
+    createTeam(teamName) {
+        let teamId = (Object.keys(this._teams).length + 1)
+        return new Team(teamName, teamId)
+    }
+
+    addTeam(team) {
         if (Object.keys(this._teams).length === 2) {
             return GameFailureReason.tooManyTeams
         }
-        let teamId = (Object.keys(this._teams).length + 1);
-        let teamToAdd = new Team(teamName, teamId);
-        this._teams[teamId] = teamToAdd;
+        this._teams.add(team)
         this.emit('teamAdded', teamToAdd);
     }
 
@@ -250,22 +233,22 @@ module.exports = class Game extends Events.EventEmitter {
     }
 };
 
-function getTeamOf(type, id) {
+function getTeamOf(type, item) {
     switch (type) {
         case 'player':
-            if (this._teams[1].containsPlayer(id)) {
-                return this._teams[1]
+            if (this._teams.get(1).containsPlayer(item)) {
+                return this._teams.get(1)
             }
-            if (this._teams[2].containsPlayer(id)) {
-                return this._teams[2]
+            if (this._teams.get(2).containsPlayer(item)) {
+                return this._teams.get(2)
             }
             break
         case 'flag':
-            if (this._teams[1].containsFlag(id)) {
-                return this._teams[1]
+            if (this._teams.get(1).containsFlag(item)) {
+                return this._teams.get(1)
             }
-            if (this._teams[2].containsFlag(id)) {
-                return this._teams[2]
+            if (this._teams.get(2).containsFlag(item)) {
+                return this._teams.get(2)
             }
             break
         default:
@@ -273,55 +256,12 @@ function getTeamOf(type, id) {
     }
 }
 
-function createRepPlayer(player) {
-    let flag = player.flagHeld
-    let flagId = null
-    if (flag != undefined) {
-        flagId = flag.id
-    }
-    return {
-        name : player.name,
-        id : player.id,
-        flagHeld : flagId,
-        location : player.getLocation(),
-        leader : player.leader,
-        isTagged : player.isTagged
-    }
-}
-
-function createRepFlag(flag) {
-    return {
-        name : flag.name,
-        id : flag.id,
-        location : flag.getLocation(),
-        held : flag.held
-    }
-}
-
-function createRepGameBoundary(boundary) {
-    return {
-        center: boundary.getCenter(),
-        direction: boundary.getDirection(),
-        teamSides: boundary.getSides(),
-        direction: boundary.getDirection()
-    }
-}
-
-function convertMapToObject(map) {
-    let objToReturn = {};
-    map.forEach(function(value, key) {
-        objToReturn[key] = value;
-    });
-    return objToReturn;
-}
-
 class Player {
-    constructor(name, id, boundary) {
+    constructor(name, boundary) {
         this.name = name;
         this.flagHeld = null;
-        this.id = id;
         this.isTagged = false;
-        this.leader = true;
+        this.leader = false;
         this._acceptableDistance = boundary
     }
 
@@ -340,11 +280,18 @@ class Player {
     hasFlag() {
         return this.flagHeld != null
     }
+
+    flag() {
+        return this.flagHeld
+    }
+
+    tag() {
+        this.isTagged = true
+    }
 }
 
 class Flag  {
-    constructor(id, boundary) {
-        this.id = id;
+    constructor(boundary, location) {
         this.acceptableDistance = boundary;
         this.held = false;
     }
@@ -436,27 +383,29 @@ class Team {
     constructor(name, id) {
         this.id = id;
         this.name = name;
-        this.players = new Array();
-        this.flags = new Array();
+        this.players = new Set();
+        this.flags = new Set();
     }
-    containsPlayer(playerId) {
-        let contains = false
-        this.players.forEach(function(item) {
-            if (item == playerId) {
-                contains = true
-                return
-            }
-        })
-        return contains
+    containsPlayer(player) {
+        return this.players.has(player)
     }
-    containsFlag(flagId) {
-        let contains = false
-        this.flags.forEach(function(item) {
-            if (item == flagId) {
-                contains = true
-                return
-            }
-        })
-        return contains
+    containsFlag(flag) {
+        return this.flags.has(flag)
+    }
+
+    addPlayer(player) {
+        this.players.add(player)
+    }
+
+    addFlag(flag) {
+        this.flags.add(flag)
+    }
+
+    getPlayers() {
+        return new Array.from(this.players)
+    }
+
+    getFlags() {
+        return new Array.from(this.flags)
     }
 }
