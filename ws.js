@@ -138,6 +138,9 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
         clients.get(req.id).game = games[gameKey]
         clients.get(req.id).player = player
         playerToUser.set(player, clients.get(req.id))
+        console.log('right before send')
+        console.log(clients)
+        console.log(playerToUser)
         resp.send();
     } else {
         resp.data = {}
