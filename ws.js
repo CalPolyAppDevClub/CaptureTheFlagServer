@@ -419,6 +419,8 @@ function initEvents(game) {
     })
 
     game.on('playerAdded', function(playerAdded) {
+        console.log('playerAdded playerToUser')
+        console.log(playerToUser)
         let players = game.getPlayers();
         for (player of players) {
             let sendKey = playerToUser.get(player).connectionKey
