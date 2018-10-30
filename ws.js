@@ -418,7 +418,7 @@ function initEvents(game) {
     game.on('locationUpdate', function(player) {
         let players = game.getPlayers();
         let data = {
-            playerId : '' + playerToUser.get(player).id, 
+            playerId : '' + playerToUser.getForward(player).id, 
             newLocation: location
         };
         for (player of players) {
@@ -434,7 +434,7 @@ function initEvents(game) {
             taggingPlayerId: '' + playerToUser(taggingPlayer).id
         }
         for (player of players) {
-            let sendKey = playerToUser.get(player).connectionKey
+            let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('playerTagged', data, sendKey)
         }
     })
@@ -452,7 +452,7 @@ function initEvents(game) {
     game.on('teamAdded', function(team) {
         let players = game.getPlayers();
         for (player of players) {
-            let sendKey = playerToUser.get(player).connectionKey
+            let sendKey = playerToUser.getForward(player).connectionKey
             let teamId = teams.getForward(team)
             wss.send('teamAdded', teamId, sendKey);
         }
@@ -461,7 +461,7 @@ function initEvents(game) {
     game.on('playerRemoved', function(player) {
         let players = game.getPlayers();
         for (player of players) {
-            let sendKey = playerToUser.get(player)
+            let sendKey = playerToUser.getForward(player)
             let id = playerToUser.id
             wss.send('playerRemoved', id, sendKey);
         }
@@ -474,7 +474,7 @@ function initEvents(game) {
             teamId: teams.getForward(team)
         }
         for (player of players) {
-            let sendKey = playerToUser.get(player).connectionKey
+            let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('flagAdded', flagAndTeam, sendKey);
         }
     })
@@ -485,14 +485,14 @@ function initEvents(game) {
             teamId : teams.getForward(team)
         }
         for (player of game.getPlayers()) {
-            let sendKey = playerToUser.get(player).connectionKey
+            let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('playerJoinedTeam', teamAndPlayer, sendKey);
         }
     })
 
     game.on('gameStateChanged', function(gameState) {
         for (player of game.getPlayers()) {
-            let sendKey = playerToUser.get(player).connectionKey
+            let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('gameStateChanged', gameState, sendKey)
         }
     })
@@ -501,10 +501,10 @@ function initEvents(game) {
         let players = game.getPlayers()
         let flagIdAndPlayerId = {
             flagId: flags.getForward(flag),
-            playerId: playerToUser.get(player).id
+            playerId: playerToUser.getForward(player).id
         }
         for (key in players) {
-            let sendKey = playerToUser.get(player).connectionKey
+            let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('flagPickedUp', flagIdAndPlayerId, sendKey)
         }
     })
@@ -514,14 +514,14 @@ function initEvents(game) {
             boundary: createRepGameBoundary(boundary)
         }
         for (player in game.getPlayers()) {
-            let sendKey = playerToUser.get(player).connectionKey
+            let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('boundaryCreated', dataToSend, sendKey)
         }
     })
 
     game.on('flagDropped', function(flag, player) {
         let dataToSend = {
-            playerId: playerToUser.get(player).id,
+            playerId: playerToUser.getForward(player).id,
             flagId: flags.getForward(flag),
             location: flag.getLocation()
         }
@@ -588,7 +588,7 @@ function createRepTeam(team) {
 
 function sendToAllInGame(game, data, command) {
     for (player in game.getPlayers()) {
-        let sendKey = playerToUser.get(player).connectionKey
+        let sendKey = playerToUser.getForward(player).connectionKey
         wss.send(command, data, sendKey)
     }
 
