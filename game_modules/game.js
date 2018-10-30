@@ -256,13 +256,14 @@ function getTeamOf(type, item) {
     }
 }
 
-class Player {
+class Player extends Events.EventEmitter {
     constructor(name, boundary) {
         this.name = name;
         this.flagHeld = null;
         this.isTagged = false;
         this.leader = false;
         this._acceptableDistance = boundary
+        this._reachDistance
     }
 
     getLocation() {
@@ -275,6 +276,7 @@ class Player {
 
     setLocation(location) {
         this._acceptableDistance.setCenter(location)
+        this.emit('locationChanged', this._acceptableDistance.getCenter())
     }
 
     hasFlag() {
@@ -287,10 +289,17 @@ class Player {
 
     tag() {
         this.isTagged = true
+        this.emit('tagged')
     }
+
+    dropFlag() {
+        this.emit('flagDropped', this.flagHeld)
+    }
+
+    
 }
 
-class Flag  {
+class Flag extends Events.EventEmitter  {
     constructor(boundary, location) {
         this.acceptableDistance = boundary;
         this.held = false;
@@ -306,6 +315,17 @@ class Flag  {
 
     setLocation(location) {
         this.acceptableDistance.setCenter(location)
+        this.emit('locationChanged', this.acceptableDistance.getCenter())
+    }
+
+    setHeld() {
+        this.held = true
+        this.emit('held')
+    }
+
+    setDropped() {
+        this.held = false
+        this.emit('dropped')
     }
 }
 
