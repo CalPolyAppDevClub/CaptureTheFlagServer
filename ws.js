@@ -528,7 +528,7 @@ function createRepPlayer(player) {
     }
     return {
         name : player.name,
-        id : playerToUser.get(player).id,
+        id : playerToUser.getForward(player).id,
         flagHeld : flagId,
         location : player.getLocation(),
         leader : player.leader,
