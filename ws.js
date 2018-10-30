@@ -351,6 +351,11 @@ wss.onCommand('getPlayers', null, function(req, resp) {
     }
     let players = []
     for (player of game.getPlayers()) {
+        console.log()
+        console.log()
+        console.log('FROM GET PLAYERS')
+        console.log(player)
+        console.log()
         players.push(createRepPlayer(player))
     }
     resp.data = {};
