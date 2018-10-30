@@ -133,6 +133,8 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
     }
     let game = games[gameKey]
     let player = game.createPlayer(playerName)
+    console.log('PlayerFromTheTHTIHTIHTIHT')
+    console.log(player)
     let error = game.addPlayer(player)
     console.log('error from join game')
     console.log(error) 
