@@ -49,7 +49,7 @@ let userAccounts = {'Ethan' : 'Ethan123', 'Bob' : 'Bobby123', 'Sam' : 'Sam123', 
 
 let users = new Map()
 let clients = new Map();
-let playerToUser = new Map()
+let playerToUser = new TwoWayMap()
 
 //flag, flagId
 let flags = new TwoWayMap()
