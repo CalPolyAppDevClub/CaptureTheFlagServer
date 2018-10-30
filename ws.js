@@ -526,6 +526,16 @@ function initEvents(game) {
 }
 
 function createRepPlayer(player) {
+    console.log()
+    console.log()
+    console.log()
+    console.log()
+    console.log('from createRepPlayer')
+    console.log(player)
+    console.log()
+    console.log()
+    console.log()
+    console.log()
     let flag = player.flagHeld
     let flagId = null
     if (flag != undefined) {
