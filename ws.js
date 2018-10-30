@@ -587,7 +587,7 @@ function createRepTeam(team) {
 }
 
 function sendToAllInGame(game, data, command) {
-    for (player in game.getPlayers()) {
+    for (player of game.getPlayers()) {
         console.log()
         console.log()
         console.log()
