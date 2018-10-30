@@ -139,6 +139,11 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
     if (error == undefined) {
         clients.get(req.id).game = games[gameKey]
         clients.get(req.id).player = player
+        console.log('GOGOGOGOGOGOGOGOGOGOGOGO')
+        console.log(clients.get(req.id))
+        console.log()
+        console.log()
+        console.log()
         playerToUser.set(player, clients.get(req.id))
         sendToAllInGame(game, createRepPlayer(player), 'playerAdded')
         console.log('right before send')
