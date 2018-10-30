@@ -258,6 +258,7 @@ function getTeamOf(type, item) {
 
 class Player extends Events.EventEmitter {
     constructor(name, boundary) {
+        super()
         this.name = name;
         this.flagHeld = null;
         this.isTagged = false;
@@ -301,6 +302,7 @@ class Player extends Events.EventEmitter {
 
 class Flag extends Events.EventEmitter  {
     constructor(boundary, location) {
+        super()
         this.acceptableDistance = boundary;
         this.held = false;
     }
