@@ -29,8 +29,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     getPlayers() {
-        let playerEntries = this._players.entries()
-        return playerEntries
+        return Array.from(this._players)
     }
 
     dropFlag(player) {
