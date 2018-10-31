@@ -358,7 +358,6 @@ wss.onCommand('getPlayers', null, function(req, resp) {
         console.log()
         players.push(createRepPlayer(player))
     }
-    resp.data = {};
     resp.data.players = players;
     resp.send();
 })

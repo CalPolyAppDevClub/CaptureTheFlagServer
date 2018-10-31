@@ -1,4 +1,4 @@
-/*const Game = require('./game_modules/game.js')
+const Game = require('./game_modules/game.js')
 const gameError = require('./game_modules/GameFailureReason')
 
 let testGame = new Game('test')
@@ -11,18 +11,7 @@ let player2 = testGame.createPlayer('Bob')
 testGame.addPlayer(player1)
 testGame.addPlayer(player2)
 
-let players = testGame.getPlayers()*/
-let biMap = require('./biDirectional')
-
-let twoWay = new biMap([['Sam', 'Larry']])
-
-twoWay.set('fuck', 'shit')
-
-console.log(twoWay)
-
-twoWay.deleteWithKey('Sam')
-
-console.log(twoWay)
+console.log(testGame.getPlayers())
 
 
 

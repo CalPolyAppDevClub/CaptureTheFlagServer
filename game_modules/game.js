@@ -29,6 +29,12 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     getPlayers() {
+        console.log()
+        console.log()
+        console.log('from get players')
+        console.log(this._players)
+        console.log()
+        console.log()
         return Array.from(this._players)
     }
 
@@ -77,7 +83,7 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.boundaryAlreadyExists
         }
         this.boundary = new GameBoundary(new CircleBoundary(boundaryLineCoords, 4000), direction, {greater: this._teams[1], lesser: this._teams[2]})
-        this.emit('boundaryCreated', createRepGameBoundary(this.boundary))
+        //this.emit('boundaryCreated', createRepGameBoundary(this.boundary))
     }
 
     getBoundary() {
@@ -92,7 +98,6 @@ module.exports = class Game extends Events.EventEmitter {
         if (this._players.size === 0) {
             player.leader = true
         }
-        this.addPlayer(player)
         return player
     }
         
