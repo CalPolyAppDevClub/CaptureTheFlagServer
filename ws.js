@@ -269,7 +269,7 @@ wss.onCommand('pickUpFlag', ['flagId'], function(req, resp) {
 })
 
 wss.onCommand('getTeams', null, function(req, resp){
-    let game = client.get(req.id).game
+    let game = clients.get(req.id).game
     if (game === undefined) {
         resp.data.error = 'getTeams: not in game';
         resp.send();
