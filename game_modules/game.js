@@ -201,8 +201,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     getTeams() {
-        let teamsIterator = this._teams.entries()
-        return teamsIterator
+        return Array.from(this._teams)
     }
 
     removePlayer(player) {
