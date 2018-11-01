@@ -64,6 +64,7 @@ function setupWebsocket(ws, number) {
     ws.on('message', (message) => {
         console.log('message reciveved')
         let messageObject = JSON.parse(message)
+        console.log(messageObject)
         if (!messageIsValid(messageObject)) {
             let messageToSend = JSON.stringify(new Message(null, messageObject.key, null, new ServerError(200, 'Bad Mesaage')))
             ws.send(messageToSend)
