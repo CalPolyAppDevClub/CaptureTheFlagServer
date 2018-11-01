@@ -225,7 +225,7 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.tooManyTeams
         }
         this._teams.add(team)
-        this.emit('teamAdded', teamToAdd);
+        this.emit('teamAdded', team);
     }
 
 
