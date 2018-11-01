@@ -364,7 +364,7 @@ wss.onCommand('getPlayers', null, function(req, resp) {
 
 wss.onCommand('createTeam', ['teamName'], function(req, resp) {
     let teamName = req.data.teamName;
-    let game = clients.get(reg.id).game
+    let game = clients.get(req.id).game
     if (game === undefined) {
         resp.data.error = 'createTeam: not in game';
         resp.send();
@@ -376,6 +376,7 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
         resp.data.error = error
     } else {
         teams.set(team, uuid())
+        sendToAllInGame(game, createRepTeam(team), 'teamAdded')
     }
     resp.send();
 })
@@ -449,12 +450,12 @@ function initEvents(game) {
     })
 
     game.on('teamAdded', function(team) {
-        let players = game.getPlayers();
+        /*let players = game.getPlayers();
         for (player of players) {
             let sendKey = playerToUser.getForward(player).connectionKey
             let teamId = teams.getForward(team)
             wss.send('teamAdded', teamId, sendKey);
-        }
+        }*/
     })
     
     game.on('playerRemoved', function(player) {
