@@ -410,7 +410,7 @@ class GameBoundary {
     }
 }
 
-class Team {
+class Team extends Events.EventEmitter {
     constructor(name, id) {
         this.id = id;
         this.name = name;
