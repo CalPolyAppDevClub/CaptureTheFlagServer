@@ -426,6 +426,7 @@ class Team {
 
     addPlayer(player) {
         this.players.add(player)
+        this.emit('playerAdded', player)
     }
 
     addFlag(flag) {

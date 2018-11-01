@@ -211,7 +211,7 @@ wss.onCommand('createFlag', ['latitude', 'longitude'], function(req, resp) {
         resp.data.error = generalError.notInAGame
         resp.send()
         return
-    }
+    } 
     let flag = game.createFlag(location)
     let flagId = uuid()
     let placeFlagError = game.addFlag(flag, player)
@@ -380,6 +380,7 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
         resp.data.error = error
     } else {
         teams.set(team, uuid())
+        setUpTeamEvents(team)
         sendToAllInGame(game, createRepTeam(team), 'teamAdded')
     }
     resp.send();
@@ -417,6 +418,12 @@ app.post('/createAccount', (req, res) => {
     userAccounts[username] = password
     res.send({accountCreated: "yeah"})
 })
+
+function setUpTeamEvents(team) {
+    team.on('playerAdded', (player) => {
+        sendToAllInGame('playerJoinedTeam', {id: playerToUser(player).id, team: teams.getForward(team)})
+    })
+}
 
 function initEvents(game) {
     game.on('locationUpdate', function(player) {
@@ -484,14 +491,14 @@ function initEvents(game) {
     })
 
     game.on('playerJoinedTeam', function(player, team) {
-        let teamAndPlayer = {
+        /*let teamAndPlayer = {
             id : playerId,
             teamId : teams.getForward(team)
         }
         for (player of game.getPlayers()) {
             let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('playerJoinedTeam', teamAndPlayer, sendKey);
-        }
+        }*/
     })
 
     game.on('gameStateChanged', function(gameState) {
