@@ -36,7 +36,7 @@ module.exports = class Game extends Events.EventEmitter {
         console.log()
         console.log()
         return Array.from(this._players)
-    }
+    } 
 
     dropFlag(player) {
         if (!player.hasFlag()) {
@@ -210,7 +210,13 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addToTeam(player, team) {
-        this._teams.get(team.id).addPlayer(player);
+        if (!this._teams.has(team)) {
+            return /*team not in game */
+        }
+        if (!this._players.has(player)) {
+            return /*player not in game */
+        }
+        team.addPlayer(player)
         this.emit('playerJoinedTeam', player, team);
     }
 

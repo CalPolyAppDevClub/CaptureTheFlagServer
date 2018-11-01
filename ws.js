@@ -32,6 +32,10 @@ console.log("websocket server created")
 
 let games = {};
 
+wss.on('close', (connectionKey) => {
+
+})
+
 class User {
     constructor(name, game, id, connectionKey) {
         this.name = name
