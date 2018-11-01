@@ -137,24 +137,12 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
     }
     let game = games[gameKey]
     let player = game.createPlayer(playerName)
-    console.log('PlayerFromTheTHTIHTIHTIHT')
-    console.log(player)
     let error = game.addPlayer(player)
-    console.log('error from join game')
-    console.log(error) 
     if (error == undefined) {
         clients.get(req.id).game = games[gameKey]
         clients.get(req.id).player = player
-        console.log('GOGOGOGOGOGOGOGOGOGOGOGO')
-        console.log(clients.get(req.id))
-        console.log()
-        console.log()
-        console.log()
         playerToUser.set(player, clients.get(req.id))
         sendToAllInGame(game, createRepPlayer(player), 'playerAdded')
-        console.log('right before send')
-        console.log(clients)
-        console.log(playerToUser)
         resp.send();
     } else {
         resp.data = {}
@@ -290,7 +278,6 @@ wss.onCommand('getTeams', null, function(req, resp){
 })
 
 wss.onCommand('getCurrentGameState', null, function(req, resp) {
-    console.log('get current game state')
     if (clients.get(req.id).game === undefined) {
         resp.data.error = generalError.notInAGame
         resp.send()
@@ -316,8 +303,6 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
         teams: teams,
         boundary: boundary
     }
-    console.log('from get current game state')
-    console.log(players)
     resp.data.stateData = stateData
     resp.send()
 })
@@ -355,11 +340,6 @@ wss.onCommand('getPlayers', null, function(req, resp) {
     }
     let players = []
     for (player of game.getPlayers()) {
-        console.log()
-        console.log()
-        console.log('FROM GET PLAYERS')
-        console.log(player)
-        console.log()
         players.push(createRepPlayer(player))
     }
     resp.data.players = players;
@@ -394,8 +374,6 @@ app.post('/authenticate', (req, res) => {
     let password = data.password
 
     if (userAccounts[username] === password) {
-        console.log('got passed first if')
-        console.log('got passed second if')
         if (userKeyMap[username] == undefined) {
             let authKey = uuid()
             userKeyMap.set(authKey, username)
@@ -409,7 +387,6 @@ app.post('/authenticate', (req, res) => {
 })
 
 app.post('/createAccount', (req, res) => {
-    console.log('create account is being called')
     let data = req.body
     let username = data.username
     let password = data.password
@@ -545,16 +522,6 @@ function initEvents(game) {
 }
 
 function createRepPlayer(player) {
-    console.log()
-    console.log()
-    console.log()
-    console.log()
-    console.log('from createRepPlayer')
-    console.log(player)
-    console.log()
-    console.log()
-    console.log()
-    console.log()
     let flag = player.flagHeld
     let flagId = null
     if (flag != undefined) {
@@ -589,11 +556,6 @@ function createRepGameBoundary(boundary) {
 }
 
 function createRepTeam(team) {
-    console.log()
-    console.log()
-    console.log()
-    console.log('fromRepTeam')
-    console.log(team)
     return {
         players: team.getPlayers(),
         flags: team.getFlags(),
@@ -605,13 +567,6 @@ function createRepTeam(team) {
 
 function sendToAllInGame(game, data, command) {
     for (player of game.getPlayers()) {
-        console.log()
-        console.log()
-        console.log()
-        console.log('sendToAllInGame')
-        console.log(player)
-        console.log()
-        console.log()
         let sendKey = playerToUser.getForward(player).connectionKey
         wss.send(command, data, sendKey)
     }
