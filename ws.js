@@ -577,6 +577,11 @@ function createRepGameBoundary(boundary) {
 }
 
 function createRepTeam(team) {
+    console.log()
+    console.log()
+    console.log()
+    console.log('fromRepTeam')
+    console.log(team)
     return {
         players: team.getPlayers(),
         flags: team.getFlags(),
