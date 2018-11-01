@@ -29,12 +29,6 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     getPlayers() {
-        console.log()
-        console.log()
-        console.log('from get players')
-        console.log(this._players)
-        console.log()
-        console.log()
         return Array.from(this._players)
     } 
 
@@ -210,6 +204,8 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addToTeam(player, team) {
+        console.log('from addToTeam in game')
+        console.log(team)
         if (!this._teams.has(team)) {
             console.log('game does not have team')
             return /*team not in game */
@@ -233,7 +229,6 @@ module.exports = class Game extends Events.EventEmitter {
             console.log('too mnay teams')
             return GameFailureReason.tooManyTeams
         }
-        console.log('adding team')
         this._teams.add(team)
         this.emit('teamAdded', team);
     }
