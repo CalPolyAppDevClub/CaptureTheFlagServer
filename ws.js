@@ -445,8 +445,8 @@ function initEvents(game) {
         for (player of players) {
             let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('playerAdded', createRepPlayer(playerAdded), sendKey)
-        }
-    })*/
+        }*/
+    })
 
     game.on('teamAdded', function(team) {
         let players = game.getPlayers();
