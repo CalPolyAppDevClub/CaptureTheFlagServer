@@ -412,6 +412,7 @@ class GameBoundary {
 
 class Team extends Events.EventEmitter {
     constructor(name, id) {
+        super()
         this.id = id;
         this.name = name;
         this.players = new Set();
