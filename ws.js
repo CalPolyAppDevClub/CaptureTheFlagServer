@@ -443,7 +443,7 @@ function initEvents(game) {
         console.log(playerToUser)
         let players = game.getPlayers();
         for (player of players) {
-            let sendKey = playerToUser.get(player).connectionKey
+            let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('playerAdded', createRepPlayer(playerAdded), sendKey)
         }
     })
