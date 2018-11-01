@@ -211,9 +211,11 @@ module.exports = class Game extends Events.EventEmitter {
 
     addToTeam(player, team) {
         if (!this._teams.has(team)) {
+            console.log('game does not have team')
             return /*team not in game */
         }
         if (!this._players.has(player)) {
+            console.log('game does not have player')
             return /*player not in game */
         }
         console.log('adding player to team in game')
