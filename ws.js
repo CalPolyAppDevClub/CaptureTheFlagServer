@@ -147,7 +147,7 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
         console.log()
         console.log()
         playerToUser.set(player, clients.get(req.id))
-        //sendToAllInGame(game, createRepPlayer(player), 'playerAdded')
+        sendToAllInGame(game, createRepPlayer(player), 'playerAdded')
         console.log('right before send')
         console.log(clients)
         console.log(playerToUser)
@@ -439,14 +439,14 @@ function initEvents(game) {
     })
 
     game.on('playerAdded', function(playerAdded) {
-        console.log('playerAdded playerToUser')
+        /*console.log('playerAdded playerToUser')
         console.log(playerToUser)
         let players = game.getPlayers();
         for (player of players) {
             let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('playerAdded', createRepPlayer(playerAdded), sendKey)
         }
-    })
+    })*/
 
     game.on('teamAdded', function(team) {
         let players = game.getPlayers();
