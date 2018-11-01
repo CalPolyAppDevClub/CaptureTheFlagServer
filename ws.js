@@ -420,8 +420,8 @@ app.post('/createAccount', (req, res) => {
 })
 
 function setUpTeamEvents(team) {
-    console.log('setup flag is working')
     team.on('playerAdded', (player) => {
+        console.log('player added is being called')
         sendToAllInGame('playerJoinedTeam', {id: playerToUser(player).id, team: teams.getForward(team)})
     })
 }
