@@ -428,10 +428,10 @@ class Team {
     }
 
     getPlayers() {
-        return new Array.from(this.players)
+        return Array.from(this.players)
     }
 
     getFlags() {
-        return new Array.from(this.flags)
+        return Array.from(this.flags)
     }
 }
