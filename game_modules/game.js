@@ -230,8 +230,10 @@ module.exports = class Game extends Events.EventEmitter {
 
     addTeam(team) {
         if (Object.keys(this._teams).length === 2) {
+            console.log('too mnay teams')
             return GameFailureReason.tooManyTeams
         }
+        console.log('adding team')
         this._teams.add(team)
         this.emit('teamAdded', team);
     }
