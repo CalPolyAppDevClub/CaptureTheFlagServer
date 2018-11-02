@@ -230,6 +230,8 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.tooManyTeams
         }
         this._teams.add(team)
+        console.log('going to print all of the teams')
+        console.log(this._teams)
         this.emit('teamAdded', team);
     }
 
