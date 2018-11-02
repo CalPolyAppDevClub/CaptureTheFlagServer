@@ -161,7 +161,7 @@ wss.onCommand('joinTeam', ['teamId'], function(req, resp) {
     }
     let game = clients.get(req.id).game;
     let player = clients.get(req.id).player
-    game.addToTeam(player, teamToJoinId)
+    game.addToTeam(player, team)
 })
 
 wss.onCommand('enterGame', ['gameId', 'userId'], function(req, resp) {
