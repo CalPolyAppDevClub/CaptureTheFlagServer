@@ -154,6 +154,8 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
 wss.onCommand('joinTeam', ['teamId'], function(req, resp) {
     let teamToJoinId = req.data.teamId;
     let team = teams.getReverse(teamToJoinId)
+    console.log('is ws.js join team')
+    console.log(team)
     if (clients.get(req.id).game === undefined) {
         resp.data.error = 'not in a game';
         resp.send();
