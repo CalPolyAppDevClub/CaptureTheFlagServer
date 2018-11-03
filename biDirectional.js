@@ -2,6 +2,7 @@ module.exports = class BiDirectionalMap {
     constructor(interable) {
         this._forward = new Map(interable)
         this._reverse = new Map()
+        this.size = 0
         for (let entry of this._forward.entries()) {
             this._reverse.set(entry[1], entry[0])
         }
@@ -11,6 +12,7 @@ module.exports = class BiDirectionalMap {
         let value = this._forward.get(key)
         let removed = this._forward.delete(key)
         this._reverse.delete(value)
+        this.size--
         return removed
     }
 
@@ -18,6 +20,7 @@ module.exports = class BiDirectionalMap {
         let key = this._reverse.get(value)
         let removed = this._reverse.delete(value)
         this._forward.delete(key)
+        this.size--
         return removed
     }
 
@@ -52,6 +55,7 @@ module.exports = class BiDirectionalMap {
     set(key, value) {
         this._forward.set(key, value)
         this._reverse.set(value, key)
+        this.size++
         return this
     }
 

@@ -365,7 +365,8 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
         console.log(error)
     } else {
         console.log('there was not actually an error')
-        teams.set(team, team.id)
+        let teamId = teams.size
+        teams.set(team, teamId)
         setUpTeamEvents(team, game)
         sendToAllInGame(game, createRepTeam(team), 'teamAdded')
     }
@@ -567,7 +568,7 @@ function createRepTeam(team) {
         players: team.getPlayers(),
         flags: team.getFlags(),
         name: team.name,
-        id: team.id,
+        id: teams.getForward(team),
         ojectId: teams.getForward(team)
     }
 }

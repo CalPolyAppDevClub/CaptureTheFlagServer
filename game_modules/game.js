@@ -221,9 +221,8 @@ module.exports = class Game extends Events.EventEmitter {
 
     createTeam(teamName) {
         console.log('TEAM SIZE')
-        console.log(this._teams.size + 1)
-        let teamId = (this._teams.size)
-        return new Team(teamName, teamId)
+        console.log(this._teams.size)
+        return new Team(teamName)
     }
 
     addTeam(team) {
@@ -415,9 +414,8 @@ class GameBoundary {
 }
 
 class Team extends Events.EventEmitter {
-    constructor(name, id) {
+    constructor(name) {
         super()
-        this.id = id;
         this.name = name;
         this.players = new Set();
         this.flags = new Set();
