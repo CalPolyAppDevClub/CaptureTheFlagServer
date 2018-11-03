@@ -301,7 +301,7 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
         teams.push(createRepTeam(team))
     })
     let boundary
-    if (game.getBoundary != undefined) {
+    if (game.getBoundary() != undefined) {
         boundary = createRepGameBoundary(game.getBoundary())
     }
     
