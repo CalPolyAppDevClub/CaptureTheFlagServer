@@ -572,6 +572,8 @@ function createRepTeam(team) {
 }
 
 function sendToAllInGame(game, data, command) {
+    console.log('game from sendAllInGame')
+    console.log(game)
     game.getPlayers().forEach((player) => {
         let sendKey = playerToUser.getForward(player).connectionKey
         wss.send(command, data, sendKey)
