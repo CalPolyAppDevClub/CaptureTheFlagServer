@@ -366,7 +366,7 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
     } else {
         console.log('there was not actually an error')
         teams.set(team, team.id)
-        setUpTeamEvents(team)
+        setUpTeamEvents(team, game)
         sendToAllInGame(game, createRepTeam(team), 'teamAdded')
     }
     resp.send();
@@ -402,10 +402,11 @@ app.post('/createAccount', (req, res) => {
     res.send({accountCreated: "yeah"})
 })
 
-function setUpTeamEvents(team) {
+//game data command
+function setUpTeamEvents(team, game) {
     team.on('playerAdded', (player) => {
         console.log('player added is being called')
-        sendToAllInGame('playerJoinedTeam', {id: playerToUser.getForward(player).id, team: teams.getForward(team)})
+        sendToAllInGame(game, {id: playerToUser.getForward(player).id, team: teams.getForward(team)}, 'playerJoinedTeam')
     })
 }
 
@@ -574,6 +575,9 @@ function createRepTeam(team) {
 function sendToAllInGame(game, data, command) {
     console.log('game from sendAllInGame')
     console.log(game)
+    console.log()
+    console.log()
+    console.log()
     game.getPlayers().forEach((player) => {
         let sendKey = playerToUser.getForward(player).connectionKey
         wss.send(command, data, sendKey)
