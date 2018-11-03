@@ -365,7 +365,7 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
         console.log(error)
     } else {
         console.log('there was not actually an error')
-        let teamId = teams.size
+        let teamId = teams.size + 1
         teams.set(team, teamId)
         setUpTeamEvents(team, game)
         sendToAllInGame(game, createRepTeam(team), 'teamAdded')
