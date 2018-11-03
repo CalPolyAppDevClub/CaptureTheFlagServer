@@ -405,7 +405,7 @@ app.post('/createAccount', (req, res) => {
 function setUpTeamEvents(team) {
     team.on('playerAdded', (player) => {
         console.log('player added is being called')
-        sendToAllInGame('playerJoinedTeam', {id: playerToUser(player).id, team: teams.getForward(team)})
+        sendToAllInGame('playerJoinedTeam', {id: playerToUser.getForward(player).id, team: teams.getForward(team)})
     })
 }
 
