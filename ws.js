@@ -300,7 +300,11 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
     game.getTeams().forEach((team) => {
         teams.push(createRepTeam(team))
     })
-    let boundary = createRepGameBoundary(game.getBoundary())
+    let boundary
+    if (game.getBoundary != undefined) {
+        boundary = createRepGameBoundary(game.getBoundary())
+    }
+    
     let stateData = {
         players: players,
         flags: flags,
