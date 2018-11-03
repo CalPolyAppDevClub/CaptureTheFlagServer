@@ -220,6 +220,8 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     createTeam(teamName) {
+        console.log('TEAM SIZE')
+        console.log(this._teams.size)
         let teamId = (this._teams.size)
         return new Team(teamName, teamId)
     }
