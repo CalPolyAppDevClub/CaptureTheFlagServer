@@ -45,8 +45,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     getFlags() {
-        let flagEntries = this._flags.entries()
-        return flagEntries
+        return Array.from(this._flags)
     }
 
     checkIfAlreadyInGame(player) {
