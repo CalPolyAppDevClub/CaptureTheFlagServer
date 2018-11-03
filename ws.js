@@ -415,6 +415,7 @@ function setUpTeamEvents(team, game) {
 
 function setUpPlayerEvents(player, game) {
     player.on('locationChanged', (location) => {
+        console.log('Location cvhanged in player.emit the thing')
         sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location})
     })
 }
