@@ -143,6 +143,7 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
         clients.get(req.id).player = player
         playerToUser.set(player, clients.get(req.id))
         sendToAllInGame(game, createRepPlayer(player), 'playerAdded')
+        setUpPlayerEvents(game, player)
         resp.send();
     } else {
         resp.data = {}
@@ -357,15 +358,11 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
         resp.send();
         return;
     }
-    let someting = []
     let team = game.createTeam(teamName)
     let error = game.addTeam(team);
     if (error != undefined) {
         resp.data.error = error
-        console.log('error in create team ws.js')
-        console.log(error)
     } else {
-        console.log('there was not actually an error')
         let teamId = game.getTeams().length
         teams.set(team, teamId)
         setUpTeamEvents(team, game)
@@ -412,9 +409,15 @@ function setUpTeamEvents(team, game) {
     })
 }
 
+function setUpPlayerEvents(player, game) {
+    player.on('locationChanged', (location) => {
+        sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location})
+    })
+}
+
 function initEvents(game) {
     game.on('locationUpdate', function(player) {
-        let players = game.getPlayers();
+        /*let players = game.getPlayers();
         let data = {
             playerId : '' + playerToUser.getForward(player).id, 
             newLocation: location
@@ -422,7 +425,7 @@ function initEvents(game) {
         for (player of players) {
             let sendKey = playerToUser(player).connectionKey
             wss.send('locationUpdate', data, sendKey);
-         }
+         }*/
     })
 
     game.on('playerTagged', function(playerTagged, taggingPlayer) {
