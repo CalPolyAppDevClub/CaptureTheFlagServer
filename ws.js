@@ -563,6 +563,7 @@ function createRepGameBoundary(boundary) {
     console.log()
     console.log('from create rep game boundary')
     console.log(boundary.getDirection())
+    console.log(boundary._separatorDirection)
     return {
         center: boundary.getCenter(),
         direction: boundary.getDirection(),
