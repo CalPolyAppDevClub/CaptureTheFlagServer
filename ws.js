@@ -568,7 +568,7 @@ function createRepGameBoundary(boundary) {
 function createRepTeam(team) {
     let playerIds = []
     team.getPlayers().forEach((player) => {
-        players.push(playerToUser.getForward(player).id)
+        playerIds.push(playerToUser.getForward(player).id)
     })
     return {
         players: playerIds,
