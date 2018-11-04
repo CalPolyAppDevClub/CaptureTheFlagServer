@@ -315,8 +315,6 @@ wss.onCommand('setBoundary', ['latitude', 'longitude', 'direction'], function(re
     let latitude = req.data.latitude
     let longitude = req.data.longitude
     let direction = req.data.direction
-    console.log('direction in setboundary')
-    console.log(direction)
     let error = game.createBoundary({latitude: latitude, longitude: longitude}, direction)
     if (error != undefined) {
         resp.data.error = error
