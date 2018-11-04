@@ -409,7 +409,7 @@ function setUpTeamEvents(team, game) {
 
 function setUpPlayerEvents(player, game) {
     player.on('locationChanged', (location) => {
-        sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location})
+        sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location}, 'locationUpdate')
     })
 }
 
