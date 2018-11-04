@@ -203,35 +203,25 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     addToTeam(player, team) {
-        console.log('from addToTeam in game')
-        console.log(team)
         if (!this._teams.has(team)) {
-            console.log('game does not have team')
             return /*team not in game */
         }
         if (!this._players.has(player)) {
-            console.log('game does not have player')
             return /*player not in game */
         }
-        console.log('adding player to team in game')
         team.addPlayer(player)
         this.emit('playerJoinedTeam', player, team);
     }
 
     createTeam(teamName) {
-        console.log('TEAM SIZE')
-        console.log(this._teams.size)
         return new Team(teamName)
     }
 
     addTeam(team) {
         if (Object.keys(this._teams).length === 2) {
-            console.log('too mnay teams')
             return GameFailureReason.tooManyTeams
         }
         this._teams.add(team)
-        console.log('going to print all of the teams')
-        console.log(this._teams)
         this.emit('teamAdded', team);
     }
 
