@@ -556,6 +556,11 @@ function createRepFlag(flag) {
 }
 
 function createRepGameBoundary(boundary) {
+    console.log()
+    console.log()
+    console.log()
+    console.log('from create rep game boundary')
+    console.log(boundary.getDirection())
     return {
         center: boundary.getCenter(),
         direction: boundary.getDirection(),
