@@ -76,8 +76,9 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.boundaryAlreadyExists
         }
         this.boundary = new GameBoundary(new CircleBoundary(boundaryLineCoords, 4000), direction, {greater: this._teams[1], lesser: this._teams[2]})
+        console.log('from create aboundary in game')
+        console.log(this.boundary)
         this.emit('boundaryCreated', this.boundary)
-        //this.emit('boundaryCreated', createRepGameBoundary(this.boundary))
     }
 
     getBoundary() {
@@ -365,7 +366,7 @@ class GameBoundary {
         this._center = boundary.getCenter()
         console.log("in the construcor of game boundary")
         console.log(separaterDirection)
-        this._separaterDirection = separaterDirection
+        this._separatorDirection = separaterDirection
         console.log('the separtator direction')
         console.log(this._separaterDirection)
         this._teamSides  = teamSides
