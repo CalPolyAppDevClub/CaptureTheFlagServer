@@ -318,6 +318,8 @@ wss.onCommand('setBoundary', ['latitude', 'longitude', 'direction'], function(re
     let error = game.createBoundary({latitude: latitude, longitude: longitude}, direction)
     if (error != undefined) {
         resp.data.error = error
+        resp.send()
+        return
     }
     resp.send()
 })
@@ -512,10 +514,7 @@ function initEvents(game) {
         let dataToSend = {
             boundary: createRepGameBoundary(boundary)
         }
-        for (player in game.getPlayers()) {
-            let sendKey = playerToUser.getForward(player).connectionKey
-            wss.send('boundaryCreated', dataToSend, sendKey)
-        }
+        sendToAllInGame(game, dataToSend, 'boundaryCreated')
     })
 
     game.on('flagDropped', function(flag, player) {
