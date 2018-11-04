@@ -363,6 +363,8 @@ class GameBoundary {
     constructor(boundary, separaterDirection, teamSides) {
         this._boundary = boundary
         this._center = boundary.getCenter()
+        console.log("in the construcor of game boundary")
+        console.log(separaterDirection)
         this._separaterDirection = separaterDirection
         this._teamSides  = teamSides
     }
