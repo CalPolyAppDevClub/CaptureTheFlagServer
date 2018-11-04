@@ -366,6 +366,8 @@ class GameBoundary {
         console.log("in the construcor of game boundary")
         console.log(separaterDirection)
         this._separaterDirection = separaterDirection
+        console.log('the separtator direction')
+        console.log(this._separaterDirection)
         this._teamSides  = teamSides
     }
 
