@@ -483,7 +483,7 @@ function initEvents(game) {
     })
 
     game.on('flagAdded', function(flag, team) {
-        let players = game.getPlayers();
+        /*let players = game.getPlayers();
         let flagAndTeam = {
             flagTd: createRepFlag(flag),
             teamId: teams.getForward(team)
@@ -491,7 +491,7 @@ function initEvents(game) {
         for (player of players) {
             let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('flagAdded', flagAndTeam, sendKey);
-        }
+        }*/
     })
 
     game.on('playerJoinedTeam', function(player, team) {

@@ -169,7 +169,7 @@ module.exports = class Game extends Events.EventEmitter {
 
         //logic
         this._flags.add(flag);
-        let team = getTeamOf('player', playerAdder)
+        let team = getTeamOf.call(this, 'player', playerAdder)
         team.addFlag(flag)
         this.emit('flagAdded', flag, team)
     }
@@ -234,21 +234,17 @@ module.exports = class Game extends Events.EventEmitter {
 function getTeamOf(type, item) {
     switch (type) {
         case 'player':
-            if (this._teams.get(1).containsPlayer(item)) {
-                return this._teams.get(1)
+            for (team of this._teams.entries()) {
+                if (team.containsPlayer(item)) {
+                    return team
+                }
             }
-            if (this._teams.get(2).containsPlayer(item)) {
-                return this._teams.get(2)
-            }
-            break
         case 'flag':
-            if (this._teams.get(1).containsFlag(item)) {
-                return this._teams.get(1)
+            for (team of this._teams.entries()) {
+                if (team.containsFlag(item)) {
+                    return team
+                }
             }
-            if (this._teams.get(2).containsFlag(item)) {
-                return this._teams.get(2)
-            }
-            break
         default:
             return null
             break
