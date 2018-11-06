@@ -102,6 +102,8 @@ wss.onCommand('updateLocation', ['latitude', 'longitude'], function(req, resp) {
 
 wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     let playerToTagId = req.data.playerToTagId;
+    console.log('from tag player')
+    console.log(playerToTagId)
     let id = req.id;
     if (clients.get(playerToTagId).game === undefined) {
         resp.data.error = generalError.playerBeingTaggedNotInAGame;
