@@ -238,19 +238,17 @@ module.exports = class Game extends Events.EventEmitter {
 function getTeamOf(type, item) {
     switch (type) {
         case 'player':
-            for (team of this._teams.entries()) {
-                console.log('from get team of')
-                console.log(team)
-                if (team[0].containsPlayer(item)) {
-                    return team[0]
+            this._teams.forEach((team, team1) => {
+                if (team.containsPlayer(item)) {
+                    return team
                 }
-            }
+            })
         case 'flag':
-            for (team of this._teams.entries()) {
-                if (team[0].containsFlag(item)) {
-                    return team[0]
+            this._teams.forEach((team, team1) => {
+                if (team.containsFlag(flag)) {
+                    return team
                 }
-            }
+            })
         default:
             return null
             break
