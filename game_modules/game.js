@@ -172,15 +172,19 @@ module.exports = class Game extends Events.EventEmitter {
     pickUpFlag(flag, player) {
         console.log('pickUpFlagIsGettingCalled')
         if (this.gameState !== this.gameStates.gameInProgress) {
+            console.log('incorrect state')
             return GameFailureReason.incorrectGameState
         }
         if (getTeamOf.call(this, 'flag', flag) === getTeamOf.call(this, 'player', player)) {
+            console.log('not right team')
             return GameFailureReason.cannotPickUpFlag
         }
         
         if (!flag.isCloseEnough(player)) {
+            console.log('not close enough')
             return GameFailureReason.cannotPickUpFlag
         }
+        console.log('pickedUpFlag has passed tests')
         player.pickUpFlag(flag)
         flag.held = true;
         this.emit('flagPickedUp', flag, player)

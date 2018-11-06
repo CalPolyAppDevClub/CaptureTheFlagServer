@@ -452,6 +452,7 @@ function setUpPlayerEvents(player, game) {
     })
 
     player.on('pickedUpFlag', (flag) => {
+        console.log('pickedUpFlagHasBeenEmitted')
         let data = {
             playerId: playerToUser.getForward(player).id,
             flagId: flags.getForward(flag)
