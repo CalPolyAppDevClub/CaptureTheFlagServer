@@ -575,8 +575,8 @@ function initEvents(game) {
         for (player in game.getPlayers()) {
             let sendKey = playerToUse.get(player).connectionKey
             wss.send('flagDropped', dataToSend, sendKey)
-        }
-    })*/
+        }*/
+    })
 }
 
 function createRepPlayer(player) {
