@@ -415,7 +415,7 @@ function setUpTeamEvents(team, game) {
     })
 
     team.on('flagAdded', (flag) => {
-        sendToAllInGame(game, {teamId: team.id, flag: createRepFlag(flag)}, 'flagAdded')
+        sendToAllInGame(game, {teamId: teams.getForward(team), flag: createRepFlag(flag)}, 'flagAdded')
     })
 }
 
