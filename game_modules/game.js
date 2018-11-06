@@ -170,6 +170,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     pickUpFlag(flag, player) {
+        console.log('pickUpFlagIsGettingCalled')
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
@@ -180,7 +181,7 @@ module.exports = class Game extends Events.EventEmitter {
         if (!flag.isCloseEnough(player)) {
             return GameFailureReason.cannotPickUpFlag
         }
-        player.flagHeld = flag
+        player.pickUpFlag(flag)
         flag.held = true;
         this.emit('flagPickedUp', flag, player)
     }
@@ -291,6 +292,14 @@ class Player extends Events.EventEmitter {
             }
         }
         
+    }
+
+    pickUpFlag(flag) {
+        if (this.flagHeld !== null) {
+            return 'alreadHasflag'
+        }
+        this.flagHeld = flag
+        this.emit('pickedUpFlag', flag)
     }
 
     dropFlag() {
