@@ -173,7 +173,7 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
-        if (getTeamOf.call(this, 'flag', flagId) === getTeamOf.call(this, 'player', playerId)) {
+        if (getTeamOf.call(this, 'flag', flag) === getTeamOf.call(this, 'player', player)) {
             return GameFailureReason.cannotPickUpFlag
         }
         
