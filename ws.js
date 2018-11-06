@@ -105,6 +105,7 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     console.log('from tag player')
     console.log(playerToTagId)
     let id = req.id;
+    console.log(id)
     if (clients.get(playerToTagId).game === undefined) {
         resp.data.error = generalError.playerBeingTaggedNotInAGame;
         resp.send();
