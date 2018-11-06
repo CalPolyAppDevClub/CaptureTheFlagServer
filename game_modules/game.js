@@ -163,17 +163,14 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.boundary === null || !this.boundary.isInBounds(flag)) {
             return GameFailureReason.playerNotInBounds
         }
+        if(!this._players.has(playerAdder)) {
+            return GameFailureReason.playerNotInGame
+        }
 
         //logic
         this._flags.add(flag);
-        let team;
-        if (this._teams.get(1).containsPlayer(playerAdder)) {
-            team = this._teams.get(1)
-            this._teams.get(1).addFlag(flag)
-        } else {
-            team = this._teams.get(2)
-            this._teams.get(2).addFlag(flag)
-        }
+        let team = getTeamOf('player', playerAdder)
+        team.addFlag(flag)
         this.emit('flagAdded', flag, team)
     }
 
@@ -253,6 +250,7 @@ function getTeamOf(type, item) {
             }
             break
         default:
+            return null
             break
     }
 }
@@ -423,6 +421,7 @@ class Team extends Events.EventEmitter {
 
     addFlag(flag) {
         this.flags.add(flag)
+        this.emit('flagAdded', flag)
     }
 
     getPlayers() {

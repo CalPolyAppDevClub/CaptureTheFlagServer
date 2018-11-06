@@ -159,7 +159,13 @@ wss.onCommand('joinTeam', ['teamId'], function(req, resp) {
     }
     let game = clients.get(req.id).game;
     let player = clients.get(req.id).player
-    game.addToTeam(player, team)
+    let error = game.addToTeam(player, team)
+    if (error !== undefined) {
+        resp.error = error
+        resp.send()
+        return
+    }
+    resp.send()
 })
 
 wss.onCommand('enterGame', ['gameId', 'userId'], function(req, resp) {
@@ -407,12 +413,20 @@ function setUpTeamEvents(team, game) {
     team.on('playerAdded', (player) => {
         sendToAllInGame(game, {id: playerToUser.getForward(player).id, team: teams.getForward(team)}, 'playerJoinedTeam')
     })
+
+    team.on('flagAdded', (flag) => {
+        sendToAllInGame(game, {teamId: team.id, flag: createRepFlag(flag)}, 'flagAdded')
+    })
 }
 
 function setUpPlayerEvents(player, game) {
     player.on('locationChanged', (location) => {
         sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location}, 'locationUpdate')
     })
+}
+
+function setUpFlagEvents(flag, game) {
+
 }
 
 function initEvents(game) {
