@@ -128,19 +128,14 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.gameState != this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
-        if (taggingPlayer.isCloseEnough(playerToTag)) {
-            playerToTag.tag()
-            let flagHeldLocation = null
-            if (playerToTag.flagHeld != null) {
-                let flag = playerToTag.flag()
-                flagHeldLocation = playerToTag.getLocation()
-                flag.setLocation(flagHeldLocation)
-                this.emit('flagDropped', playerToTag, player)
-            }
-            this.emit('playerTagged', playerToTag, taggingPlayer)
-        } else {
-            return GameFailureReason.playersNotCloseEnough
+        if (!this._players.has(playerToTag)) {
+            return GameFailureReason.playerNotInGame
         }
+        if (!this._players.has(taggingPlayer)) {
+            return //playerNotInGame
+        }
+        let taggingError = playerToTag.tag(taggingPlayer)
+        return taggingError
     }
 
     createFlag(location) {
@@ -285,13 +280,23 @@ class Player extends Events.EventEmitter {
         return this.flagHeld
     }
 
-    tag() {
-        this.isTagged = true
-        this.emit('tagged')
+    tag(taggingPlayer) {
+        if (this.isCloseEnough(taggingPlayer)) {
+            this.isTagged = true
+            this.emit('tagged', taggingPlayer)
+            this.isTagged = true
+            if (this.hasFlag()) {
+                this.flagHeld.held = false
+                this.dropFlag()
+            }
+        }
+        
     }
 
     dropFlag() {
-        this.emit('flagDropped', this.flagHeld)
+        let flag = this.flagHeld
+        this.flagHeld = null
+        this.emit('flagDropped', flag)
     }
 
     

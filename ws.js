@@ -106,6 +106,11 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     console.log(playerToTagId)
     let id = req.id;
     console.log(id)
+    if (clients.get(id).game !== users.get(playerToTagId)) {
+        resp.data.error = generalError.playerBeingTaggedNotInAGame
+        resp.send()
+        return
+    }
     if (users.get(playerToTagId).game === undefined) {
         resp.data.error = generalError.playerBeingTaggedNotInAGame;
         resp.send();
@@ -117,6 +122,7 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
         return;
     }
     let playerToTag = users.get(playerToTagId).player
+    let game = clients.get(id).game
     let taggingPLayer = clients.get(id).player
     let playerTaggedSuccess = game.tagPlayer(playerToTag, taggingPLayer);
     if (playerTaggedSuccess === undefined) {
@@ -426,6 +432,23 @@ function setUpTeamEvents(team, game) {
 function setUpPlayerEvents(player, game) {
     player.on('locationChanged', (location) => {
         sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location}, 'locationUpdate')
+    })
+
+    player.on('tagged', (taggingPlayer) => {
+        let data = {
+            playerId: playerToUser.getForward(player).id, 
+            taggingPlayerId: playerToUser.getForward(taggingPlayer).id
+        }
+        sendToAllInGame(game, data, 'playerTagged')
+    })
+
+    player.on('flagDropped', (flag) => {
+        let data = {
+            playerId: playerToUser.getForward(player).id,
+            flagId: flags.getForward(flag).id,
+            location: flag.getLocation()
+        }
+        sendToAllInGame(game, data, 'flagDropped')
     })
 }
 
