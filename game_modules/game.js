@@ -235,6 +235,8 @@ function getTeamOf(type, item) {
     switch (type) {
         case 'player':
             for (team of this._teams.entries()) {
+                console.log('from get team of')
+                console.log(team)
                 if (team.containsPlayer(item)) {
                     return team
                 }
