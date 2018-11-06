@@ -148,9 +148,9 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
         }
-        if (!playerAdder.leader) {
+        /*if (!playerAdder.leader) {
             return GameFailureReason.playerDoesNotHavePermission
-        }
+        }*/
         /*if (!this.boundary.isOnCorrectSide(flag)) {
             console.log("not placing on the correct side")
             return GameFailureReason.playerNotInBounds
