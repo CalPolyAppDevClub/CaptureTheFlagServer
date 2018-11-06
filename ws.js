@@ -445,10 +445,18 @@ function setUpPlayerEvents(player, game) {
     player.on('flagDropped', (flag) => {
         let data = {
             playerId: playerToUser.getForward(player).id,
-            flagId: flags.getForward(flag).id,
+            flagId: flags.getForward(flag),
             location: flag.getLocation()
         }
         sendToAllInGame(game, data, 'flagDropped')
+    })
+
+    player.on('pickedUpFlag', (flag) => {
+        let data = {
+            playerId: playerToUser.getForward(player).id,
+            flagId: flags.getForward(flag)
+        }
+        sendToAllInGame(game, data, 'flagPickedUp')
     })
 }
 
@@ -470,7 +478,7 @@ function initEvents(game) {
     })
 
     game.on('playerTagged', function(playerTagged, taggingPlayer) {
-        let players = game.getPlayers();
+        /*let players = game.getPlayers();
         let data = {
             playerId: '' + playerToUser(playerTagged).id,
             taggingPlayerId: '' + playerToUser(taggingPlayer).id
@@ -478,7 +486,7 @@ function initEvents(game) {
         for (player of players) {
             let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('playerTagged', data, sendKey)
-        }
+        }*/
     })
 
     game.on('playerAdded', function(playerAdded) {
@@ -540,7 +548,7 @@ function initEvents(game) {
     })
 
     game.on('flagPickedUp', function(flag, player) {
-        let players = game.getPlayers()
+        /*let players = game.getPlayers()
         let flagIdAndPlayerId = {
             flagId: flags.getForward(flag),
             playerId: playerToUser.getForward(player).id
@@ -548,7 +556,7 @@ function initEvents(game) {
         for (key in players) {
             let sendKey = playerToUser.getForward(player).connectionKey
             wss.send('flagPickedUp', flagIdAndPlayerId, sendKey)
-        }
+        }*/
     })
 
     game.on('boundaryCreated', function(boundary) {
@@ -559,7 +567,7 @@ function initEvents(game) {
     })
 
     game.on('flagDropped', function(flag, player) {
-        let dataToSend = {
+        /*let dataToSend = {
             playerId: playerToUser.getForward(player).id,
             flagId: flags.getForward(flag),
             location: flag.getLocation()
@@ -568,7 +576,7 @@ function initEvents(game) {
             let sendKey = playerToUse.get(player).connectionKey
             wss.send('flagDropped', dataToSend, sendKey)
         }
-    })
+    })*/
 }
 
 function createRepPlayer(player) {
