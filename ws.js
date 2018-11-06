@@ -207,13 +207,14 @@ wss.onCommand('createFlag', ['latitude', 'longitude'], function(req, resp) {
     } 
     let flag = game.createFlag(location)
     let flagId = uuid()
+    flags.set(flag, flagId)
     let placeFlagError = game.addFlag(flag, player)
     if (placeFlagError !== undefined) {
         resp.data = {}
         resp.data.error = placeFlagError
+        flags.deleteWithKey(flag)
         resp.send()
     } else {
-        flags.set(flag, flagId)
         resp.send()
     }
 })
