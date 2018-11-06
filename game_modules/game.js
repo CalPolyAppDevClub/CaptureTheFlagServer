@@ -237,14 +237,14 @@ function getTeamOf(type, item) {
             for (team of this._teams.entries()) {
                 console.log('from get team of')
                 console.log(team)
-                if (team.containsPlayer(item)) {
-                    return team
+                if (team[0].containsPlayer(item)) {
+                    return team[0]
                 }
             }
         case 'flag':
             for (team of this._teams.entries()) {
-                if (team.containsFlag(item)) {
-                    return team
+                if (team[0].containsFlag(item)) {
+                    return team[0]
                 }
             }
         default:
