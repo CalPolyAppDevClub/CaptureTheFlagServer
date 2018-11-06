@@ -176,6 +176,10 @@ module.exports = class Game extends Events.EventEmitter {
             return GameFailureReason.incorrectGameState
         }
         if (getTeamOf.call(this, 'flag', flag) === getTeamOf.call(this, 'player', player)) {
+            console.log('team of flag')
+            console.log(getTeamOf.call(this, 'flag', flag))
+            console.log('teamOfPlayer')
+            console.log(getTeamOf.call(this, 'player', player))
             console.log('not right team')
             return GameFailureReason.cannotPickUpFlag
         }
