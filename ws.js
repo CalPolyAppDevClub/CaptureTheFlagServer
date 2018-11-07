@@ -105,7 +105,7 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
     let player = user.player
     let game = user.game
     let playerToTag = users.get(req.data.playerToTagId).player
-    if (clients.get(id).game !== users.get(playerToTagId)) {
+    if (game !== users.get(playerToTagId).game) {
         resp.data.error = generalError.playerBeingTaggedNotInAGame
         resp.send()
         return
@@ -115,7 +115,7 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
         resp.send();
         return;
     }
-    if (clients.get(id).game === undefined) {
+    if (game === undefined) {
         resp.data.error = generalError.notInAGame;
         resp.send()
         return;
