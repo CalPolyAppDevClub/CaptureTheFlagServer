@@ -259,19 +259,22 @@ wss.onCommand('getFlags', null, function(req, resp) {
 
 wss.onCommand('pickUpFlag', ['flagId'], function(req, resp) {
     let game = clients.get(req.id).game
+    let flag = flags.getReverse(req.data.flagId)
+    let player = clients.get(req.id).player
     if (game === undefined) {
-        resp.data = {};
-        resp.data.error = generalError.notInAGame;
-        resp.send();
-        return;
+        resp.data.error = generalError.playerBeingTaggedNotInAGame
+        resp.send()
+        return
     }
-    let gameError = game.pickUpFlag(req.data.flagId, clients.get(req.id).id);
-    if (gameError !== undefined) {
-        resp.data = {};
-        resp.data.error = gameError;
-        resp.send();
+    if (flag === undefined) {
+        return
+    }
+    let error = game.pickUpFlag(flag, player)
+    if (error != undefined) {
+        resp.data.error = error
+        resp.send()
     } else {
-        resp.send();
+        resp.send()
     }
 })
 
