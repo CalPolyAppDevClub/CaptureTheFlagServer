@@ -165,6 +165,8 @@ module.exports = class Game extends Events.EventEmitter {
         //logic
         this._flags.add(flag);
         let team = getTeamOf.call(this, 'player', playerAdder)
+        console.log('team from add flag')
+        console.log(team)
         team.addFlag(flag)
         this.emit('flagAdded', flag, team)
     }
