@@ -240,6 +240,8 @@ function getTeamOf(type, item) {
         case 'player':
             this._teams.forEach((team, team1) => {
                 if (team.containsPlayer(item)) {
+                    console.log('team fro get team of for player')
+                    console.log(team)
                     return team
                 }
             })
