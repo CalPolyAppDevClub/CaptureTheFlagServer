@@ -101,11 +101,10 @@ wss.onCommand('updateLocation', ['latitude', 'longitude'], function(req, resp) {
 })
 
 wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
-    let playerToTagId = req.data.playerToTagId;
-    console.log('from tag player')
-    console.log(playerToTagId)
-    let id = req.id;
-    console.log(id)
+    let user = clients.get(req.id)
+    let player = user.player
+    let game = user.game
+    let playerToTag = users.get(req.data.playerToTagId).player
     if (clients.get(id).game !== users.get(playerToTagId)) {
         resp.data.error = generalError.playerBeingTaggedNotInAGame
         resp.send()
@@ -121,15 +120,11 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
         resp.send()
         return;
     }
-    let playerToTag = users.get(playerToTagId).player
-    let game = clients.get(id).game
-    let taggingPLayer = clients.get(id).player
-    let playerTaggedSuccess = game.tagPlayer(playerToTag, taggingPLayer);
-    if (playerTaggedSuccess === undefined) {
-        resp.send();
+    let error = game.tagPlayer(playerToTag, player)
+    if (error != undefined) {
+        resp.data.error = error
     } else {
-        resp.data.error = playerTaggedSuccess;
-        resp.send();
+        resp.send()
     }
 })
 
