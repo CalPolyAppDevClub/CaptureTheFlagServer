@@ -254,6 +254,7 @@ function getTeamOf(type, item) {
                 }
             })
         default:
+            console.log('is this going to return null')
             return null
             break
     }
