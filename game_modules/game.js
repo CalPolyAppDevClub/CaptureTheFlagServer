@@ -245,7 +245,7 @@ function getTeamOf(type, item) {
             })
         case 'flag':
             this._teams.forEach((team, team1) => {
-                if (team.containsFlag(flag)) {
+                if (team.containsFlag(item)) {
                     return team
                 }
             })
