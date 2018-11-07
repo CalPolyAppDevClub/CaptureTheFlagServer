@@ -247,12 +247,14 @@ function getTeamOf(type, item) {
                     return team
                 }
             })
+            break
         case 'flag':
             this._teams.forEach((team, team1) => {
                 if (team.containsFlag(item)) {
                     return team
                 }
             })
+            break
         default:
             console.log('is this going to return null')
             return null
