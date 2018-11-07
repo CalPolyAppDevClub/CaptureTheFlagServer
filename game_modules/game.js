@@ -253,6 +253,8 @@ function getTeamOf(type, item) {
             let flagTeam
             this._teams.forEach((team, team1) => {
                 if (team.containsFlag(item)) {
+                    console.log('teams from get tram for flag')
+                    console.log(team)
                     flagTeam = team
                 }
             })
