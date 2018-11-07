@@ -240,7 +240,7 @@ module.exports = class Game extends Events.EventEmitter {
 function getTeamOf(type, item) {
     switch (type) {
         case 'player':
-        let playerTeam
+            let playerTeam
             this._teams.forEach((team, team1) => {
                 if (team.containsPlayer(item)) {
                     console.log('team fro get team of for player')
@@ -250,7 +250,7 @@ function getTeamOf(type, item) {
             })
             return playerTeam
         case 'flag':
-        let flagTeam
+            let flagTeam
             this._teams.forEach((team, team1) => {
                 if (team.containsFlag(item)) {
                     flagTeam = team
