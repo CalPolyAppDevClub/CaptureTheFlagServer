@@ -303,6 +303,7 @@ class Player extends Events.EventEmitter {
             this.emit('tagged', taggingPlayer)
             this.isTagged = true
             if (this.hasFlag()) {
+                this.flagHeld.setLocation(this.getLocation())
                 this.flagHeld.held = false
                 this.dropFlag()
             }
