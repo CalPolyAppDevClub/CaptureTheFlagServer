@@ -604,10 +604,15 @@ function createRepFlag(flag) {
 }
 
 function createRepGameBoundary(boundary) {
+    let teamSides = boundary.getSides()
+    let sides = {
+        greater: teams.getReverse(teamSides.greater),
+        lesser: teams.getReverse(teamSides.lesser)
+    }
     return {
         center: boundary.getCenter(),
         direction: boundary.getDirection(),
-        teamSides: boundary.getSides(),
+        teamSides: sides,
         direction: boundary.getDirection()
     }
 }
