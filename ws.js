@@ -451,7 +451,6 @@ function setUpPlayerEvents(player, game) {
     })
 
     player.on('pickedUpFlag', (flag) => {
-        console.log('pickedUpFlagHasBeenEmitted')
         let data = {
             playerId: playerToUser.getForward(player).id,
             flagId: flags.getForward(flag)
@@ -605,12 +604,6 @@ function createRepFlag(flag) {
 }
 
 function createRepGameBoundary(boundary) {
-    console.log()
-    console.log()
-    console.log()
-    console.log('from create rep game boundary')
-    console.log(boundary.getDirection())
-    console.log(boundary._separatorDirection)
     return {
         center: boundary.getCenter(),
         direction: boundary.getDirection(),

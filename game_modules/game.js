@@ -165,32 +165,21 @@ module.exports = class Game extends Events.EventEmitter {
         //logic
         this._flags.add(flag);
         let team = getTeamOf.call(this, 'player', playerAdder)
-        console.log('team from add flag')
-        console.log(team)
         team.addFlag(flag)
         this.emit('flagAdded', flag, team)
     }
 
     pickUpFlag(flag, player) {
-        console.log('pickUpFlagIsGettingCalled')
         if (this.gameState !== this.gameStates.gameInProgress) {
-            console.log('incorrect state')
             return GameFailureReason.incorrectGameState
         }
         if (getTeamOf.call(this, 'flag', flag) === getTeamOf.call(this, 'player', player)) {
-            console.log('team of flag')
-            console.log(getTeamOf.call(this, 'flag', flag))
-            console.log('teamOfPlayer')
-            console.log(getTeamOf.call(this, 'player', player))
-            console.log('not right team')
             return GameFailureReason.cannotPickUpFlag
         }
         
         if (!flag.isCloseEnough(player)) {
-            console.log('not close enough')
             return GameFailureReason.cannotPickUpFlag
         }
-        console.log('pickedUpFlag has passed tests')
         player.pickUpFlag(flag)
         flag.held = true;
         this.emit('flagPickedUp', flag, player)
@@ -301,10 +290,9 @@ class Player extends Events.EventEmitter {
         if (this.isCloseEnough(taggingPlayer)) {
             this.isTagged = true
             this.emit('tagged', taggingPlayer)
-            this.isTagged = true
             if (this.hasFlag()) {
                 this.flagHeld.setLocation(this.getLocation())
-                this.flagHeld.held = false
+                this.flagHeld.held = null
                 this.dropFlag()
             }
         }
@@ -425,6 +413,8 @@ class GameBoundary {
     }
 
     getSides() {
+        console.log('from boundary get sides')
+        console.log(this._teamSides)
         return this._teamSides
     }
 }
