@@ -606,8 +606,8 @@ function createRepFlag(flag) {
 function createRepGameBoundary(boundary) {
     let teamSides = boundary.getSides()
     let sides = {
-        greater: teams.getReverse(teamSides.greater),
-        lesser: teams.getReverse(teamSides.lesser)
+        greater: teams.getForward(teamSides.greater),
+        lesser: teams.getForward(teamSides.lesser)
     }
     console.log('from createRepBoundary')
     console.log(teams)
