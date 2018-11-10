@@ -609,6 +609,11 @@ function createRepGameBoundary(boundary) {
         greater: teams.getReverse(teamSides.greater),
         lesser: teams.getReverse(teamSides.lesser)
     }
+    console.log('from createRepBoundary')
+    console.log(teams)
+    console.log()
+    console.log()
+    console.log(boundary.getSides())
     return {
         center: boundary.getCenter(),
         direction: boundary.getDirection(),
