@@ -379,7 +379,7 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
     if (error != undefined) {
         resp.data.error = error
     } else {
-        let teamId = game.getTeams().length
+        let teamId = String(game.getTeams().length)
         teams.set(team, teamId)
         setUpTeamEvents(team, game)
         sendToAllInGame(game, createRepTeam(team), 'teamAdded')
@@ -606,8 +606,8 @@ function createRepFlag(flag) {
 function createRepGameBoundary(boundary) {
     let teamSides = boundary.getSides()
     let sides = {
-        greater: teams.getForward(teamSides.greater),
-        lesser: teams.getForward(teamSides.lesser)
+        greater: String(teams.getForward(teamSides.greater)),
+        lesser: String(teams.getForward(teamSides.lesser))
     }
     console.log('from createRepBoundary')
     console.log(teams)
