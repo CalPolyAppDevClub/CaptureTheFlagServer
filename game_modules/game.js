@@ -89,7 +89,7 @@ module.exports = class Game extends Events.EventEmitter {
         this.emit('boundaryCreated', this.boundary)
     }
 
-    getBoundary() {
+    getBoundary() {x
         if (this.boundary != undefined) {
             return this.boundary
         }
@@ -99,7 +99,7 @@ module.exports = class Game extends Events.EventEmitter {
     createPlayer(name) {
         let player = new Player(name, new CircleBoundary(null, DISTANCE_BETWEEN_PLAYERS))
         if (this._players.size === 0) {
-            player.leader = true
+            //player.leader = true
         }
         return player
     }
@@ -131,6 +131,9 @@ module.exports = class Game extends Events.EventEmitter {
             flag.setLocation(lastLocation)
             this.emit('flagDropped', player, flag)
         }
+        if (player.isTagged && this.boundary.isOnCorrectSide(player)) {
+            player.isTagged = false
+        }
         this.emit('locationUpdate', player)
     }
 
@@ -153,7 +156,7 @@ module.exports = class Game extends Events.EventEmitter {
         return flag
     }
 
-    addFlag(flag, playerAdder) {
+    addFlag(flag, team) {
         //checks
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
@@ -168,13 +171,12 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.boundary === null || !this.boundary.isInBounds(flag)) {
             return GameFailureReason.playerNotInBounds
         }
-        if(!this._players.has(playerAdder)) {
-            return GameFailureReason.playerNotInGame
+        if (!this._teams.has(team)) {
+            return 'teamNotInGame'
         }
 
         //logic
         this._flags.add(flag);
-        let team = getTeamOf.call(this, 'player', playerAdder)
         team.addFlag(flag)
         this.emit('flagAdded', flag, team)
     }
@@ -207,7 +209,7 @@ module.exports = class Game extends Events.EventEmitter {
     addToTeam(player, team) {
         if (!this._teams.has(team)) {
             return /*team not in game */
-        }
+        } 
         if (!this._players.has(player)) {
             return /*player not in game */
         }
@@ -270,9 +272,10 @@ class Player extends Events.EventEmitter {
         this.name = name;
         this.flagHeld = null;
         this.isTagged = false;
-        this.leader = false;
+        //this.leader = false;
         this._acceptableDistance = boundary
         this._reachDistance
+        this.team = null
     }
 
     getLocation() {
@@ -296,6 +299,18 @@ class Player extends Events.EventEmitter {
         return this.flagHeld
     }
 
+    __setTeam(team) {
+        this.team = team
+    }
+
+    __removeTeam() {
+        if (this.team == null) {
+            return false
+        }
+        this.team = null
+        return true
+    }
+
     tag(taggingPlayer) {
         if (this.isCloseEnough(taggingPlayer)) {
             this.isTagged = true
@@ -313,6 +328,9 @@ class Player extends Events.EventEmitter {
         if (this.flagHeld !== null) {
             return 'alreadHasflag'
         }
+        if (this.isTagged) {
+            return 'player tagged'
+        }
         this.flagHeld = flag
         this.emit('pickedUpFlag', flag)
     }
@@ -321,6 +339,11 @@ class Player extends Events.EventEmitter {
         let flag = this.flagHeld
         this.flagHeld = null
         this.emit('flagDropped', flag)
+    }
+
+    untag() {
+        this.isTagged = false
+        this.emit('untagged')
     }
 
     
@@ -344,6 +367,18 @@ class Flag extends Events.EventEmitter  {
     setLocation(location) {
         this.acceptableDistance.setCenter(location)
         this.emit('locationChanged', this.acceptableDistance.getCenter())
+    }
+
+    __setTeam(team) {
+        this.team = team
+    }
+
+    __removeTeam(team) {
+        if (this.team == null) {
+            return false
+        }
+        this.team = null
+        return true
     }
 
     setHeld() {
@@ -445,12 +480,32 @@ class Team extends Events.EventEmitter {
 
     addPlayer(player) {
         this.players.add(player)
+        player.__setTeam() = this
         this.emit('playerAdded', player)
+    }
+
+    removePlayer(player) {
+        let deleted = this.players.delete(player)
+        player.__removeTeam()
+        if (deleted) {
+            this.emit('playerRemoved', player)
+        }
+        return deleted
     }
 
     addFlag(flag) {
         this.flags.add(flag)
+        flag.__setTeam(this)
         this.emit('flagAdded', flag)
+    }
+
+    removeFlag(flag) {
+        let deleted = this.flags.delete(flag)
+        flag.__removeTeam()
+        if (deleted) {
+            this.emit('flagRemoved', flag)
+        }
+        return deleted
     }
 
     getPlayers() {

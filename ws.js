@@ -43,6 +43,7 @@ class User {
         this.id = id
         this.player = null
         this.connectionKey = connectionKey
+        this.isLeader = false
     }
 }
 
@@ -175,6 +176,33 @@ wss.onCommand('joinTeam', ['teamId'], function(req, resp) {
 
 wss.onCommand('enterGame', ['gameId', 'userId'], function(req, resp) {
 
+})
+
+wss.onCommand('makeLeader', ['teamId'], function(req, resp) {
+
+})
+
+wss.onCommand('addPlayerToTeam', ['playerId', 'teamId'], function(req, resp) {
+    let sender = users.get(req.id)
+    let player = users.get(req.data.playerId).player
+    let team = teams.getReverse(req.data.teamId)
+    let game = playerToUser.getForward(req.data.playerId).game
+    if (game == undefined) {
+        resp.data.error = generalError.notInAGame
+        resp.send()
+        return
+    }
+    if (sender.game !== playerToUser(player).game) {
+        //send players are not in the same game
+    }
+    //if player is leader
+    let error = game.addToTeam(player, team)
+    if (error != null) {
+        resp.data.error = error
+        resp.send()
+        return
+    }
+    resp.send()
 })
 
 wss.onCommand('nextGameState', null, function(req, resp) {
@@ -439,6 +467,10 @@ function setUpPlayerEvents(player, game) {
             taggingPlayerId: playerToUser.getForward(taggingPlayer).id
         }
         sendToAllInGame(game, data, 'playerTagged')
+    })
+
+    player.on('untagged', () => {
+        sendToAllInGame(game, null, 'untagged')
     })
 
     player.on('flagDropped', (flag) => {
