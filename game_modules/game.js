@@ -282,6 +282,10 @@ class Player extends Events.EventEmitter {
         return this._acceptableDistance.getCenter()
     }
 
+    getTeam() {
+        return this.team
+    }
+
     isCloseEnough(entity) {
         return this._acceptableDistance.isInBounds(entity)
     }
