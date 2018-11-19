@@ -445,17 +445,17 @@ class GameBoundary {
     isOnCorrectSide(entity) {
         //figure out what side entity is on
         if (this._separaterDirection === 'veritcal') {
-            if (entity.location.longitude < this._center.longitude) {
+            if (entity.getLocation().longitude < this._center.longitude) {
                 return this.teamsSides.lesser.containsEntity(entity)
             }
-            if (entity.location.longitude > this._center.longitude) {
+            if (entity.getLocation().longitude > this._center.longitude) {
                 return this.teamsSides.greater.constainsEntity(entity)
             }
         } else if (this._separaterDirection === 'horizontal') {
-            if (entity.location.latitude < this._center.latitude) {
+            if (entity.getLocation().latitude < this._center.latitude) {
                 return this.teamSides.lesser.containsEntity(entity)
             }
-            if (entity.location.latitude > this._center.latitude) {
+            if (entity.getLocation().latitude > this._center.latitude) {
                 return this.teamSides.greater.constainsEntity(entity)
             }
         }
@@ -463,17 +463,17 @@ class GameBoundary {
 
     getTeamOfSide(entity) {
         if (this._separatorDirection === 'vertical') {
-            if (entity.location.longitude < this._center.longitude) {
+            if (entity.getLocation().longitude < this._center.longitude) {
                 return this._teamSides.lesser
             }
-            if (entity.location.longitude > this._center.longitude) {
+            if (entity.getLocation().longitude > this._center.longitude) {
                 return this._teamSides.greater
             }
         } else if (this._separatorDirection === 'horizontal') {
-            if (entity.location.latitude < this._center.latitude) {
+            if (entity.getLocation().latitude < this._center.latitude) {
                 return this._teamSides.lesser
             }
-            if (entity.location.latitude > this._center.latitude) {
+            if (entity.getLocation().latitude > this._center.latitude) {
                 return this._teamSides.lesser
             }
         }
