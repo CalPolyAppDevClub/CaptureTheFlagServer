@@ -86,6 +86,8 @@ module.exports = class Game extends Events.EventEmitter {
             console.log('player in createBoundary')
             console.log(player)
             let team = this.boundary.getTeamOfSide(player)
+            console.log('team in create boundary')
+            console.log(team)
             team.addPlayer(player)
         })
     }
