@@ -71,22 +71,20 @@ module.exports = class Game extends Events.EventEmitter {
         
     }
 
-    createBoundary(boundaryLineCoords, direction){
+    createBoundary(boundaryLineCoords, direction) {
         if (this.boundary !== null) {
             return GameFailureReason.boundaryAlreadyExists
         }
         let sides = {}
-        let counter = 0
-        this._teams.forEach((team) => {
-            if (counter === 0) {
-                sides.greater = team
-            } else {
-                sides.lesser = team
-            }
-            counter++
+        let team1 = this._teams.add(new Team('Red'))
+        let team2 = this._teams.add(new Team('Blue'))
+        sides.greater = team1
+        sides.lesser = team2
+        this._players.forEach((player) => {
+            team = this.boundary.getTeamOfSide(player)
+            team.addPlayer(player)
         })
-        this.boundary = new GameBoundary(new CircleBoundary(boundaryLineCoords, 4000), direction, sides)
-        this.emit('boundaryCreated', this.boundary)
+
     }
 
     setTeamsOnLocation() {
