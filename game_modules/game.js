@@ -272,7 +272,7 @@ class Player extends Events.EventEmitter {
         this.name = name;
         this.flagHeld = null;
         this.isTagged = false;
-        //this.leader = false;
+        this.leader = false;
         this._acceptableDistance = boundary
         this._reachDistance
         this.team = null
