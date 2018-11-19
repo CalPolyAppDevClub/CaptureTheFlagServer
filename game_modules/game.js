@@ -81,7 +81,7 @@ module.exports = class Game extends Events.EventEmitter {
         sides.greater = team1
         sides.lesser = team2
         this.boundary = new GameBoundary(new CircleBoundary(boundaryLineCoords, 4000), direction, sides)
-        this.emite('boundaryCreated', this.boundary)
+        this.emit('boundaryCreated', this.boundary)
         this._players.forEach((player) => {
             team = this.boundary.getTeamOfSide(player)
             team.addPlayer(player)
