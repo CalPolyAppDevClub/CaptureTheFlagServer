@@ -85,11 +85,7 @@ module.exports = class Game extends Events.EventEmitter {
         this.boundary = new GameBoundary(new CircleBoundary(boundaryLineCoords, 4000), direction, sides)
         this.emit('boundaryCreated', this.boundary)
         this._players.forEach((player) => {
-            console.log('player in createBoundary')
-            console.log(player)
             let team = this.boundary.getTeamOfSide(player)
-            console.log('team in create boundary')
-            console.log(team)
             team.addPlayer(player)
         })
     }
