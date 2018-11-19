@@ -89,7 +89,14 @@ module.exports = class Game extends Events.EventEmitter {
         this.emit('boundaryCreated', this.boundary)
     }
 
-    getBoundary() {x
+    setTeamsOnLocation() {
+        for (player in this._players) {
+            team = this.boundary.getTeamOfSide(player)
+            team.addPlayer(player)
+        }
+    }
+
+    getBoundary() {
         if (this.boundary != undefined) {
             return this.boundary
         }
@@ -427,7 +434,7 @@ class GameBoundary {
         this._boundary = boundary
         this._center = boundary.getCenter()
         this._separatorDirection = separaterDirection
-        this._teamSides  = teamSides
+        this._teamSides  = teamSides //greater, lesser
     }
 
     isInBounds(entity) {
@@ -449,6 +456,24 @@ class GameBoundary {
             }
             if (entity.location.latitude > this._center.latitude) {
                 return this.teamSides.greater.constainsEntity(entity)
+            }
+        }
+    }
+
+    getTeamOfSide(entity) {
+        if (this._separatorDirection === 'vertical') {
+            if (entity.location.longitude < this._center.longitude) {
+                return this._teamSides.lesser
+            }
+            if (entity.location.longitude > this._center.longitude) {
+                return this._teamSides.greater
+            }
+        } else if (this._separatorDirection === 'horizontal') {
+            if (entity.location.latitude < this._center.latitude) {
+                return this._teamSides.lesser
+            }
+            if (entity.location.latitude > this._center.latitude) {
+                return this._teamSides.lesser
             }
         }
     }
@@ -484,7 +509,7 @@ class Team extends Events.EventEmitter {
 
     addPlayer(player) {
         this.players.add(player)
-        player.__setTeam() = this
+        player.__setTeam(this)
         this.emit('playerAdded', player)
     }
 
