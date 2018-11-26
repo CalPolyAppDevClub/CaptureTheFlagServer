@@ -1,6 +1,6 @@
 module.exports = class BiDirectionalMap {
-    constructor(interable) {
-        this._forward = new Map(interable)
+    constructor(iterable) {
+        this._forward = new Map(iterable)
         this._reverse = new Map()
         this.size = 0
         for (let entry of this._forward.entries()) {

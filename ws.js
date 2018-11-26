@@ -142,8 +142,10 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
     let player = game.createPlayer(playerName)
     let error = game.addPlayer(player)
     if (error == undefined) {
-        clients.get(req.id).game = games[gameKey]
-        clients.get(req.id).player = player
+        let user = clients.get(req.id)
+        user.game = games[gameKey]
+        user.player = player
+        user.isLeader = true
         playerToUser.set(player, clients.get(req.id))
         sendToAllInGame(game, createRepPlayer(player), 'playerAdded')
         setUpPlayerEvents(player, game)
@@ -178,8 +180,19 @@ wss.onCommand('enterGame', ['gameId', 'userId'], function(req, resp) {
 
 })
 
-wss.onCommand('makeLeader', ['teamId'], function(req, resp) {
+wss.onCommand('makeLeader', ['playerId'], function(req, resp) {
+    let user = clients.get(req.id)
+    let game = user.game
+    let userToMakeLeader = users.get(req.data.playerId)
+    let gameOfPlayerToMakeLeader = userToMakeLeader.game
 
+    if (game !== gameOfPlayerToMakeLeader) {
+        console.log('the games do not equale each other')
+        return //TODO: Send Error About This
+    }
+    userToMakeLeader.isLeader = true
+    sendToAllInGame(game, {playerId: userToMakeLeader.id}, 'playerMadeLeader')
+    resp.send()
 })
 
 wss.onCommand('addPlayerToTeam', ['playerId', 'teamId'], function(req, resp) {
@@ -225,6 +238,11 @@ wss.onCommand('createGame', ['key', 'gameName'], function(req, resp) {
     let game = new Game(gameName);
     games[gameKey] = game;
     initEvents(game);
+    let teamsList = game.getTeams()
+    teamsList.forEach((team, count) => {
+        teams.set(team, count + 1)
+        setUpTeamEvents(team, game)
+    })
     resp.send();
 })
 
@@ -314,7 +332,6 @@ wss.onCommand('getTeams', null, function(req, resp){
     for (let team of teams) {
         teamsToSend.push(createRepTeam(team))
     }
-    resp.data = {};
     resp.data.teams = teamsToSend;
     resp.send();
 })
@@ -347,7 +364,9 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
         players: players,
         flags: flags,
         teams: teams,
-        boundary: boundary
+        boundary: boundary,
+        name: game.name,
+        gameState: game.gameState
     }
     resp.data.stateData = stateData
     resp.send()
@@ -448,7 +467,6 @@ app.post('/createAccount', (req, res) => {
 //game data command
 function setUpTeamEvents(team, game) {
     team.on('playerAdded', (player) => {
-        console.loog('going to send player added to team')
         sendToAllInGame(game, {id: playerToUser.getForward(player).id, team: teams.getForward(team)}, 'playerJoinedTeam')
     })
 
@@ -572,6 +590,10 @@ function initEvents(game) {
         }*/
     })
 
+    game.on('teamsCreated', (team1, team2) => {
+        sendToAllInGame(game, {team1: team1, team2: team2}, 'teamsCreated')
+    })
+
     game.on('gameStateChanged', function(gameState) {
         for (player of game.getPlayers()) {
             let sendKey = playerToUser.getForward(player).connectionKey
@@ -622,7 +644,7 @@ function createRepPlayer(player) {
         id : playerToUser.getForward(player).id,
         flagHeld : flagId,
         location : player.getLocation(),
-        leader : player.leader,
+        leader : playerToUser.getForward(player).isLeader,
         isTagged : player.isTagged
     }
 }
@@ -670,6 +692,8 @@ function createRepTeam(team) {
 }
 
 function sendToAllInGame(game, data, command) {
+    console.log('sending to all in game')
+    console.log(command)
     game.getPlayers().forEach((player) => {
         let sendKey = playerToUser.getForward(player).connectionKey
         wss.send(command, data, sendKey)
