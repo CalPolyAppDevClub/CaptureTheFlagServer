@@ -177,6 +177,7 @@ module.exports = class Game extends Events.EventEmitter {
         }*/
         if (this.boundary === null || !this.boundary.isOnCorrectSide(flag)) {
             console.log("not placing on the correct side")
+            console.log(this.boundary)
             return GameFailureReason.playerNotInBounds
         }
         if (this.boundary === null || !this.boundary.isInBounds(flag)) {
