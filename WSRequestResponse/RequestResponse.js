@@ -61,6 +61,7 @@ class Response {
 }
 
 function setupWebsocket(ws, number) {
+    console.log('called setupWebsocket')
     ws.on('message', (message) => {
         console.log('message reciveved')
         let messageObject = JSON.parse(message)
@@ -84,6 +85,7 @@ function setupWebsocket(ws, number) {
     })
 
     ws.on('close', (event) => {
+        console.log('websocket closed')
         this._connections.delete(number)
         this.emit('close', number)
     })
