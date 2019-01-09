@@ -15,10 +15,6 @@ exporter.updateLocation = (entity, location) => {
     return false
 }
 
-let pickUpFunctions = {
-
-}
-
 exporter.pickUp = (pickingUpEntity, item) => {
     if (pickingUpEntity.pickUpComponent.tagged) {
         return
