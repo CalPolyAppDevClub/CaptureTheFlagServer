@@ -17,22 +17,27 @@ exporter.updateLocation = (entity, location) => {
 
 exporter.pickUp = (pickingUpEntity, item) => {
     if (pickingUpEntity.pickUpComponent.tagged) {
+        console.log('tagged')
         return
     }
 
     if (pickingUpEntity.pickUpComponent.boundary && !exporter.isInBoundsGameEntity(pickingUpEntity, item)) {
+        console.log('picking up entity is not in flag bounds')
         return
     }
 
     if (item.boundary && !exporter.isInBoundsGameEntity(item, pickingUpEntity)) {
+        console.log('flag is not in picking up entity bounds')
         return
     }
 
     if (item.held === true) {
+        console.log('item is held')
         return
     }
 
     if (pickingUpEntity.pickUpComponent.maxHeld === pickingUpEntity.itemsHeld.size()) {
+        console.log('holding too many items')
         return
     }
     pickUp(pickingUpEntity, item)
