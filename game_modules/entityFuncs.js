@@ -174,6 +174,7 @@ function emitEvent(entity, event, data) {
     console.log('from emit event')
     console.log(event)
     if (entity.eventEmitter) {
+        console.log('An event emitter exists')
         if (data != null) {
             entity.eventEmitter.emit(event, data)
         } else {
