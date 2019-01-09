@@ -175,7 +175,9 @@ exporter.isOnCorrectSide = (gameBoundary, entity, team) => {
 }
 
 function emitEvent(entity, event, data) {
-    if (entity.eventEmitter !== undefined) {
+    console.log('from emit event')
+    console.log(event)
+    if (entity.eventEmitter) {
         if (data != null) {
             entity.eventEmitter.emit(event, data)
         } else {
