@@ -47,7 +47,7 @@ function pickUp(pickingUpEntity, item) {
     pickingUpEntity.itemsHeld.add(item)
     item.held = true
     emitEvent(pickingUpEntity, 'pickedUp', item)
-    emitEvent(item, 'held')
+    emitEvent(item, 'held', pickingUpEntity)
 }
 
 exporter.dropItems = (entity, itemsToDrop) => {
@@ -75,35 +75,28 @@ exporter.untag = (entity) => {
 }
 
 exporter.tag = (entityToTag, taggingEntity) => {
-    if (entityToTag.tagged != null) {
-        if (taggingEntity.tagComponent.boundary !== undefined) {
-            tagWithTaggerBounds(entityToTag, taggingEntity)
-            return
-        }
-        if (entityToTag.boundary !== undefined) {
-            tagWithBeingTaggedBounds(entityToTag, taggingEntity)
-            return
-        }
-        entityToTag.tagged = true
-        emitEvent(entityToTag, 'tagged', taggingEntity)
+    if (taggingEntity.tagComponent.tagged) {
+        return
     }
+
+    if (entityToTag.tagged) {
+        return
+    }
+
+    if (taggingEntity.tagComponent.boundary && !exporter.isInBoundsGameEntity(taggingEntity, entityToTag)) {
+        return
+    }
+
+    if (entityToTag.boundary && !exporter.isInBoundsGameEntity(entityToTag, taggingEntity)) {
+        return
+    }
+    tag(taggingEntity, entityToTag)
 }
 
-function tagWithTaggerBounds(entityToTag, taggingEntity) {
-    if (taggingEntity.tagComponent !== undefined) {
-        let tagged = exporter.isInBoundsGameEntity(taggingEntity, entityToTag)
-        if (tagged) {
-            entityToTag.tagged = true
-            emitEvent(entityToTag, 'tagged', taggingEntity)
-        }
-        return tagged
-    }
-}
-
-function tagWithBeingTaggedBounds(entityToTag, taggingEntity) {
-    if (taggingEntity.tagComponent !== undefined) {
-
-    }
+function tag(taggingEntity, entityToTag) {
+    entityToTag.tagged = true
+    emitEvent(entityToTag, 'wasTagged', taggingEntity)
+    emitEvent(taggingEntity, 'tagged', entityToTag)
 }
 
 exporter.addEntityToTeam = (entity, team) => {

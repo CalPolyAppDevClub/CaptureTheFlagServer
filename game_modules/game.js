@@ -170,10 +170,9 @@ module.exports = class Game extends Events.EventEmitter {
         if (!this._players.has(taggingPlayer)) {
             return //playerNotInGame
         }
-        if (this.playerToTag.getTeam === taggingPlayer.getTeam) {
+        if (this.playerToTag.team === taggingPlayer.team) {
             return //players on same team error
         }
-
         EntityFuncs.tag(playerToTag, taggingPlayer)
     }
 

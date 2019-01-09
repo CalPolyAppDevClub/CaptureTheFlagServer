@@ -470,8 +470,6 @@ app.post('/createAccount', (req, res) => {
     let data = req.body
     let username = data.username
     let password = data.password
-    
-
     userAccounts[username] = password
     res.send({accountCreated: "yeah"})
 })
@@ -489,11 +487,14 @@ function setUpTeamEvents(team, game) {
 
 function setUpPlayerEvents(player, game) {
     player.eventEmitter.on('locationChanged', (location) => {
-        console.log('location change shojld be sending to all in game')
-        sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location}, 'locationUpdate')
+        let data = {
+            playerId: playerToUser.getForward(player).id,
+            newLocation: location
+        }
+        sendToAllInGame(game, data, 'locationUpdate')
     })
 
-    player.eventEmitter.on('tagged', (taggingPlayer) => {
+    player.eventEmitter.on('wasTagged', (taggingPlayer) => {
         let data = {
             playerId: playerToUser.getForward(player).id, 
             taggingPlayerId: playerToUser.getForward(taggingPlayer).id
@@ -567,11 +568,11 @@ function initEvents(game) {
     })
     
     game.on('playerRemoved', function(player) {
-        let players = game.getPlayers();
+        let players = game.getPlayers()
         for (player of players) {
             let sendKey = playerToUser.getForward(player)
             let id = playerToUser.id
-            wss.send('playerRemoved', id, sendKey);
+            wss.send('playerRemoved', id, sendKey)
         }
     })
 
