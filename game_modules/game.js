@@ -215,15 +215,6 @@ module.exports = class Game extends Events.EventEmitter {
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
-        if (flag.getTeam() === player.getTeam()) {
-            return GameFailureReason.cannotPickUpFlag
-        }
-        if (player.hasFlag()) {
-            return
-        }
-        if (player.isTagged()) {
-            return
-        }
         EntityFuncs.pickUp(player, flag)
         //TODO: check and send error from EntityFuns.pickUp
     }
