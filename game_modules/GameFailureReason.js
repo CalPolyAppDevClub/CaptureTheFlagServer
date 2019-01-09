@@ -9,7 +9,11 @@ const GameFailureReson = {
     cannotPickUpFlag: 'cannotPickUpFlag',
     playerNotInBounds : 'playerNotInBounds',
     boundaryAlreadyExists : 'boundaryAlreadyExists',
-    playerDoesNotHaveAFlag : 'playerDoesNotHaveAFlag'
+    playerDoesNotHaveAFlag : 'playerDoesNotHaveAFlag',
+    cannotReachFlag : 'cannotReachFlag',
+    playerTagged : 'playerTagged',
+    maxHeldReached : 'maxHeldReached',
+    
 }
 
 module.exports = GameFailureReson;

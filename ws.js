@@ -1,11 +1,6 @@
-const WebSocket = require('ws');
-const Events = require('events');
-const Message = require('./WSRequestResponse/message');
 const Game = require('./game_modules/game');
-const geo = require('geolib');
 const http = require('http');
 const express = require('express');
-const GameFailureReason = require('./game_modules/GameFailureReason');
 const RRWS = require('./WSRequestResponse/').Server
 const uuid = require('uuid/v4')
 const bodyParser = require('body-parser')
@@ -276,7 +271,7 @@ wss.onCommand('createFlag', ['latitude', 'longitude'], function(req, resp) {
     let flag = game.createFlag(location)
     let flagId = uuid()
     flags.set(flag, flagId)
-    let placeFlagError = game.addFlag(flag, player.getTeam())
+    let placeFlagError = game.addFlag(flag, player.team)
     if (placeFlagError !== undefined) {
         resp.data = {}
         resp.data.error = placeFlagError
@@ -483,21 +478,22 @@ app.post('/createAccount', (req, res) => {
 
 //game data command
 function setUpTeamEvents(team, game) {
-    team.on('playerAdded', (player) => {
+    team.eventEmitter.on('playerAdded', (player) => {
         sendToAllInGame(game, {id: playerToUser.getForward(player).id, team: teams.getForward(team)}, 'playerJoinedTeam')
     })
 
-    team.on('flagAdded', (flag) => {
+    team.eventEmitter.on('flagAdded', (flag) => {
         sendToAllInGame(game, {teamId: teams.getForward(team), flag: createRepFlag(flag)}, 'flagAdded')
     })
 }
 
 function setUpPlayerEvents(player, game) {
-    player.on('locationChanged', (location) => {
+    player.eventEmitter.on('locationChanged', (location) => {
+        console.log('location change shojld be sending to all in game')
         sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location}, 'locationUpdate')
     })
 
-    player.on('tagged', (taggingPlayer) => {
+    player.eventEmitter.on('tagged', (taggingPlayer) => {
         let data = {
             playerId: playerToUser.getForward(player).id, 
             taggingPlayerId: playerToUser.getForward(taggingPlayer).id
@@ -505,11 +501,11 @@ function setUpPlayerEvents(player, game) {
         sendToAllInGame(game, data, 'playerTagged')
     })
 
-    player.on('untagged', () => {
+    player.eventEmitter.on('untagged', () => {
         sendToAllInGame(game, null, 'untagged')
     })
 
-    player.on('flagDropped', (flag) => {
+    player.eventEmitter.on('flagDropped', (flag) => {
         let data = {
             playerId: playerToUser.getForward(player).id,
             flagId: flags.getForward(flag),
@@ -518,7 +514,7 @@ function setUpPlayerEvents(player, game) {
         sendToAllInGame(game, data, 'flagDropped')
     })
 
-    player.on('pickedUpFlag', (flag) => {
+    player.eventEmitter.on('pickedUp', (flag) => {
         console.log('calling picked up flag')
         let data = {
             playerId: playerToUser.getForward(player).id,
@@ -658,9 +654,9 @@ function createRepPlayer(player) {
         name : player.name,
         id : playerToUser.getForward(player).id,
         flagHeld : flagId,
-        location : player.getLocation(),
+        location : player.location,
         leader : playerToUser.getForward(player).isLeader,
-        isTagged : player.isTagged
+        isTagged : player.tagged
     }
 }
 
@@ -668,32 +664,37 @@ function createRepFlag(flag) {
     return {
         name : flag.name,
         id : flags.getForward(flag),
-        location : flag.getLocation(),
+        location : flag.location,
         held : flag.held
     }
 }
 
 function createRepGameBoundary(boundary) {
-    let teamSides = boundary.getSides()
+    let teamSides = boundary.teamSides
     let sides = {
         greater: String(teams.getForward(teamSides.greater)),
         lesser: String(teams.getForward(teamSides.lesser))
     }
     return {
-        center: boundary.getCenter(),
-        direction: boundary.getDirection(),
+        center: boundary.location,
+        direction: boundary.separatorDirection,
         teamSides: sides,
     }
 }
 
 function createRepTeam(team) {
     let playerIds = []
-    team.getPlayers().forEach((player) => {
-        playerIds.push(playerToUser.getForward(player).id)
+    let flagIds = []
+    team.entities.forEach((entity) => {
+        if (name in entity) {
+            playerIds.push(playerToUser.getForward(player).id)
+        } else if (held in entity) {
+            flagIds.push(flags.getForward(entity))
+        }
     })
     return {
         players: playerIds,
-        flags: team.getFlags(),
+        flags: flagIds,
         name: team.name,
         id: teams.getForward(team),
         ojectId: teams.getForward(team)
