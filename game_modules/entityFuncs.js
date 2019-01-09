@@ -44,7 +44,7 @@ exporter.pickUp = (pickingUpEntity, item) => {
 }
 
 function pickUp(pickingUpEntity, item) {
-    pickingUpEnitity.itemsHeld.add(item)
+    pickingUpEntity.itemsHeld.add(item)
     item.held = true
     emitEvent(pickingUpEntity, 'pickedUp', item)
     emitEvent(item, 'held')
