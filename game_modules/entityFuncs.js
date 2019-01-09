@@ -24,9 +24,9 @@ exporter.pickUp = (pickingUpEntity, item) => {
     if (pickingUpEntity.pickUpComponent.boundary && !exporter.isInBoundsGameEntity(pickingUpEntity, item)) {
         console.log('picking up entity is not in flag bounds')
         return
-    }
+    } 
 
-    if (item.boundary && !exporter.isInBoundsGameEntity(item, pickingUpEntity)) {
+    if (item.boundary && !pickingUpEntity.pickUpComponent.boundary && !exporter.isInBoundsGameEntity(item, pickingUpEntity)) {
         console.log('flag is not in picking up entity bounds')
         return
     }
