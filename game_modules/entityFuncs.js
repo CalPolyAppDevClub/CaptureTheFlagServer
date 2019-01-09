@@ -36,7 +36,7 @@ exporter.pickUp = (pickingUpEntity, item) => {
         return
     }
 
-    if (pickingUpEntity.pickUpComponent.maxHeld === pickingUpEntity.itemsHeld.size()) {
+    if (pickingUpEntity.pickUpComponent.maxHeld === pickingUpEntity.itemsHeld.size) {
         console.log('holding too many items')
         return
     }
