@@ -26,13 +26,18 @@ exporter.pickUp = (pickingUpEntity, item) => {
         return
     } 
 
-    if (item.boundary && pickingUpEntity.pickUpComponent.boundary && !exporter.isInBoundsGameEntity(item, pickingUpEntity)) {
+    if (item.boundary && !pickingUpEntity.pickUpComponent.boundary && !exporter.isInBoundsGameEntity(item, pickingUpEntity)) {
         console.log('flag is not in picking up entity bounds')
         return
     }
 
     if (item.held === true) {
         console.log('item is held')
+        return
+    }
+
+    if (pickingUpEntity.pickUpComponent.team != null && pickingUpEntity.pickUpComponent.team === item.team) {
+        console.log('Wrong team')
         return
     }
 
