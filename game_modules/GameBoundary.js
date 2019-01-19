@@ -17,7 +17,7 @@ module.exports = class GameBoundary {
         this._boundary = boundary
         this._center = boundary.getCenter()
         this._separatorDirection = separaterDirection
-        this._teamSides  = teamSides //greater, lesser
+        this._teamSides = teamSides //greater, lesser
     }
 
     isInBounds(entity) {
