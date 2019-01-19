@@ -653,7 +653,7 @@ function createRepPlayer(player) {
         flagHeld : flagId,
         location : player.getLocation(),
         leader : playerToUser.getForward(player).isLeader,
-        isTagged : player.tagged
+        isTagged : player.isTagged()
     }
 }
 

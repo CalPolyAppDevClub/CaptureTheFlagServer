@@ -153,6 +153,10 @@ module.exports = class Player extends Events.EventEmitter {
     hasFlag() {
         return this._flagsHeld.size > 0
     }
+
+    isTagged() {
+        return this.isTagged
+    }
     
 }
 
