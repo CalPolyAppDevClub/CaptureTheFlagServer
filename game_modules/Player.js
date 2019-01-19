@@ -1,7 +1,4 @@
 const Events = require('events')
-const GameError = require('./GameFailureReason')
-const Taggi
-
 let exporter = {}
 
 /*exporter.createPlayer = (name, boundary, location = null) => {
