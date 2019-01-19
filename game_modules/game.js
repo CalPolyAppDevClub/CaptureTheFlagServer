@@ -16,8 +16,8 @@ module.exports = class Game extends Events.EventEmitter {
         this._players = new Set()
         this._flags = new Set()
         this._teams = []
-        this._teams.push(Team.createTeam('red'))
-        this._teams.push(Team.createTeam('blue'))
+        this._teams.push(new Team('red'))
+        this._teams.push(new Team('blue'))
         this.name = name;
         this.boundary = null;
         this.gameStates = {
