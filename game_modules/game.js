@@ -112,7 +112,10 @@ module.exports = class Game extends Events.EventEmitter {
 
         this.emit('boundaryCreated', this.boundary)
         this._players.forEach((player) => {
-            player.set
+            let taggingSystem = new TaggingSystem(this.boundary)
+            let pickUpSystem = new PickUpSystem(this.boundary)
+            player.setTaggingSystem(taggingSystem)
+            player.setPickUpSystem(pickUpSystem)
             let team = this.boundary.getTeamOfSide(player)
             if (team !== null) {
                 team.addPlayer(player)
@@ -128,10 +131,8 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     createPlayer(name) {
-        let taggingSystem = new TaggingSystem(this.boundary)
-        let pickUpSystem = new PickUpSystem(this.boundary)
         let circleBoundary = new CircleBoundary(null, DISTANCE_BETWEEN_PLAYERS)
-        let player = new Player(name, circleBoundary, taggingSystem, pickUpSystem)
+        let player = new Player(name, circleBoundary)
         return player
     }
         

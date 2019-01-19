@@ -50,6 +50,14 @@ module.exports = class Player extends Events.EventEmitter {
         return this.team
     }
 
+    setTaggingSystem(taggingSystem) {
+        this.taggingSystem = taggingSystem
+    }
+
+    setPickUpSystem(pickUpSystem) {
+        this.pickUpSystem = pickUpSystem
+    }
+
     isCloseEnough(entity) {
         return this._acceptableDistance.isInBounds(entity)
     }
