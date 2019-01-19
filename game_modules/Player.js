@@ -1,8 +1,10 @@
 const Events = require('events')
+const GameError = require('./GameFailureReason')
+const Taggi
 
 let exporter = {}
 
-exporter.createPlayer = (name, boundary, location = null) => {
+/*exporter.createPlayer = (name, boundary, location = null) => {
     let player = {
         eventEmitter : new Events.EventEmitter(),
         name : name,
@@ -24,14 +26,14 @@ exporter.createPlayer = (name, boundary, location = null) => {
     return player
 }
 
-module.exports = exporter
+module.exports = exporter*/
 
 
 
 
 
-/*module.exports = class Player extends Events.EventEmitter {
-    constructor(name, boundary) {
+module.exports = class Player extends Events.EventEmitter {
+    constructor(name, boundary, taggingSystem, pickUpSystem) {
         super()
         this.name = name;
         this._flagsHeld = new Set()
@@ -39,6 +41,8 @@ module.exports = exporter
         this._acceptableDistance = boundary
         this._reachDistance
         this.team = null
+        this.taggingSystem = taggingSystem
+        this.pickUpSystem = pickUpSystem
     }
 
     getLocation() {
@@ -79,35 +83,18 @@ module.exports = exporter
     }
 
     pickUpFlag(flag) {
-        if (flag.canBePickedUpBy(this)) {
+        if (this.pickUpSystem.canPickUp(this, flag)) {
             this._flagsHeld.add(flag)
             flag.setHeld()
             this.emit('pickedUpFlag', flag)
-            return true
+            return
         }
-        return false
+        return this.pickUpSystem.lastError
     }
 
     dropFlags(flags) {
         let droppedFlags = []
         flags.forEach((flag) => {
-            let deleted = this._flagsHeld.delete(flag)
-            if (deleted) {
-                droppedFlags.push(flag)
-            }
-        })
-        droppedFlags.forEach((flag) => {
-            flag.setDropped(this.getLocation())
-        })
-        if (droppedFlags.length > 0) {
-            this.emit('droppedFlags', droppedFlags)
-        }
-        return droppedFlags
-    }
-
-    dropFlagsAtLocation(flagsAndLocations) {
-        let droppedFlags = []
-        flagsAndLocations.forEach((flag) => {
             let deleted = this._flagsHeld.delete(flag)
             if (deleted) {
                 droppedFlags.push(flag)
@@ -118,6 +105,17 @@ module.exports = exporter
             this.emit('droppedFlags', droppedFlags)
         }
         return droppedFlags
+    }
+
+    dropFlagsAtLocation(flags, location) {
+        let droppedFlags = []
+        flags.forEach((flag) => {
+            let deleted = this._flagsHeld.delete(flag)
+            if (deleted) {
+                droppedFlags.push(flag)
+                flag.setDropped(location)
+            }
+        })
     }
 
     dropAllFlags() {
@@ -132,31 +130,13 @@ module.exports = exporter
         return droppedFlags
     }
 
-    
-
     tag(player) {
-        if (player.canBeTaggedBy(this)) {
+        if (this.taggingSystem.canTag(this, player)) {
             player.setTagged()
             this.emit('tagged', player)
-            return true
+            return
         }
-        return false
-    }
-
-    taggedBy(player) {
-        if (this.canBeTaggedBy(player)) {
-            this.isTagged = true
-            this.emit('hasBeenTagged')
-            player.invokeDroppedCallback()
-            return true
-        }
-        return false
-    }
-
-    invokeDroppedCallback() {
-        if (this.droppedCallback != null) {
-            this.droppedCallback()
-        }
+        return this.taggingSystem.lastError
     }
 
     setTagged() {
@@ -177,4 +157,5 @@ module.exports = exporter
         return this._flagsHeld.size > 0
     }
     
-}*/
+}
+

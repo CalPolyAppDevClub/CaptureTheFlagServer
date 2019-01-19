@@ -476,25 +476,21 @@ app.post('/createAccount', (req, res) => {
 
 //game data command
 function setUpTeamEvents(team, game) {
-    team.eventEmitter.on('playerAdded', (player) => {
+    team.on('playerAdded', (player) => {
         sendToAllInGame(game, {id: playerToUser.getForward(player).id, team: teams.getForward(team)}, 'playerJoinedTeam')
     })
 
-    team.eventEmitter.on('flagAdded', (flag) => {
+    team.on('flagAdded', (flag) => {
         sendToAllInGame(game, {teamId: teams.getForward(team), flag: createRepFlag(flag)}, 'flagAdded')
     })
 }
 
 function setUpPlayerEvents(player, game) {
-    player.eventEmitter.on('locationChanged', (location) => {
-        let data = {
-            playerId: playerToUser.getForward(player).id,
-            newLocation: location
-        }
-        sendToAllInGame(game, data, 'locationUpdate')
+    player.on('locationChanged', (location) => {
+        sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location}, 'locationUpdate')
     })
 
-    player.eventEmitter.on('wasTagged', (taggingPlayer) => {
+    player.on('tagged', (taggingPlayer) => {
         let data = {
             playerId: playerToUser.getForward(player).id, 
             taggingPlayerId: playerToUser.getForward(taggingPlayer).id
@@ -502,11 +498,11 @@ function setUpPlayerEvents(player, game) {
         sendToAllInGame(game, data, 'playerTagged')
     })
 
-    player.eventEmitter.on('untagged', () => {
+    player.on('untagged', () => {
         sendToAllInGame(game, null, 'untagged')
     })
 
-    player.eventEmitter.on('flagDropped', (flag) => {
+    player.on('flagDropped', (flag) => {
         let data = {
             playerId: playerToUser.getForward(player).id,
             flagId: flags.getForward(flag),
@@ -515,7 +511,7 @@ function setUpPlayerEvents(player, game) {
         sendToAllInGame(game, data, 'flagDropped')
     })
 
-    player.eventEmitter.on('pickedUp', (flag) => {
+    player.on('pickedUpFlag', (flag) => {
         console.log('calling picked up flag')
         let data = {
             playerId: playerToUser.getForward(player).id,
@@ -665,8 +661,8 @@ function createRepFlag(flag) {
     return {
         name : flag.name,
         id : flags.getForward(flag),
-        location : flag.location,
-        held : flag.held
+        location : flag.getLocation,
+        held : flag.isHeld()
     }
 }
 

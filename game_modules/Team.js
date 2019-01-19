@@ -1,16 +1,16 @@
 const Events = require('events')
 
-module.exports.createTeam = (name) => {
+/*module.exports.createTeam = (name) => {
     let team = {
         eventEmitter : new Events.EventEmitter(),
         name : name,
         entities : new Set()
     }
     return team
-}
+}*/
 
 
-/*module.exports = class Team extends Events.EventEmitter {
+module.exports = class Team extends Events.EventEmitter {
     constructor(name) {
         super()
         this.name = name;
@@ -65,4 +65,4 @@ module.exports.createTeam = (name) => {
     getFlags() {
         return Array.from(this.flags)
     }
-}*/
+}

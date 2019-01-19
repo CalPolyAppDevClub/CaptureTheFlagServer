@@ -5,7 +5,8 @@ const CircleBoundary = require('./CircleBoundary')
 const Player = require('./Player')
 const Team = require('./Team')
 const Flag = require('./Flag')
-const EntityFuncs = require('./entityFuncs')
+const TaggingSystem = require('./taggingSystem')
+const PickUpSystem = require('./PickUpSystem')
 
 const MAX_PLAYERS_PER_TEAM = 15;
 const DISTANCE_BETWEEN_PLAYERS = 10000000;
@@ -37,8 +38,8 @@ module.exports = class Game extends Events.EventEmitter {
     } 
 
     dropFlags(player, flags) {
-        let droppedFlags = EntityFuncs.dropItems(player, flags)
-        let playerTeam = player.team
+        let droppedFlags = player.dropFlags(flags)
+        let playerTeam = player.getTeam()
         for (flag in droppedFlags) {
             if (playerTeam !== flag.team) {
                 let allWrong = this._checkIfAllFlagsOnWrongSide(flag.getTeam)
@@ -50,9 +51,8 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     dropAllFlags(player) {
-        let flags = player.itemsHeld
-        let droppedFlags = EntityFuncs.dropItems(player, flags)
-        let playerTeam = player.team
+        let droppedFlags = player.dropAllFlags()
+        let playerTeam = player.getTeam()
         for (flag in droppedFlags) {
             if (playerTeam !== flag.team) {
                 let allWrong = this._checkIfAllFlagsOnWrongSide(flag.getTeam())
@@ -114,7 +114,7 @@ module.exports = class Game extends Events.EventEmitter {
         this._players.forEach((player) => {
             let team = EntityFuncs.getTeamOfSide(this.boundary, player.location)
             if (team !== null) {
-                EntityFuncs.addEntityToTeam(player, team)
+                team.addPlayer(player)
             }
         })
     }
@@ -127,7 +127,10 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     createPlayer(name) {
-        let player = Player.createPlayer(name, CircleBoundary.createCircleBoundary(DISTANCE_BETWEEN_PLAYERS))
+        let taggingSystem = new TaggingSystem(this.boundary)
+        let pickUpSystem = new PickUpSystem(this.boundary)
+        let circleBoundary = new CircleBoundary(null, DISTANCE_BETWEEN_PLAYERS)
+        let player = new Player(name, circleBoundary, taggingSystem, pickUpSystem)
         return player
     }
         
@@ -150,13 +153,13 @@ module.exports = class Game extends Events.EventEmitter {
             latitude : latitude,
             longitude : longitude
         };
-        EntityFuncs.updateLocation(player, location)
-        if (this.boundary != null && !this.boundary.isInBounds(player) && player.flagHeld != null) {
-            let flags = player.itemsHeld
-            EntityFuncs.dropItems(player, flags)
+        let lastLocation = player.getLocation()
+        player.setLocation(location)
+        if (this.boundary != null && !this.boundary.isInBounds(player)) {
+            player.dropFlagsAtLocation(player.flags(), lastLocation)
         }
         if (player.isTagged && this.boundary.isOnCorrectSide(player)) {
-            EntityFuncs.untag(player)
+            player.untag()
         }
     }
 
@@ -170,51 +173,40 @@ module.exports = class Game extends Events.EventEmitter {
         if (!this._players.has(taggingPlayer)) {
             return //playerNotInGame
         }
-        if (playerToTag.team === taggingPlayer.team) {
-            return //players on same team error
-        }
-        EntityFuncs.tag(playerToTag, taggingPlayer)
+        return taggingPlayer.tag(playerToTag)
     }
 
     createFlag(location) {
-        let flag = Flag.createStandardFlag(CircleBoundary.createCircleBoundary(40), location)
+        let flag = new Flag(new CircleBoundary(location, DISTANCE_BETWEEN_PLAYERS))
         return flag
     }
 
     addFlag(flag, team) {
-        //checks
         if (this.gameState !== this.gameStates.placeFlags) {
             return GameFailureReason.incorrectGameState
         }
-        /*if (!playerAdder.leader) {
-            return GameFailureReason.playerDoesNotHavePermission
-        }*/
-
-        if (this.boundary === null || !EntityFuncs.isOnCorrectSide(this.boundary, flag, team)) {
-            console.log('first not in bounds')
+        
+        if (this.boundary === null || !this.boundary.isOnCorrectSide(flag, team)) {
             return GameFailureReason.playerNotInBounds
         }
-
-        if (this.boundary === null || !EntityFuncs.isInBounds(this.boundary, flag.location)) {
-            console.log('not in bounds')
+        if (this.boundary === null || !this.boundary.isInBounds(flag)) {
             return GameFailureReason.playerNotInBounds
         }
-
         if (!this._teams.includes(team)) {
             return 'teamNotInGame'
         }
 
         //logic
         this._flags.add(flag);
-        EntityFuncs.addEntityToTeam(flag, team)
-        this.emit('flagAdded', flag, team)
+        team.addFlag(flag)
+        this.emit('flagAdded', flag)
     }
 
     pickUpFlag(flag, player) {
         if (this.gameState !== this.gameStates.gameInProgress) {
             return GameFailureReason.incorrectGameState
         }
-        EntityFuncs.pickUp(player, flag)
+        return player.pickUpFlag(flag)
         //TODO: check and send error from EntityFuns.pickUp
     }
 
@@ -223,8 +215,7 @@ module.exports = class Game extends Events.EventEmitter {
     }
 
     removePlayer(player) {
-        let items = player.itemsHeld
-        EntityFuncs.dropItems(player, items)
+        player.dropAllFlags()
         this._players.delete(player);
         this.emit('playerRemoved', player)
     }
@@ -236,7 +227,7 @@ module.exports = class Game extends Events.EventEmitter {
         if (!this._players.has(player)) {
             return /*player not in game */
         }
-        let added = EntityFuncs.addEntityToTeam(player, team)
+        team.addPlayer(player)
         //TODO: handle added if false
     }
 

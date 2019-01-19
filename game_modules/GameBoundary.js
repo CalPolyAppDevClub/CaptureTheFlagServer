@@ -1,6 +1,6 @@
 
 
-module.exports.createGameBoundary = (boundary, separaterDirection, teamSides, location) => {
+/*module.exports.createGameBoundary = (boundary, separaterDirection, teamSides, location) => {
     let gameBoundary = {
         baseBoundary : boundary,
         separatorDirection : separaterDirection,
@@ -8,10 +8,10 @@ module.exports.createGameBoundary = (boundary, separaterDirection, teamSides, lo
         location : location
     }
     return gameBoundary
-}
+}*/
 
 
-/*module.exports = class GameBoundary {
+module.exports = class GameBoundary {
     //teamSides = [lesser: team, greater: team]
     constructor(boundary, separaterDirection, teamSides) {
         this._boundary = boundary
@@ -82,4 +82,4 @@ module.exports.createGameBoundary = (boundary, separaterDirection, teamSides, lo
     getSides() {
         return this._teamSides
     }
-} */
+}

@@ -1,6 +1,6 @@
 const Events = require('events')
 
-module.exports.createStandardFlag = (boundary, location) => {
+/*module.exports.createStandardFlag = (boundary, location) => {
     let flag = {
         eventEmitter : new Events.EventEmitter(),
         boundary : boundary,
@@ -9,13 +9,13 @@ module.exports.createStandardFlag = (boundary, location) => {
         location : location
     }
     return flag
-}
+}*/
 
 
 
 
 
-/*module.exports = class Flag extends Events.EventEmitter  {
+module.exports = class Flag extends Events.EventEmitter  {
     constructor(boundary) {
         super()
         this.acceptableDistance = boundary;
@@ -70,4 +70,4 @@ module.exports.createStandardFlag = (boundary, location) => {
     canBePickedUpBy(entity) {
         return this.isCloseEnough(entity)
     }
-}*/
+}

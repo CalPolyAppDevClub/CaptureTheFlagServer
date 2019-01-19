@@ -1,15 +1,15 @@
 const geoLib = require('geolib')
 
 
-module.exports.createCircleBoundary = (radius) => {
+/*module.exports.createCircleBoundary = (radius) => {
     let boundary = {
         type : 'circle',
         radius : radius
     }
     return boundary
-}
+}*/
 
-/*module.exports = class CircleBoundary {
+module.exports = class CircleBoundary {
     constructor(centerPoint, radius) {
         this._centerPoint = centerPoint
         this._radius = radius
@@ -31,4 +31,4 @@ module.exports.createCircleBoundary = (radius) => {
     setCenter(location) {
         this._centerPoint = location
     }
-}*/
+}
