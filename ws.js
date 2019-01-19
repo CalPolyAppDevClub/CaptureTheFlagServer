@@ -642,6 +642,8 @@ function initEvents(game) {
 }
 
 function createRepPlayer(player) {
+    console.log('THIS IS THE PLAYER THAT I NEED')
+    console.log(player)
     let flag = player.flagHeld
     let flagId = null
     if (flag != undefined) {
