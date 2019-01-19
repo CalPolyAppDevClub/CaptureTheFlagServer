@@ -651,7 +651,7 @@ function createRepPlayer(player) {
         name : player.name,
         id : playerToUser.getForward(player).id,
         flagHeld : flagId,
-        location : player.location,
+        location : player.getLocation(),
         leader : playerToUser.getForward(player).isLeader,
         isTagged : player.tagged
     }
@@ -681,17 +681,12 @@ function createRepGameBoundary(boundary) {
 
 function createRepTeam(team) {
     let playerIds = []
-    let flagIds = []
-    team.entities.forEach((entity) => {
-        if (name in entity) {
-            playerIds.push(playerToUser.getForward(player).id)
-        } else if (held in entity) {
-            flagIds.push(flags.getForward(entity))
-        }
+    team.getPlayers().forEach((player) => {
+        playerIds.push(playerToUser.getForward(player).id)
     })
     return {
         players: playerIds,
-        flags: flagIds,
+        flags: team.getFlags(),
         name: team.name,
         id: teams.getForward(team),
         ojectId: teams.getForward(team)
