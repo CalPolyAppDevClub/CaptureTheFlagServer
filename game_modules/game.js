@@ -112,7 +112,8 @@ module.exports = class Game extends Events.EventEmitter {
 
         this.emit('boundaryCreated', this.boundary)
         this._players.forEach((player) => {
-            let team = EntityFuncs.getTeamOfSide(this.boundary, player.location)
+            player.set
+            let team = this.boundary.getTeamOfSide(player)
             if (team !== null) {
                 team.addPlayer(player)
             }
