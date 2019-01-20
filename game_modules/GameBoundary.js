@@ -51,6 +51,8 @@ module.exports = class GameBoundary {
     } 
 
     getTeamOfSide(entity) {
+        console.log('This is the location of the entity')
+        console.log(entity.getLocation())
         if (!this.isInBounds(entity)) {
             return null
         }
