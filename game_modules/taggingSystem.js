@@ -6,27 +6,27 @@ module.exports = class tagSystem {
     }
     canTag(tagger, tagReceiver) {
 
-        if (this.gameBoundary.isOnCorrectSide(tagger, tagger.getTeam())) {
-            this.lastError = 'mustBeOnOtherSide'
-            return false
-        }
+        //if (this.gameBoundary.isOnCorrectSide(tagger, tagger.getTeam())) {
+            //this.lastError = 'mustBeOnOtherSide'
+            //return false
+        //}
 
         if (tagger.getTeam() === tagReceiver.getTeam()) {
             this.lastError = 'cannotBeOnSameTeam'
             return false
         }
 
-        if (tagger.isTagged()) {
+        if (tagger.tagged()) {
             this.lastError = GameError.playerTagged
             return false
         }
 
-        if (tagReceiver.isTagged()) {
+        if (tagReceiver.tagged()) {
             this.lastError.GameError.playerTagged
             return false
         }
 
-        if (!tagger.tagReceiver.isCloseEnough(tagger)) {
+        if (!tagReceiver.isCloseEnough(tagger)) {
             this.lastError = GameError.playersNotCloseEnough
             return false
         }

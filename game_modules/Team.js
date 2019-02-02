@@ -29,6 +29,7 @@ module.exports = class Team extends Events.EventEmitter {
     }
 
     addPlayer(player) {
+        console.log('team add player IS BEING CALLED')
         this.players.add(player)
         player.__setTeam(this)
         this.emit('playerAdded', player)

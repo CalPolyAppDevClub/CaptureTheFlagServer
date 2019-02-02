@@ -6,12 +6,12 @@ module.exports = class PickUpSystem {
     }
     
     canPickUp(pickingUp, beingPickedUp) {
-        if (gameBoundary.isOnCorrectSide(pickUp, pickingUp.getTeam())) {
-            this.lastError
+        if (this.gameBoundary.isOnCorrectSide(pickingUp, pickingUp.getTeam())) {
+            this.lastError = 'WRONG SIDE'
             return false
         }
 
-        if (pickingUp.isTagged()) {
+        if (pickingUp.tagged()) {
             this.lastError = GameError.playerTagged
             return false
         }

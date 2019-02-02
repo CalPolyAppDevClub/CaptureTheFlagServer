@@ -121,11 +121,17 @@ module.exports = class Player extends Events.EventEmitter {
                 flag.setDropped(location)
             }
         })
+        if (droppedFlags > 0) {
+            this.emit('droppedFlags', droppedFlags)
+        }
+        return droppedFlags
     }
 
     dropAllFlags() {
-        let droppedFlags = new Array(this._flagsHeld)
+        let droppedFlags = Array.from(this._flagsHeld)
         droppedFlags.forEach((flag) => {
+            console.log('SETTING ALL THE FLAGS AS DROPPED')
+            console.log(flag)
             flag.setDropped(this.getLocation())
         })
         this._flagsHeld.clear()
@@ -146,6 +152,7 @@ module.exports = class Player extends Events.EventEmitter {
 
     setTagged() {
         this.isTagged = true
+        this.dropAllFlags()
         this.emit('hasBeenTagged')
     }
 

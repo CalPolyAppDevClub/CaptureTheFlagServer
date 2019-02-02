@@ -108,7 +108,7 @@ module.exports = class Game extends Events.EventEmitter {
             greater: this._teams[0],
             lesser: this._teams[1]
         }
-        this.boundary = new GameBoundary(new CircleBoundary(4000), direction, sides, boundaryLineCoords)
+        this.boundary = new GameBoundary(new CircleBoundary(boundaryLineCoords, 4000), direction, sides)
 
         this.emit('boundaryCreated', this.boundary)
         this._players.forEach((player) => {
@@ -117,7 +117,7 @@ module.exports = class Game extends Events.EventEmitter {
             player.setTaggingSystem(taggingSystem)
             player.setPickUpSystem(pickUpSystem)
             let team = this.boundary.getTeamOfSide(player)
-            if (team !== null) {
+            if (team != null) {
                 team.addPlayer(player)
             }
         })
@@ -224,9 +224,12 @@ module.exports = class Game extends Events.EventEmitter {
 
     addToTeam(player, team) {
         if (!this._teams.has(team)) {
+            console.log('GAME DOES NOT HAVE TEAM')
+            console.log(team)
             return /*team not in game */
         } 
         if (!this._players.has(player)) {
+            console.log('GAME DOES NOT HAVE PLAYER')
             return /*player not in game */
         }
         team.addPlayer(player)
