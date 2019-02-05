@@ -382,7 +382,8 @@ wss.onCommand('getCurrentGameState', null, function(req, resp) {
         teams: teams,
         boundary: boundary,
         name: game.name,
-        gameState: game.gameState
+        gameState: game.gameState,
+        userPlayerId: clients.get(req.id).id
     }
     resp.data.stateData = stateData
     resp.send()
