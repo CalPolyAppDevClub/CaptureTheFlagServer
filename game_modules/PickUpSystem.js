@@ -21,7 +21,7 @@ module.exports = class PickUpSystem {
         }
 
         if (beingPickedUp.isHeld()) {
-            this.lastError
+            this.lastError = "Is held"
             return false
         }
 
