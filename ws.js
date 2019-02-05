@@ -695,7 +695,6 @@ function createRepPlayer(player) {
 
 function createRepFlag(flag) {
     return {
-        name : flag.name,
         id : flags.getForward(flag),
         location : flag.getLocation(),
         held : flag.isHeld()
