@@ -557,7 +557,7 @@ function setUpPlayerEvents(player, game) {
 }
 
 function setUpFlagEvents(flag, game) {
-
+    
 }
 
 function initEvents(game) {
