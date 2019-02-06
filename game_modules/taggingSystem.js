@@ -22,7 +22,7 @@ module.exports = class tagSystem {
         }
 
         if (tagReceiver.tagged()) {
-            this.lastError.GameError.playerTagged
+            this.lastError = GameError.playerTagged
             return false
         }
 
