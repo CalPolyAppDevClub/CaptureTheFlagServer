@@ -728,6 +728,8 @@ function createRepTeam(team) {
     team.getFlags().forEach((flag) => {
         flagIds.push(flags.getForward(flag))
     })
+    console.log('These are the flag ids')
+    console.log(flagIds)
     return {
         players: playerIds,
         flags: flagIds,
