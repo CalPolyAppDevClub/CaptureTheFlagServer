@@ -13,7 +13,8 @@ const GameFailureReson = {
     cannotReachFlag : 'cannotReachFlag',
     playerTagged : 'playerTagged',
     maxHeldReached : 'maxHeldReached',
-    
+    onIncorrectSide: 'onIncorrectSide',
+    cannotBeOnSameTeam: 'cannotBeOnSameTeam'
 }
 
 module.exports = GameFailureReson;

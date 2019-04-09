@@ -21,9 +21,6 @@ module.exports = class CircleBoundary {
     }
 
     isInBounds(entity) {
-        console.log('HERE IS THE OTHER ONEONEONEONEONE')
-        console.log(this.centerPoint)
-        console.log(entity.getLocation())
         if (entity.getLocation() != null) {
             let distanceFromCenter = geoLib.getDistance(this._centerPoint, entity.getLocation())
             return distanceFromCenter <= this._radius

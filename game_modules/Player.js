@@ -1,32 +1,6 @@
 const Events = require('events')
-let exporter = {}
-
-/*exporter.createPlayer = (name, boundary, location = null) => {
-    let player = {
-        eventEmitter : new Events.EventEmitter(),
-        name : name,
-        location : location,
-        boundary : boundary,
-        tagged : false,
-        team : null,
-        itemsHeld : new Set(),
-        pickUpComponent : {
-            tagged : false,
-            team : null,
-            maxHeld : 1,
-            boundary : boundary
-        },
-        tagComponent : {
-            tagged : false,
-        }
-    }
-    return player
-}
-
-module.exports = exporter*/
-
 module.exports = class Player extends Events.EventEmitter {
-    constructor(name, boundary, taggingSystem, pickUpSystem) {
+    constructor(name, boundary, movementSystem, taggingSystem, pickUpSystem) {
         super()
         this.name = name;
         this._flagsHeld = new Set()
@@ -36,8 +10,8 @@ module.exports = class Player extends Events.EventEmitter {
         this.team = null
         this.taggingSystem = taggingSystem
         this.pickUpSystem = pickUpSystem
+        this.movementSystem = movementSystem
     }
-
     getLocation() {
         return this._acceptableDistance.getCenter()
     }
@@ -46,21 +20,17 @@ module.exports = class Player extends Events.EventEmitter {
         return this.team
     }
 
-    setTaggingSystem(taggingSystem) {
-        this.taggingSystem = taggingSystem
-    }
-
-    setPickUpSystem(pickUpSystem) {
-        this.pickUpSystem = pickUpSystem
-    }
-
     isCloseEnough(entity) {
         return this._acceptableDistance.isInBounds(entity)
     }
 
     setLocation(location) {
+        let lastLocation = this.getLocation()
         this._acceptableDistance.setCenter(location)
         this.emit('locationChanged', this._acceptableDistance.getCenter())
+        if (this.movementSystem) {
+            this.movementSystem.didMove(this, lastLocation)
+        }
     }
 
     hasFlags() {
@@ -68,7 +38,7 @@ module.exports = class Player extends Events.EventEmitter {
     }
 
     flags() {
-        return new Array(this._flagsHeld)
+        return Array.from(this._flagsHeld)
     }
 
     __setTeam(team) {
@@ -84,6 +54,9 @@ module.exports = class Player extends Events.EventEmitter {
     }
 
     pickUpFlag(flag) {
+        if (!this.pickUpSystem) {
+            return
+        }
         if (this.pickUpSystem.canPickUp(this, flag)) {
             this._flagsHeld.add(flag)
             flag.setHeld()
@@ -117,7 +90,7 @@ module.exports = class Player extends Events.EventEmitter {
                 flag.setDropped(location)
             }
         })
-        if (droppedFlags > 0) {
+        if (droppedFlags.length > 0) {
             this.emit('droppedFlags', droppedFlags)
         }
         return droppedFlags
@@ -136,9 +109,11 @@ module.exports = class Player extends Events.EventEmitter {
     }
 
     tag(player) {
+        if (!this.taggingSystem) {
+            return
+        }
         if (this.taggingSystem.canTag(this, player)) {
             player.setTagged()
-            this.dropAllFlags()
             this.emit('tagged', player)
             return
         }

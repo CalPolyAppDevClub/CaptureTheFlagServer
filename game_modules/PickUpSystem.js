@@ -5,17 +5,17 @@ module.exports = class PickUpSystem {
         this.gameBoundary = gameBoundary
     }
     
-    canPickUp(pickingUp, beingPickedUp) {
-        if (this.gameBoundary.isOnCorrectSide(pickingUp, pickingUp.getTeam())) {
+    canPickUp(player, beingPickedUp) {
+        if (!this.gameBoundary.isOnCorrectSide(player, beingPickedUp.getTeam())) {
             this.lastError = 'WRONG SIDE'
             return false
         }
 
-        if (pickingUp.tagged()) {
+        if (player.tagged()) {
             this.lastError = GameError.playerTagged
             return false
         }
-        if (!beingPickedUp.isCloseEnough(pickingUp)) {
+        if (!beingPickedUp.isCloseEnough(player)) {
             this.lastError = GameError.playersNotCloseEnough
             return false
         }
@@ -25,8 +25,8 @@ module.exports = class PickUpSystem {
             return false
         }
 
-        if (!beingPickedUp.isCloseEnough(pickingUp)) {
-            this.lastError = GameError.playersNotCloseEnough
+        if (player.getTeam() === beingPickedUp.getTeam()){
+            this.lastError = GameError.cannotBeOnSameTeam
             return false
         }
 

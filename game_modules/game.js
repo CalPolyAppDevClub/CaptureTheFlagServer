@@ -1,5 +1,5 @@
-const Events = require('events');
-const GameFailureReason = require('./GameFailureReason');
+const Events = require('events')
+const GameFailureReason = require('./GameFailureReason')
 const GameBoundary = require('./GameBoundary')
 const CircleBoundary = require('./CircleBoundary')
 const Player = require('./Player')
@@ -7,6 +7,7 @@ const Team = require('./Team')
 const Flag = require('./Flag')
 const TaggingSystem = require('./taggingSystem')
 const PickUpSystem = require('./PickUpSystem')
+const MovementSystem = require('./movementSystem')
 
 const MAX_PLAYERS_PER_TEAM = 15;
 const DISTANCE_BETWEEN_PLAYERS = 10000000;
@@ -109,22 +110,23 @@ module.exports = class Game extends Events.EventEmitter {
             lesser: this._teams[1]
         }
         this.boundary = new GameBoundary(new CircleBoundary(boundaryLineCoords, 4000), direction, sides)
-
         this.emit('boundaryCreated', this.boundary)
         this._players.forEach((player) => {
             let taggingSystem = new TaggingSystem(this.boundary)
             let pickUpSystem = new PickUpSystem(this.boundary)
-            player.setTaggingSystem(taggingSystem)
-            player.setPickUpSystem(pickUpSystem)
+            let movementSystem = new MovementSystem(this.boundary)
+            player.taggingSystem = taggingSystem
+            player.pickUpSystem = pickUpSystem
+            player.movementSystem = movementSystem
             let team = this.boundary.getTeamOfSide(player)
-            if (team != null) {
+            if (team) {
                 team.addPlayer(player)
             }
         })
     }
 
     getBoundary() {
-        if (this.boundary != undefined) {
+        if (this.boundary) {
             return this.boundary
         }
         return null
@@ -133,6 +135,11 @@ module.exports = class Game extends Events.EventEmitter {
     createPlayer(name) {
         let circleBoundary = new CircleBoundary(null, DISTANCE_BETWEEN_PLAYERS)
         let player = new Player(name, circleBoundary)
+        player.on('droppedFlags', (flags) => {
+            if(this._checkIfAllFlagsOnWrongSide(player.team)) {
+                this.emit('gameOver', player.getTeam())
+            }
+        })
         return player
     }
         
@@ -154,15 +161,8 @@ module.exports = class Game extends Events.EventEmitter {
         let location = {
             latitude : latitude,
             longitude : longitude
-        };
-        let lastLocation = player.getLocation()
+        }; 
         player.setLocation(location)
-        if (this.boundary != null && !this.boundary.isInBounds(player)) {
-            player.dropFlagsAtLocation(player.flags(), lastLocation)
-        }
-        if (player.isTagged && this.boundary.isOnCorrectSide(player)) {
-            player.untag()
-        }
     }
 
     tagPlayer(playerToTag, taggingPlayer) {

@@ -1,16 +1,3 @@
-
-
-/*module.exports.createGameBoundary = (boundary, separaterDirection, teamSides, location) => {
-    let gameBoundary = {
-        baseBoundary : boundary,
-        separatorDirection : separaterDirection,
-        teamSides : teamSides,
-        location : location
-    }
-    return gameBoundary
-}*/
-
-
 module.exports = class GameBoundary {
     //teamSides = [lesser: team, greater: team]
     constructor(boundary, separaterDirection, teamSides) {
@@ -51,8 +38,6 @@ module.exports = class GameBoundary {
     } 
 
     getTeamOfSide(entity) {
-        console.log('This is the location of the entity')
-        console.log(entity.getLocation())
         if (!this.isInBounds(entity)) {
             return null
         }

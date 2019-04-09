@@ -1,15 +1,4 @@
 const Events = require('events')
-
-/*module.exports.createTeam = (name) => {
-    let team = {
-        eventEmitter : new Events.EventEmitter(),
-        name : name,
-        entities : new Set()
-    }
-    return team
-}*/
-
-
 module.exports = class Team extends Events.EventEmitter {
     constructor(name) {
         super()
@@ -29,7 +18,6 @@ module.exports = class Team extends Events.EventEmitter {
     }
 
     addPlayer(player) {
-        console.log('team add player IS BEING CALLED')
         this.players.add(player)
         player.__setTeam(this)
         this.emit('playerAdded', player)

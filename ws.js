@@ -134,8 +134,6 @@ wss.onCommand('tagPlayer', ['playerToTagId'], function(req, resp) {
         return;
     }
     let error = game.tagPlayer(playerToTag, player)
-    console.log('Tagging player error')
-    console.log(error)
     if (error != undefined) {
         resp.data.error = error
     } 
@@ -146,7 +144,6 @@ wss.onCommand('joinGame', ['key', 'playerName'], function(req, resp) {
     let gameKey = req.data.key;
     let playerName = req.data.playerName;
     let user = clients.get(req.id)
-    console.log(user.name)
     if (!gameExists(gameKey)) {
         resp.data.error = generalError.gameDoesNotExist
         resp.send()
@@ -481,7 +478,6 @@ wss.onCommand('createTeam', ['teamName'], function(req, resp) {
 
 //these will be on an authentication server eventually
 app.post('/authenticate', (req, res) => {
-    console.log('authenticating')
     let data = req.body
     //console.log(data)
     let username = data.username
@@ -524,16 +520,19 @@ function setUpPlayerEvents(player, game) {
         sendToAllInGame(game, {playerId: playerToUser.getForward(player).id, newLocation: location}, 'locationChanged')
     })
 
-    player.on('tagged', (taggingPlayer) => {
+    player.on('tagged', (playerBeingTagged) => {
         let data = {
-            playerId: playerToUser.getForward(player).id, 
-            taggingPlayerId: playerToUser.getForward(taggingPlayer).id
+            playerId: playerToUser.getForward(playerBeingTagged).id, 
+            taggingPlayerId: playerToUser.getForward(player).id
         }
         sendToAllInGame(game, data, 'playerTagged')
     })
 
     player.on('untagged', () => {
-        sendToAllInGame(game, null, 'untagged')
+        let data = {
+            playerId : playerToUser.getForward(player).id
+        }
+        sendToAllInGame(game, data, 'untagged')
     })
 
     player.on('droppedFlags', (flagsDropped) => {
@@ -547,7 +546,6 @@ function setUpPlayerEvents(player, game) {
     })
 
     player.on('pickedUpFlag', (flag) => {
-        console.log('calling picked up flag')
         let data = {
             playerId: playerToUser.getForward(player).id,
             flagId: flags.getForward(flag)
@@ -556,35 +554,7 @@ function setUpPlayerEvents(player, game) {
     })
 }
 
-function setUpFlagEvents(flag, game) {
-    
-}
-
 function initEvents(game) {
-    game.on('locationUpdate', function(player) {
-        /*let players = game.getPlayers();
-        let data = {
-            playerId : '' + playerToUser.getForward(player).id, 
-            newLocation: location
-        };
-        for (player of players) {
-            let sendKey = playerToUser(player).connectionKey
-            wss.send('locationUpdate', data, sendKey);
-         }*/
-    })
-
-    game.on('playerTagged', function(playerTagged, taggingPlayer) {
-        /*let players = game.getPlayers();
-        let data = {
-            playerId: '' + playerToUser(playerTagged).id,
-            taggingPlayerId: '' + playerToUser(taggingPlayer).id
-        }
-        for (player of players) {
-            let sendKey = playerToUser.getForward(player).connectionKey
-            wss.send('playerTagged', data, sendKey)
-        }*/
-    })
-
     game.on('playerAdded', (player) => {
         sendToAllInGame(game, createRepPlayer(player), 'playerAdded')
     })
@@ -619,17 +589,6 @@ function initEvents(game) {
         }*/
     })
 
-    game.on('playerJoinedTeam', function(player, team) {
-        /*let teamAndPlayer = {
-            id : playerId,
-            teamId : teams.getForward(team)
-        }
-        for (player of game.getPlayers()) {
-            let sendKey = playerToUser.getForward(player).connectionKey
-            wss.send('playerJoinedTeam', teamAndPlayer, sendKey);
-        }*/
-    })
-
     game.on('teamsCreated', (team1, team2) => {
         sendToAllInGame(game, {team1: team1, team2: team2}, 'teamsCreated')
     })
@@ -638,21 +597,7 @@ function initEvents(game) {
         sendToAllInGame(game, {gameState: gameState}, 'gameStateChanged')
     })
 
-    game.on('flagPickedUp', function(flag, player) {
-        /*let players = game.getPlayers()
-        let flagIdAndPlayerId = {
-            flagId: flags.getForward(flag),
-            playerId: playerToUser.getForward(player).id
-        }
-        for (key in players) {
-            let sendKey = playerToUser.getForward(player).connectionKey
-            wss.send('flagPickedUp', flagIdAndPlayerId, sendKey)
-        }*/
-    })
-
     game.on('gameOver', (winningTeam) => {
-        console.log('game over')
-        console.log(winningTeam)
         sendToAllInGame(game, {winningTeam: createRepTeam(winningTeam)}, 'gameOver')
     })
 
@@ -662,23 +607,9 @@ function initEvents(game) {
         }
         sendToAllInGame(game, dataToSend, 'boundaryCreated')
     })
-
-    game.on('flagDropped', function(flag, player) {
-        /*let dataToSend = {
-            playerId: playerToUser.getForward(player).id,
-            flagId: flags.getForward(flag),
-            location: flag.getLocation()
-        }
-        for (player in game.getPlayers()) {
-            let sendKey = playerToUse.get(player).connectionKey
-            wss.send('flagDropped', dataToSend, sendKey)
-        }*/
-    })
 }
 
 function createRepPlayer(player) {
-    console.log('THIS IS THE PLAYER THAT I NEED')
-    console.log(player)
     let flag = player.flagHeld
     let flagId = null
     if (flag != undefined) {
@@ -690,7 +621,8 @@ function createRepPlayer(player) {
         flagHeld : flagId,
         location : player.getLocation(),
         leader : playerToUser.getForward(player).isLeader,
-        isTagged : player.tagged()
+        isTagged : player.tagged(),
+        team : player.getTeam()
     }
 }
 
@@ -716,20 +648,14 @@ function createRepGameBoundary(boundary) {
 }
 
 function createRepTeam(team) {
-    console.log('Create rep team is BEING CALLED')
-    console.log(team.getPlayers())
     let playerIds = []
     let flagIds = []
     team.getPlayers().forEach((player) => {
-        console.log('THIS IS A PLAYER ID')
-        console.log(playerToUser.getForward(player).id)
         playerIds.push(playerToUser.getForward(player).id)
     })
     team.getFlags().forEach((flag) => {
         flagIds.push(flags.getForward(flag))
     })
-    console.log('This is the team id')
-    console.log(teams.getForward(team))
     return {
         players: playerIds,
         flags: flagIds,

@@ -18,7 +18,6 @@ module.exports = class WSRequestResponse extends Events.EventEmitter {
                     ws.send(JSON.stringify({'newConnectionId': number}))
                     this.emit('connection', '' + number, req.headers)
                 } else {
-                    console.log('going to close the connection')
                     ws.close()
                 }
             } else {
@@ -61,11 +60,8 @@ class Response {
 }
 
 function setupWebsocket(ws, number) {
-    console.log('called setupWebsocket')
     ws.on('message', (message) => {
-        console.log('message reciveved')
         let messageObject = JSON.parse(message)
-        console.log(messageObject)
         if (!messageIsValid(messageObject)) {
             let messageToSend = JSON.stringify(new Message(null, messageObject.key, null, new ServerError(200, 'Bad Mesaage')))
             ws.send(messageToSend)
@@ -85,7 +81,6 @@ function setupWebsocket(ws, number) {
     })
 
     ws.on('close', (event) => {
-        console.log('websocket closed')
         this._connections.delete(number)
         this.emit('close', number)
     })
@@ -93,8 +88,6 @@ function setupWebsocket(ws, number) {
 
 
 function handleReconnection(reconnectId, newId, ws) {
-    console.log('handle recconetId')
-    console.log(reconnectId)
     if (this._connections.get(reconnectId) !== undefined) {
         this._connections.get(reconnectId).terminate()
         this._connections.delete(reconnectId)
